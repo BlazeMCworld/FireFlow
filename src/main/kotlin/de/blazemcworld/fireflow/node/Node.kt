@@ -16,7 +16,7 @@ abstract class GenericNode(title: String, material: Material) : Node(title, mate
     abstract fun create(generics: Map<String, ValueType<*>>): BaseNode
 
     val inputs = mutableListOf<IO>()
-    val outputs = mutableListOf<IO>()
+    private val outputs = mutableListOf<IO>()
     val generics = mutableMapOf<String, List<SomeType>>()
 
     override fun menuItem() = ItemStack.builder(material)
@@ -43,11 +43,11 @@ abstract class GenericNode(title: String, material: Material) : Node(title, mate
         .hideExtraTooltip()
         .build()
 
-    fun <T> input(name: String, type: ValueType<T>) {
+    fun <T : Any> input(name: String, type: ValueType<T>) {
         inputs += TypedIO(name, type)
     }
 
-    fun <T> output(name: String, type: ValueType<T>) {
+    fun <T : Any> output(name: String, type: ValueType<T>) {
         outputs += TypedIO(name, type)
     }
 
@@ -65,7 +65,7 @@ abstract class GenericNode(title: String, material: Material) : Node(title, mate
 
     open class IO(val name: String)
     class GenericIO(name: String) : IO(name)
-    class TypedIO<T>(name: String, val type: ValueType<T>): IO(name)
+    class TypedIO<T : Any>(name: String, val type: ValueType<T>): IO(name)
 }
 
 abstract class BaseNode(title: String, material: Material) : Node(title, material) {
@@ -80,14 +80,12 @@ abstract class BaseNode(title: String, material: Material) : Node(title, materia
         }
     }
 
-    fun <T> input(name: String, type: ValueType<T>, default: T? = null, optional: Boolean = false): Input<T> {
-        if (type.insetable) {
-            return Input(name, type, default, optional).also { inputs += it }
-        }
+    fun <T : Any> input(name: String, type: ValueType<T>, default: T? = null, optional: Boolean = false): Input<T> {
+        if (type.insetable) return Input(name, type, default, optional).also { inputs += it }
         return Input(name, type, optional=optional).also { inputs += it }
     }
 
-    fun <T> output(name: String, type: ValueType<T>) = Output(name, type).also { outputs += it }
+    fun <T : Any> output(name: String, type: ValueType<T>) = Output(name, type).also { outputs += it }
 
     override fun menuItem() = ItemStack.builder(material)
         .customName(Component.text(title).color(NamedTextColor.AQUA).decoration(TextDecoration.ITALIC, false)).also {
@@ -119,22 +117,17 @@ abstract class BaseNode(title: String, material: Material) : Node(title, materia
         val c = NodeComponent(this)
         c.title.text = Component.text(title)
         for (i in inputs) {
-            if (i.type.insetable) {
-                c.inputs.add(IOComponent.InsetInput(i, c))
-            } else {
-                c.inputs.add(IOComponent.Input(i, c))
-            }
+            if (i.type.insetable) c.inputs.add(IOComponent.InsetInput(i, c))
+            else c.inputs.add(IOComponent.Input(i, c))
         }
-        for (o in outputs) {
-            c.outputs.add(IOComponent.Output(o, c))
-        }
+        for (o in outputs) c.outputs.add(IOComponent.Output(o, c))
         return c
     }
 
-    interface IO<T> {
+    interface IO<T : Any> {
         val name: String
         val type: ValueType<T>
     }
-    open class Input<T>(override val name: String, override val type: ValueType<T>, val default: T? = null, val optional: Boolean = false): IO<T>
-    open class Output<T>(override val name: String, override val type: ValueType<T>): IO<T>
+    open class Input<T : Any>(override val name: String, override val type: ValueType<T>, val default: T? = null, val optional: Boolean = false): IO<T>
+    open class Output<T : Any>(override val name: String, override val type: ValueType<T>): IO<T>
 }
