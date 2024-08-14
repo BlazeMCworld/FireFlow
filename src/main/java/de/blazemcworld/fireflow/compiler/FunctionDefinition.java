@@ -19,8 +19,8 @@ import java.util.WeakHashMap;
 
 public final class FunctionDefinition {
     public final String fnName;
-    public final Node fnInputsNode;
-    public final Node fnOutputsNode;
+    public final DefinitionNode fnInputsNode;
+    public final DefinitionNode fnOutputsNode;
     public final List<NodeInput> fnOutputs;
     public final List<NodeOutput> fnInputs;
     private final WeakHashMap<Call, Integer> calls = new WeakHashMap<>();
@@ -132,23 +132,21 @@ public final class FunctionDefinition {
             });
         }
 
-        fnInputsNode = new DefinitionNode(fnName + " Inputs");
-        fnOutputsNode = new DefinitionNode(fnName + " Outputs");
+        fnInputsNode = new DefinitionNode(true);
+        fnOutputsNode = new DefinitionNode(false);
         fnInputsNode.outputs.addAll(fnInputs);
         fnOutputsNode.inputs.addAll(fnOutputs);
     }
 
-    private FunctionDefinition fnDefinitionThis() {
-        return this;
-    }
-
     public class DefinitionNode extends Node {
-        public DefinitionNode(String name) {
-            super(name);
+        public final boolean isInputs;
+        public DefinitionNode(boolean isInputs) {
+            super(fnName + (isInputs ? " Inputs" : " Outputs"));
+            this.isInputs = isInputs;
         }
 
         public FunctionDefinition getDefinition() {
-            return fnDefinitionThis();
+            return FunctionDefinition.this;
         }
 
         @Override
@@ -190,7 +188,7 @@ public final class FunctionDefinition {
         }
 
         public FunctionDefinition getDefinition() {
-            return fnDefinitionThis();
+            return FunctionDefinition.this;
         }
     }
 

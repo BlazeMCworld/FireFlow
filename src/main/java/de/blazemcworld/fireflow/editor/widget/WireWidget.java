@@ -6,7 +6,7 @@ import de.blazemcworld.fireflow.editor.Widget;
 import de.blazemcworld.fireflow.value.SignalValue;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
-import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.Instance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class WireWidget implements Widget {
     public final List<Vec> relays;
     private final List<LineWidget> lines = new ArrayList<>();
 
-    public WireWidget(InstanceContainer inst, NodeInputWidget input, NodeOutputWidget output, List<Vec> relays) {
+    public WireWidget(Instance inst, NodeInputWidget input, NodeOutputWidget output, List<Vec> relays) {
         this.input = input;
         this.output = output;
         this.relays = relays;

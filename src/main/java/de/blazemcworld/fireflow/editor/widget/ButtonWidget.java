@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.editor.Widget;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
-import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
@@ -15,7 +15,7 @@ public class ButtonWidget extends TextWidget {
     public @Nullable BiConsumer<Player, CodeEditor> leftClick;
     public @Nullable BiConsumer<Player, CodeEditor> rightClick;
 
-    public ButtonWidget(Vec position, InstanceContainer inst, Component text) {
+    public ButtonWidget(Vec position, Instance inst, Component text) {
         super(position, inst, text);
     }
 

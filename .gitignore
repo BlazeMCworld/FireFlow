@@ -38,6 +38,10 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+### IDX ###
+.idx/
+start.sh
+
 ### FireFlow ###
 logs
 server

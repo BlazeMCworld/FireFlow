@@ -106,8 +106,8 @@ public class DictionaryValue implements Value {
         return List.of(keyType, valueType);
     }
 
-    public List<List<Value>> possibleGenerics() {
-        return List.of(AllValues.dataOnly, AllValues.dataOnly);
+    public List<GenericParam> possibleGenerics() {
+        return List.of(new GenericParam("Key Type", AllValues.dataOnly), new GenericParam("Value Type", AllValues.dataOnly));
     }
 
 }

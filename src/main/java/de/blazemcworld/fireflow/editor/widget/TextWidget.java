@@ -9,16 +9,16 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
-import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.Instance;
 
 public class TextWidget implements Widget {
 
-    private final InstanceContainer inst;
+    private final Instance inst;
     private final Entity display = new Entity(EntityType.TEXT_DISPLAY);
     private final TextDisplayMeta meta = (TextDisplayMeta) display.getEntityMeta();
     public Vec position;
 
-    public TextWidget(Vec position, InstanceContainer inst, Component text) {
+    public TextWidget(Vec position, Instance inst, Component text) {
         this.inst = inst;
         this.position = position;
         meta.setText(text);

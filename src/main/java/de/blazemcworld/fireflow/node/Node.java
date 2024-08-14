@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.node;
 
 import de.blazemcworld.fireflow.compiler.CompiledNode;
 import de.blazemcworld.fireflow.compiler.NodeCompiler;
+import de.blazemcworld.fireflow.compiler.StructDefinition;
 import de.blazemcworld.fireflow.compiler.instruction.Instruction;
 import de.blazemcworld.fireflow.compiler.instruction.MultiInstruction;
 import de.blazemcworld.fireflow.compiler.instruction.RawInstruction;
@@ -75,11 +76,11 @@ public abstract class Node {
         }
     }
 
-    public Node readData(NetworkBuffer buffer) {
+    public Node readData(NetworkBuffer buffer, List<StructDefinition> structs) {
         int genericsSize = buffer.read(NetworkBuffer.INT);
         List<Value> generics = new ArrayList<>();
         for (int i = 0; i < genericsSize; i++) {
-            generics.add(AllValues.readValue(buffer));
+            generics.add(AllValues.readValue(buffer, structs));
         }
 
         Node target = fromGenerics(generics);
@@ -97,7 +98,7 @@ public abstract class Node {
         return List.of();
     }
 
-    public List<List<Value>> possibleGenerics() {
+    public List<Value.GenericParam> possibleGenerics(List<StructDefinition> structs) {
         return List.of();
     }
 

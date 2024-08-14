@@ -1,6 +1,7 @@
 package de.blazemcworld.fireflow.node.impl.list;
 
 import de.blazemcworld.fireflow.compiler.CompiledNode;
+import de.blazemcworld.fireflow.compiler.StructDefinition;
 import de.blazemcworld.fireflow.node.Node;
 import de.blazemcworld.fireflow.node.annotation.*;
 import de.blazemcworld.fireflow.value.AllValues;
@@ -80,7 +81,7 @@ public class ForeachNode extends Node {
     }
 
     @Override
-    public List<List<Value>> possibleGenerics() {
-        return List.of(AllValues.dataOnly);
+    public List<Value.GenericParam> possibleGenerics(List<StructDefinition> structs) {
+        return List.of(new Value.GenericParam("List Type", AllValues.dataOnly(structs)));
     }
 }

@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.node.impl.dictionary;
 
+import de.blazemcworld.fireflow.compiler.StructDefinition;
 import de.blazemcworld.fireflow.node.Node;
 import de.blazemcworld.fireflow.node.annotation.FlowValueInput;
 import de.blazemcworld.fireflow.node.annotation.FlowValueOutput;
@@ -58,8 +59,11 @@ public class DictionaryGetNode extends Node {
     }
 
     @Override
-    public List<List<Value>> possibleGenerics() {
-        return List.of(AllValues.dataOnly, AllValues.dataOnly);
+    public List<Value.GenericParam> possibleGenerics(List<StructDefinition> structs) {
+        return List.of(
+                new Value.GenericParam("Key Type", AllValues.dataOnly(structs)),
+                new Value.GenericParam("Value Type", AllValues.dataOnly(structs))
+        );
     }
 
 }

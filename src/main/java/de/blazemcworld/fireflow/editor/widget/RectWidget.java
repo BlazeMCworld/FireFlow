@@ -4,7 +4,7 @@ import de.blazemcworld.fireflow.editor.Bounds;
 import de.blazemcworld.fireflow.editor.Widget;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.Instance;
 
 public class RectWidget implements Widget  {
 
@@ -13,7 +13,7 @@ public class RectWidget implements Widget  {
     private final LineWidget c;
     private final LineWidget d;
 
-    public RectWidget(InstanceContainer inst, Bounds area) {
+    public RectWidget(Instance inst, Bounds area) {
         a = new LineWidget(inst);
         b = new LineWidget(inst);
         c = new LineWidget(inst);

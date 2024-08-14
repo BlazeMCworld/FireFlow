@@ -7,10 +7,13 @@ import de.blazemcworld.fireflow.editor.EditorAction;
 import de.blazemcworld.fireflow.editor.Widget;
 import de.blazemcworld.fireflow.editor.widget.*;
 import de.blazemcworld.fireflow.node.ExtractionNode;
-import de.blazemcworld.fireflow.node.NodeCategory;
 import de.blazemcworld.fireflow.node.NodeInput;
 import de.blazemcworld.fireflow.node.NodeOutput;
+import de.blazemcworld.fireflow.node.NodeCategory;
 import de.blazemcworld.fireflow.value.SignalValue;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 
@@ -106,10 +109,10 @@ public class CreateWireAction implements EditorAction {
     @Override
     public void swapItem(Vec cursor) {
         if (nodeOutput == null || nodeOutput.type == SignalValue.INSTANCE) return;
-        NodeCategory category = NodeCategory.EXTRACTIONS.get(nodeOutput.type);
+        NodeCategory category = NodeCategory.getExtractions(nodeOutput.type);
         if (category == null) return;
 
-        NodeCategoryWidget selector = new NodeCategoryWidget(cursor, editor.inst, category);
+        CategoryWidget selector = new CategoryWidget(cursor, editor, category, Component.text("» " + category.name() + ":", NamedTextColor.YELLOW, TextDecoration.ITALIC));
         editor.widgets.add(selector);
         editor.setAction(player, null);
 

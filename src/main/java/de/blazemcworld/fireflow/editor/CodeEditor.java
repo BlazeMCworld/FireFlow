@@ -2,8 +2,9 @@ package de.blazemcworld.fireflow.editor;
 
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.compiler.FunctionDefinition;
+import de.blazemcworld.fireflow.compiler.StructDefinition;
 import de.blazemcworld.fireflow.editor.action.MoveSelectionAction;
-import de.blazemcworld.fireflow.editor.widget.NodeCategoryWidget;
+import de.blazemcworld.fireflow.editor.widget.CreateWidget;
 import de.blazemcworld.fireflow.editor.widget.NodeInputWidget;
 import de.blazemcworld.fireflow.editor.widget.NodeWidget;
 import de.blazemcworld.fireflow.editor.widget.WireWidget;
@@ -13,6 +14,7 @@ import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.util.PlayerExitInstanceEvent;
 import de.blazemcworld.fireflow.value.AllValues;
 import de.blazemcworld.fireflow.value.SignalValue;
+import de.blazemcworld.fireflow.value.StructValue;
 import de.blazemcworld.fireflow.value.Value;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -24,7 +26,7 @@ import net.minestom.server.event.EventNode;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.trait.InstanceEvent;
-import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.network.NetworkBuffer;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,11 +41,12 @@ import java.util.function.Supplier;
 
 public class CodeEditor {
 
-    public final InstanceContainer inst;
+    public final Instance inst;
     public final List<Widget> widgets = new ArrayList<>();
     private final HashMap<Player, EditorAction> actions = new HashMap<>();
     private final Path filePath;
     public final List<FunctionDefinition> functions = new ArrayList<>();
+    public final List<StructDefinition> structs = new ArrayList<>();
 
     public CodeEditor(Space space) {
         filePath = Path.of("spaces").resolve(String.valueOf(space.info.id)).resolve("code.bin");
@@ -100,7 +103,7 @@ public class CodeEditor {
             }
             Widget selected = getWidget(event.getPlayer(), cursor);
             if (selected == null) {
-                widgets.add(new NodeCategoryWidget(cursor, inst, NodeCategory.ROOT));
+                widgets.add(new CreateWidget(cursor, inst));
                 return;
             }
             selected.swapItem(cursor, event.getPlayer(), this);
@@ -179,7 +182,17 @@ public class CodeEditor {
 
     public void save() {
         NetworkBuffer buffer = new NetworkBuffer();
-        buffer.write(NetworkBuffer.INT, 1); // version
+        buffer.write(NetworkBuffer.INT, 2); // version
+
+        buffer.write(NetworkBuffer.INT, structs.size());
+        for (StructDefinition st : structs) {
+            buffer.write(NetworkBuffer.STRING, st.stName);
+            buffer.write(NetworkBuffer.BYTE, (byte) st.type.fields.size());
+            for (StructValue.Field field : st.type.fields) {
+                buffer.write(NetworkBuffer.STRING, field.name());
+                AllValues.writeValue(buffer, field.type());
+            }
+        }
 
         buffer.write(NetworkBuffer.INT, functions.size());
         for (FunctionDefinition fn : functions) {
@@ -245,9 +258,12 @@ public class CodeEditor {
         widgets.clear();
 
         NetworkBuffer buffer;
+        int length;
         try {
             if (!Files.exists(filePath)) return;
-            buffer = new NetworkBuffer(ByteBuffer.wrap(Files.readAllBytes(filePath)));
+            ByteBuffer nioBuffer = ByteBuffer.wrap(Files.readAllBytes(filePath));
+            buffer = new NetworkBuffer(nioBuffer);
+            length = nioBuffer.capacity();
         } catch (IOException err) {
             FireFlow.LOGGER.error("Failed to read code file!", err);
             return;
@@ -255,30 +271,41 @@ public class CodeEditor {
 
         int version = buffer.read(NetworkBuffer.INT);
 
-        if (version >= 1) {
-            functions.clear();
-            int fnCount = buffer.read(NetworkBuffer.INT);
-            for (int fnId = 0; fnId < fnCount; fnId++) {
-                String name = buffer.read(NetworkBuffer.STRING);
+        for (CodeMigration m : CodeMigration.values()) buffer = m.apply(version, length, buffer);
 
-                List<NodeOutput> inputs = new ArrayList<>();
-                int count = buffer.read(NetworkBuffer.INT);
-                for (int each = 0; each < count; each++) {
-                    String ioName = buffer.read(NetworkBuffer.STRING);
-                    Value type = AllValues.readValue(buffer);
-                    inputs.add(new NodeOutput(ioName, type));
-                }
+        structs.clear();
+        int stCount = buffer.read(NetworkBuffer.INT);
+        for (int stId = 0; stId < stCount; stId++) {
+            String name = buffer.read(NetworkBuffer.STRING);
+            byte len = buffer.read(NetworkBuffer.BYTE);
+            ArrayList<StructValue.Field> fields = new ArrayList<>(len);
+            for (byte i = 0; i < len; i++) fields.add(new StructValue.Field(buffer.read(NetworkBuffer.STRING), AllValues.readValue(buffer, List.of())));
+            StructValue type = new StructValue(name, fields);
+            structs.add(new StructDefinition(type));
+        }
 
-                List<NodeInput> outputs = new ArrayList<>();
-                count = buffer.read(NetworkBuffer.INT);
-                for (int each = 0; each < count; each++) {
-                    String ioName = buffer.read(NetworkBuffer.STRING);
-                    Value type = AllValues.readValue(buffer);
-                    outputs.add(new NodeInput(ioName, type));
-                }
+        functions.clear();
+        int fnCount = buffer.read(NetworkBuffer.INT);
+        for (int fnId = 0; fnId < fnCount; fnId++) {
+            String name = buffer.read(NetworkBuffer.STRING);
 
-                functions.add(new FunctionDefinition(name, inputs, outputs));
+            int count = buffer.read(NetworkBuffer.INT);
+            List<NodeOutput> inputs = new ArrayList<>(count);
+            for (int each = 0; each < count; each++) {
+                String ioName = buffer.read(NetworkBuffer.STRING);
+                Value type = AllValues.readValue(buffer, structs);
+                inputs.add(new NodeOutput(ioName, type));
             }
+
+            count = buffer.read(NetworkBuffer.INT);
+            List<NodeInput> outputs = new ArrayList<>(count);
+            for (int each = 0; each < count; each++) {
+                String ioName = buffer.read(NetworkBuffer.STRING);
+                Value type = AllValues.readValue(buffer, structs);
+                outputs.add(new NodeInput(ioName, type));
+            }
+
+            functions.add(new FunctionDefinition(name, inputs, outputs));
         }
 
         List<Runnable> connectNodes = new ArrayList<>();
@@ -311,7 +338,7 @@ public class CodeEditor {
                 continue;
             }
             Node node = supplier.get();
-            node = node.readData(buffer);
+            node = node.readData(buffer, structs);
             double x = buffer.read(NetworkBuffer.DOUBLE);
             double y = buffer.read(NetworkBuffer.DOUBLE);
 
@@ -375,51 +402,88 @@ public class CodeEditor {
         return list;
     }
 
-    public void redefine(FunctionDefinition prev, FunctionDefinition next) {
+    public void redefineFunc(FunctionDefinition prev, FunctionDefinition next) {
         if (!functions.contains(prev)) return;
         functions.remove(prev);
         functions.add(next);
-        List<Widget> removeMe = new ArrayList<>();
-        List<Widget> addMe = new ArrayList<>();
+        ArrayList<Widget> addMe = new ArrayList<>();
+        ArrayList<Widget> removeMe = new ArrayList<>();
         for (Widget w : widgets) {
-            if (w instanceof NodeWidget n) {
-                if (n.node instanceof FunctionDefinition.DefinitionNode d) {
-                    if (d.getDefinition() != prev) continue;
-                    if (n.node == prev.fnInputsNode) {
-                        addMe.add(new NodeWidget(n.origin, inst, next.fnInputsNode));
-                    }
-                    if (n.node == prev.fnOutputsNode) {
-                        addMe.add(new NodeWidget(n.origin, inst, next.fnOutputsNode));
-                    }
-                    removeMe.add(n);
+            if (w instanceof NodeWidget n && n.node instanceof FunctionDefinition.DefinitionNode d) {
+                if (d.getDefinition() != prev) continue;
+                if (n.node == prev.fnInputsNode) {
+                    addMe.add(new NodeWidget(n.origin, inst, next.fnInputsNode));
                 }
+                if (n.node == prev.fnOutputsNode) {
+                    addMe.add(new NodeWidget(n.origin, inst, next.fnOutputsNode));
+                }
+                removeMe.add(w);
             }
         }
         for (Widget w : removeMe) remove(w);
         widgets.addAll(addMe);
     }
 
-    public void remove(FunctionDefinition fn) {
+    public void redefineStruct(StructDefinition prev, StructDefinition next) {
+        if (!structs.contains(prev)) return;
+        structs.remove(prev);
+        structs.add(next);
+        Widget addMe = null;
+        Widget removeMe = null;
+        for (Widget w : widgets) {
+            if (w instanceof NodeWidget n && n.node instanceof StructDefinition.InitializationNode i) {
+                if (i.getDefinition() == prev) {
+                    if (n.node == prev.initNode) addMe = new NodeWidget(n.origin, inst, next.initNode);
+                    removeMe = n;
+                    break;
+                }
+            }
+        }
+        if (removeMe != null) remove(removeMe);
+        if (addMe != null) widgets.add(addMe);
+    }
+
+    public void removeFunc(FunctionDefinition fn) {
         if (!functions.contains(fn)) return;
         functions.remove(fn);
         List<Widget> removeMe = new ArrayList<>();
         for (Widget w : widgets) {
-            if (w instanceof NodeWidget n) {
-                if (n.node instanceof FunctionDefinition.DefinitionNode d) {
-                    if (d.getDefinition() != fn) continue;
-                    removeMe.add(n);
-                }
+            if (w instanceof NodeWidget n && n.node instanceof FunctionDefinition.DefinitionNode d) {
+                if (d.getDefinition() != fn) continue;
+                removeMe.add(n);
             }
         }
         for (Widget w : removeMe) remove(w);
     }
 
-    public boolean inUse(FunctionDefinition check) {
+    public void removeStruct(StructDefinition st) {
+        if (!structs.contains(st)) return;
+        structs.remove(st);
+        Widget removeMe = null;
         for (Widget w : widgets) {
-            if (w instanceof NodeWidget n) {
-                if (n.node instanceof FunctionDefinition.Call c) {
-                    if (c.getDefinition() == check) return true;
+            if (w instanceof NodeWidget n && n.node instanceof StructDefinition.InitializationNode i) {
+                if (i.getDefinition() == st) {
+                    removeMe = n;
+                    break;
                 }
+            }
+        }
+        if (removeMe != null) remove(removeMe);
+    }
+
+    public boolean funcInUse(FunctionDefinition check) {
+        for (Widget w : widgets) {
+            if (w instanceof NodeWidget n && n.node instanceof FunctionDefinition.Call c) {
+                if (c.getDefinition() == check) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean structInUse(StructDefinition check) {
+        for (Widget w : widgets) {
+            if (w instanceof NodeWidget n && n.node instanceof StructDefinition.Create c) {
+                if (c.getDefinition() == check) return true;
             }
         }
         return false;

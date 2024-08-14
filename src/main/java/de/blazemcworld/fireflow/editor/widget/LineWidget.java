@@ -8,18 +8,18 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
-import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.instance.Instance;
 
 public class LineWidget implements Widget {
 
-    private final InstanceContainer inst;
+    private final Instance inst;
     private final Entity display = new Entity(EntityType.TEXT_DISPLAY);
     private final TextDisplayMeta meta = (TextDisplayMeta) display.getEntityMeta();
     public TextColor color = NamedTextColor.WHITE;
     public Vec from = Vec.ZERO;
     public Vec to = Vec.ZERO;
 
-    public LineWidget(InstanceContainer inst) {
+    public LineWidget(Instance inst) {
         this.inst = inst;
         meta.setText(Component.text("-").color(color));
         meta.setBackgroundColor(0);

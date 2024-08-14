@@ -4,50 +4,48 @@ import de.blazemcworld.fireflow.compiler.NodeCompiler;
 import de.blazemcworld.fireflow.compiler.instruction.Instruction;
 import de.blazemcworld.fireflow.compiler.instruction.MultiInstruction;
 import de.blazemcworld.fireflow.compiler.instruction.RawInstruction;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.network.NetworkBuffer;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.util.List;
-import java.util.WeakHashMap;
+import java.util.ArrayList;
 
-public class ListValue implements Value {
+public class StructValue implements Value {
 
-    private static final WeakHashMap<Value, ListValue> cache = new WeakHashMap<>();
-    private final Value type;
+    public final static StructValue UNKNOWN = new StructValue("UNKNOWN", new ArrayList<>());
 
-    private ListValue(Value type) {
-        this.type = type;
-    }
-
-    public static ListValue get(Value type) {
-        return cache.computeIfAbsent(type, ListValue::new);
+    public final ArrayList<Field> fields;
+    private final String name;
+    public StructValue(String name, ArrayList<Field> fields) {
+        if (fields.size() >= Byte.MAX_VALUE) throw new RuntimeException("Too many fields for struct " + name +"!");
+        this.name = name;
+        this.fields = fields;
     }
 
     @Override
     public String getBaseName() {
-        return "List";
+        return name + " Struct";
     }
 
     @Override
     public TextColor getColor() {
-        return type.getColor();
+        return NamedTextColor.GOLD;
     }
 
     @Override
     public Type getType() {
-        return Type.getType(List.class);
+        return Type.getType("[Ljava/lang/Object;");
     }
 
     @Override
     public InsnList compile(NodeCompiler ctx, Object inset) {
-        if (inset != null) throw new IllegalStateException("List values can not be inset!");
+        if (inset != null) throw new IllegalStateException("Struct values can't be inset!");
         InsnList out = new InsnList();
-        out.add(new TypeInsnNode(Opcodes.NEW, "java/util/ArrayList"));
-        out.add(new InsnNode(Opcodes.DUP));
-        out.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V", false));
+        out.add(new IntInsnNode(Opcodes.BIPUSH, fields.size()));
+        out.add(new TypeInsnNode(Opcodes.ANEWARRAY, "java/lang/Object"));
         return out;
     }
 
@@ -59,15 +57,14 @@ public class ListValue implements Value {
                 value,
                 new RawInstruction(getType(),
                         new InsnNode(Opcodes.DUP),
-                        new TypeInsnNode(Opcodes.INSTANCEOF, "java/util/List"),
+                        new TypeInsnNode(Opcodes.INSTANCEOF, "[Ljava/lang/Object;"),
                         new JumpInsnNode(Opcodes.IFGT, cast),
                         new InsnNode(Opcodes.POP),
-                        new TypeInsnNode(Opcodes.NEW, "java/util/ArrayList"),
-                        new InsnNode(Opcodes.DUP),
-                        new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V", false),
+                        new IntInsnNode(Opcodes.BIPUSH, fields.size()),
+                        new TypeInsnNode(Opcodes.ANEWARRAY, "java/lang/Object"),
                         new JumpInsnNode(Opcodes.GOTO, end),
                         cast,
-                        new TypeInsnNode(Opcodes.CHECKCAST, "java/util/List"),
+                        new TypeInsnNode(Opcodes.CHECKCAST, "[Ljava/lang/Object;"),
                         end
                 )
         );
@@ -85,23 +82,13 @@ public class ListValue implements Value {
 
     @Override
     public void writeInset(NetworkBuffer buffer, Object inset) {
-        throw new IllegalStateException("List values can not be inset!");
+        throw new IllegalStateException("Struct (" + name + ") values can not be inset!");
     }
 
     @Override
     public Object readInset(NetworkBuffer buffer) {
-        throw new IllegalStateException("List values can not be inset!");
+        throw new IllegalStateException("Struct (" + name + ") values can not be inset!");
     }
 
-    public Value fromGenerics(List<Value> generics) {
-        return ListValue.get(generics.getFirst());
-    }
-
-    public List<Value> toGenerics() {
-        return List.of(type);
-    }
-
-    public List<GenericParam> possibleGenerics() {
-        return List.of(new GenericParam("List Type", AllValues.dataOnly));
-    }
+    public record Field(String name, Value type) {}
 }

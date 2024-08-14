@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.node.impl.variable;
 
+import de.blazemcworld.fireflow.compiler.StructDefinition;
 import de.blazemcworld.fireflow.compiler.instruction.InstanceMethodInstruction;
 import de.blazemcworld.fireflow.compiler.instruction.MultiInstruction;
 import de.blazemcworld.fireflow.node.Node;
@@ -51,7 +52,7 @@ public class GetVariableNode extends Node {
     }
 
     @Override
-    public List<List<Value>> possibleGenerics() {
-        return List.of(AllValues.dataOnly);
+    public List<Value.GenericParam> possibleGenerics(List<StructDefinition> structs) {
+        return List.of(new Value.GenericParam("Variable Type", AllValues.dataOnly(structs)));
     }
 }

@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.node.impl.list;
 
+import de.blazemcworld.fireflow.compiler.StructDefinition;
 import de.blazemcworld.fireflow.node.Node;
 import de.blazemcworld.fireflow.node.annotation.FlowValueInput;
 import de.blazemcworld.fireflow.node.annotation.FlowValueOutput;
@@ -54,8 +55,7 @@ public class RandomListValueNode extends Node {
     }
 
     @Override
-    public List<List<Value>> possibleGenerics() {
-        return List.of(AllValues.dataOnly);
+    public List<Value.GenericParam> possibleGenerics(List<StructDefinition> structs) {
+        return List.of(new Value.GenericParam("List Type", AllValues.dataOnly(structs)));
     }
-
 }
