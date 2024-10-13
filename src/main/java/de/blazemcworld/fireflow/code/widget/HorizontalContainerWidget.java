@@ -70,4 +70,9 @@ public class HorizontalContainerWidget implements Widget {
         }
         return null;
     }
+
+    @Override
+    public List<Widget> getChildren() {
+        return widgets;
+    }
 }

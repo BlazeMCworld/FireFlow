@@ -5,6 +5,8 @@ import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.InstanceContainer;
 
+import java.util.List;
+
 public class BorderWidget implements Widget {
 
     private Vec pos = Vec.ZERO;
@@ -65,5 +67,10 @@ public class BorderWidget implements Widget {
         if (!inBounds(pos)) return null;
         if (inner.getWidget(pos) == null) return this;
         return inner.getWidget(pos);
+    }
+
+    @Override
+    public List<Widget> getChildren() {
+        return List.of(inner);
     }
 }

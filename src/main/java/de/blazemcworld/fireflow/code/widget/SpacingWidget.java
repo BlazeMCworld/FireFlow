@@ -4,6 +4,8 @@ import de.blazemcworld.fireflow.code.Interaction;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.InstanceContainer;
 
+import java.util.List;
+
 public class SpacingWidget implements Widget {
 
     private Vec pos = Vec.ZERO;
@@ -43,6 +45,11 @@ public class SpacingWidget implements Widget {
 
     @Override
     public Widget getWidget(Vec pos) {
+        return null;
+    }
+
+    @Override
+    public List<Widget> getChildren() {
         return null;
     }
 }

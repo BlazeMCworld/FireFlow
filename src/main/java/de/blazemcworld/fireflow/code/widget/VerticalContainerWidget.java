@@ -82,4 +82,9 @@ public class VerticalContainerWidget implements Widget {
         }
         return null;
     }
+
+    @Override
+    public List<Widget> getChildren() {
+        return widgets;
+    }
 }

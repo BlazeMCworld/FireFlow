@@ -94,4 +94,9 @@ public class NodeIOWidget implements Widget {
     public void removed(WireWidget wire) {
 
     }
+
+    @Override
+    public List<Widget> getChildren() {
+        return null;
+    }
 }

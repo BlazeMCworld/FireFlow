@@ -9,6 +9,8 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
 import net.minestom.server.instance.InstanceContainer;
 
+import java.util.List;
+
 public class TextWidget implements Widget {
 
     private final Entity display = new Entity(EntityType.TEXT_DISPLAY);
@@ -60,5 +62,10 @@ public class TextWidget implements Widget {
     @Override
     public boolean interact(Interaction i) {
         return false;
+    }
+
+    @Override
+    public List<Widget> getChildren() {
+        return null;
     }
 }

@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.code.widget;
 
+import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.Interaction;
 import de.blazemcworld.fireflow.code.action.DragNodeAction;
 import de.blazemcworld.fireflow.code.node.Node;
@@ -7,6 +8,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.InstanceContainer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NodeWidget implements Widget {
 
@@ -67,17 +71,26 @@ public class NodeWidget implements Widget {
         root.remove();
     }
 
+    public void remove(CodeEditor editor) {
+        for (NodeIOWidget io : getIOWidgets()) {
+            for (WireWidget wire : new ArrayList<>(io.connections)) {
+                wire.removeConnection(editor);
+            }
+        }
+        root.remove();
+    }
+
     @Override
     public boolean interact(Interaction i) {
         if (!inBounds(i.pos())) return false;
         if (i.type() == Interaction.Type.LEFT_CLICK) {
-            remove();
+            remove(i.editor());
             i.editor().rootWidgets.remove(this);
             return true;
         }
         if (root.interact(i)) return true;
         if (i.type() == Interaction.Type.RIGHT_CLICK && i.editor().lockWidget(this, i.player())) {
-            i.editor().setAction(i.player(), new DragNodeAction(this, getPos().sub(i.pos())));
+            i.editor().setAction(i.player(), new DragNodeAction(this, getPos().sub(i.pos()), i.editor()));
             return true;
         }
         return false;
@@ -91,5 +104,32 @@ public class NodeWidget implements Widget {
     public Widget getWidget(Vec pos) {
         if (!inBounds(pos)) return null;
         return root.getWidget(pos);
+    }
+
+    @Override
+    public List<Widget> getChildren() {
+        return List.of(root);
+    }
+
+    public List<NodeIOWidget> getIOWidgets() {
+        List<NodeIOWidget> list = new ArrayList<>();
+        collectIOWidgets(root, list);
+        return list;
+    }
+
+    private void collectIOWidgets(Widget node, List<NodeIOWidget> list) {
+        if (node == null) {
+            return;
+        }
+
+        if (node instanceof NodeIOWidget) {
+            list.add((NodeIOWidget) node);
+            return;
+        }
+
+        if (node.getChildren() == null) return;
+        for (Widget widget : node.getChildren()) {
+            collectIOWidgets(widget, list);
+        }
     }
 }

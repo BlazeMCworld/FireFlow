@@ -314,4 +314,43 @@ public class WireWidget implements Widget {
     public WireType<?> type() {
         return type;
     }
+
+    @Override
+    public List<Widget> getChildren() {
+        return null;
+    }
+
+    public List<WireWidget> splitWire(CodeEditor editor, Vec pos) {
+        WireWidget w1;
+        if (this.previousWires.isEmpty()) w1 = new WireWidget(this.previousOutput, this.type(), pos);
+        else w1 = new WireWidget(this.previousWires, this.type(), pos);
+        for (WireWidget wireWidget1 : this.previousWires) {
+            wireWidget1.nextWires.remove(this);
+            wireWidget1.nextWires.add(w1);
+        }
+        if (this.previousOutput != null) {
+            w1.setPreviousOutput(this.previousOutput);
+            this.previousOutput.connections.remove(this);
+            this.previousOutput.connections.add(w1);
+        }
+        WireWidget w2 = new WireWidget(w1, this.type(), this.line.to);
+        w2.addNextWires(this.nextWires);
+        for (WireWidget nextWire : this.nextWires) {
+            nextWire.previousWires.remove(this);
+            nextWire.previousWires.add(w2);
+        }
+        if (this.nextInput != null) {
+            w2.setNextInput(this.nextInput);
+            this.nextInput.connections.remove(this);
+            this.nextInput.connections.add(w2);
+        }
+        w1.addNextWire(w2);
+        this.remove();
+        editor.rootWidgets.remove(this);
+        editor.rootWidgets.add(w1);
+        w1.update(editor.space.code);
+        editor.rootWidgets.add(w2);
+        w2.update(editor.space.code);
+        return List.of(w1, w2);
+    }
 }

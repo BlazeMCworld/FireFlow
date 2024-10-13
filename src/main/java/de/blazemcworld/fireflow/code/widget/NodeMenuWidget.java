@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.InstanceContainer;
 
+import java.util.List;
 import java.util.Set;
 
 public class NodeMenuWidget implements Widget {
@@ -82,5 +83,10 @@ public class NodeMenuWidget implements Widget {
     public Widget getWidget(Vec pos) {
         if (!inBounds(pos)) return null;
         return root.getWidget(pos);
+    }
+
+    @Override
+    public List<Widget> getChildren() {
+        return List.of(root);
     }
 }

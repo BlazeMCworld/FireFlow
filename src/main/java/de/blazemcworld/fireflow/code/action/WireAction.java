@@ -11,6 +11,7 @@ import net.minestom.server.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class WireAction implements Action {
     private WireWidget wire;
@@ -92,38 +93,9 @@ public class WireAction implements Action {
                         if (!needOutput) return;
                         if (wireWidget.getOutputs().contains(wire.getOutputs().getFirst())) return;
                     }
-                    WireWidget w1;
-                    if (wireWidget.previousWires.isEmpty()) w1 = new WireWidget(wireWidget.previousOutput, wireWidget.type(), wire.line.to);
-                    else w1 = new WireWidget(wireWidget.previousWires, wireWidget.type(), wire.line.to);
-                    for (WireWidget wireWidget1 : wireWidget.previousWires) {
-                        wireWidget1.nextWires.remove(wireWidget);
-                        wireWidget1.nextWires.add(w1);
-                    }
-                    if (needOutput) w1.addNextWire(wire);
-                    if (wireWidget.previousOutput != null) {
-                        w1.setPreviousOutput(wireWidget.previousOutput);
-                        wireWidget.previousOutput.connections.remove(wireWidget);
-                        wireWidget.previousOutput.connections.add(w1);
-                    }
-                    WireWidget w2 = new WireWidget(w1, wireWidget.type(), wireWidget.line.to);
-                    w2.addNextWires(wireWidget.nextWires);
-                    if (!needOutput) w2.addPreviousWire(wire);
-                    for (WireWidget nextWire : wireWidget.nextWires) {
-                        nextWire.previousWires.remove(wireWidget);
-                        nextWire.previousWires.add(w2);
-                    }
-                    if (wireWidget.nextInput != null) {
-                        w2.setNextInput(wireWidget.nextInput);
-                        wireWidget.nextInput.connections.remove(wireWidget);
-                        wireWidget.nextInput.connections.add(w2);
-                    }
-                    w1.addNextWire(w2);
-                    wireWidget.remove();
-                    i.editor().rootWidgets.remove(wireWidget);
-                    i.editor().rootWidgets.add(w1);
-                    w1.update(i.editor().space.code);
-                    i.editor().rootWidgets.add(w2);
-                    w2.update(i.editor().space.code);
+                    List<WireWidget> splitWires = wireWidget.splitWire(i.editor(), wire.line.to);
+                    if (needOutput) splitWires.getFirst().addNextWire(wire);
+                    else splitWires.getLast().addPreviousWire(wire);
                     if (wire.type() == SignalType.INSTANCE) {
                         NodeIOWidget input = wire.getInputs().getFirst();
                         for (WireWidget WW : new ArrayList<>(input.connections)) {
@@ -134,8 +106,8 @@ public class WireAction implements Action {
                             }
                         }
                     }
-                    if (!needOutput) wire.addNextWire(w2);
-                    else wire.addPreviousWire(w1);
+                    if (!needOutput) wire.addNextWire(splitWires.getLast());
+                    else wire.addPreviousWire(splitWires.getFirst());
                     wire.update(i.editor().space.code);
                     for (NodeIOWidget nodeIO : wire.getInputs()) {
                         nodeIO.connect(wire);

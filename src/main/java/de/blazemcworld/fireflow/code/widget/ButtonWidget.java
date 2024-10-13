@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.InstanceContainer;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class ButtonWidget implements Widget {
@@ -50,5 +51,10 @@ public class ButtonWidget implements Widget {
         if (!inBounds(i.pos())) return false;
         if (handler.apply(i)) return true;
         return looks.interact(i);
+    }
+
+    @Override
+    public List<Widget> getChildren() {
+        return List.of(looks);
     }
 }
