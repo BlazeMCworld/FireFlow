@@ -116,6 +116,11 @@ public class DragSelectionAction implements Action {
                 }
             }
             i.editor().stopAction(i.player());
+        } else if (i.type() == Interaction.Type.SWAP_HANDS) {
+            i.editor().stopAction(i.player());
+            List<Widget> widgets = new ArrayList<>(nodeWidgets.keySet());
+            widgets.addAll(wireWidgets.keySet());
+            i.editor().setAction(i.player(), new CopySelectionAction(widgets, i.pos(), i.editor()));
         }
     }
 

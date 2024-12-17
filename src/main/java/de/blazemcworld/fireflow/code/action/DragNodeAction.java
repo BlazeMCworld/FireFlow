@@ -51,14 +51,14 @@ public class DragNodeAction implements Action {
         for (NodeIOWidget IOWidget : iowidgets) {
             for (WireWidget wire : IOWidget.connections) {
                 if (IOWidget.isInput()) {
-                    wire.line.to = IOWidget.getPos().sub(1/8f-1/32f, 1/8f, 0);
-                    wire.line.from = new Vec(wire.line.from.x(), IOWidget.getPos().y()- 1/8f, wire.line.from.z());
-                    wire.previousWires.getFirst().line.to = new Vec(wire.previousWires.getFirst().line.to.x(), IOWidget.getPos().y()- 1/8f, wire.previousWires.getFirst().line.to.z());
+                    wire.line.to = IOWidget.getPos().sub(1 / 8f - 1 / 32f, 1 / 8f, 0);
+                    wire.line.from = new Vec(wire.line.from.x(), IOWidget.getPos().y() - 1 / 8f, wire.line.from.z());
+                    wire.previousWires.getFirst().line.to = new Vec(wire.previousWires.getFirst().line.to.x(), IOWidget.getPos().y() - 1 / 8f, wire.previousWires.getFirst().line.to.z());
                     wire.previousWires.getFirst().update(editor.space.code);
                 } else {
-                    wire.line.from = IOWidget.getPos().sub(IOWidget.getSize().sub(1/8f, 1/8f, 0));
-                    wire.line.to = new Vec(wire.line.to.x(), IOWidget.getPos().y()- 1/8f, wire.line.to.z());
-                    wire.nextWires.getFirst().line.from = new Vec(wire.nextWires.getFirst().line.from.x(), IOWidget.getPos().y()- 1/8f, wire.nextWires.getFirst().line.from.z());
+                    wire.line.from = IOWidget.getPos().sub(IOWidget.getSize().sub(1 / 8f, 1 / 8f, 0));
+                    wire.line.to = new Vec(wire.line.to.x(), IOWidget.getPos().y() - 1 / 8f, wire.line.to.z());
+                    wire.nextWires.getFirst().line.from = new Vec(wire.nextWires.getFirst().line.from.x(), IOWidget.getPos().y() - 1 / 8f, wire.nextWires.getFirst().line.from.z());
                     wire.nextWires.getFirst().update(editor.space.code);
                 }
                 wire.update(editor.space.code);
@@ -69,6 +69,20 @@ public class DragNodeAction implements Action {
     @Override
     public void interact(Interaction i) {
         if (i.type() == Interaction.Type.RIGHT_CLICK) i.editor().stopAction(i.player());
+        if (i.type() == Interaction.Type.SWAP_HANDS) {
+            NodeWidget copy = new NodeWidget(node.node.copy(), i.editor().space.editor);
+            copy.setPos(node.getPos());
+            int index = 0;
+            for (NodeIOWidget io : node.getIOWidgets()) {
+                NodeIOWidget newWidget = copy.getIOWidgets().get(index);
+                if (io.input != null && io.input.inset != null) newWidget.insetValue(io.input.inset, i.editor());
+                index++;
+            }
+            copy.update(i.editor().space.code);
+            i.editor().rootWidgets.add(copy);
+            i.editor().stopAction(i.player());
+            i.editor().setAction(i.player(), new DragNodeAction(copy, offset, i.editor()));
+        }
     }
 
     @Override

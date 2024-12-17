@@ -390,6 +390,40 @@ public class CodeEditor {
         refreshFunctionWidgets(function, adjusted);
     }
 
+    public List<Widget> getAllWidgetsBetween(Interaction i, Vec p1, Vec p2) {
+        List<NodeWidget> nodeWidgets = new ArrayList<>();
+        for (Widget w : new HashSet<>(i.editor().rootWidgets)) {
+            if (w instanceof NodeWidget nodeWidget) {
+                if (isVectorBetween(nodeWidget.getPos(), p1, p2) && isVectorBetween(nodeWidget.getPos().sub(nodeWidget.getSize()), p1, p2))
+                    nodeWidgets.add(nodeWidget);
+            }
+        }
+
+        List<Widget> widgets = new ArrayList<>(nodeWidgets);
+        for (NodeWidget w : nodeWidgets) {
+            for (NodeIOWidget io : w.getIOWidgets()) {
+                for (WireWidget wire : io.connections) {
+                    if (widgets.contains(wire)) continue;
+                    List<NodeWidget> inputs = wire.getInputs().stream().map(widget -> widget.parent).toList();
+                    List<NodeWidget> outputs = wire.getOutputs().stream().map(widget -> widget.parent).toList();
+                    if (new HashSet<>(widgets).containsAll(inputs) && new HashSet<>(widgets).containsAll(outputs)) {
+                        widgets.addAll(wire.getFullWire());
+                    }
+                }
+            }
+        }
+
+        return widgets;
+    }
+
+    private static boolean isVectorBetween(Vec v, Vec p1, Vec p2) {
+        Vec min = p1.min(p2);
+        Vec max = p1.max(p2);
+
+        return min.x() < v.x() && min.y() < v.y()
+                && max.x() > v.x() && max.y() > v.y();
+    }
+
     public void save() {
         JsonObject data = new JsonObject();
         JsonArray nodes = new JsonArray();

@@ -23,7 +23,7 @@ public class DeleteSelectAction extends SelectAction {
     public void interact(Interaction i) {
         if (i.type() == Interaction.Type.LEFT_CLICK) i.editor().stopAction(i.player());
         else if (i.type() == Interaction.Type.RIGHT_CLICK) {
-            List<Widget> widgets = getAllWidgets(i);
+            List<Widget> widgets = i.editor().getAllWidgetsBetween(i, box.pos, i.pos());
             widgets.sort((w1, w2) -> {
                 if (w1 instanceof WireWidget && w2 instanceof NodeWidget) return -1;
                 if (w2 instanceof WireWidget && w1 instanceof NodeWidget) return 1;
