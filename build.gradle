@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-version = project.mod_version
+//version = project.mod_version // set using cli with gradlew -Pversion=dev
 group = project.maven_group
 
 base {
