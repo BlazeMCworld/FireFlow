@@ -1,0 +1,26 @@
+{
+    "schemaVersion": 1,
+    "id": "fireflow",
+    "version": "${version}",
+    "name": "FireFlow",
+    "description": "",
+    "authors": [],
+    "contact": {},
+    "license": "GPL-3.0",
+    "icon": "assets/fireflow/icon.png",
+    "environment": "server",
+    "entrypoints": {
+        "main": [
+            "de.blazemcworld.fireflow.FireFlow"
+        ]
+    },
+    "mixins": [
+        "fireflow.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=${loader_version}",
+        "fabric": "*",
+        "minecraft": "${minecraft_version}"
+    },
+    "accessWidener": "fireflow.accesswidener"
+}

@@ -1,0 +1,24 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "de.blazemcworld.fireflow.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "mixins": [
+        "BlockItemMixin",
+        "CommandManagerMixin",
+        "EntityMixin",
+        "ExplosionImplMixin",
+        "MinecraftServerMixin",
+        "NetworkThreadUtilsMixin",
+        "PlayerEntityMixin",
+        "PlayerManagerMixin",
+        "ServerCrashSavePacketListenerMixin",
+        "ServerEntityManagerMixin",
+        "ServerPlayerEntityMixin",
+        "ServerPlayerInteractionManagerMixin",
+        "ServerPlayNetworkHandlerMixin"
+    ]
+}

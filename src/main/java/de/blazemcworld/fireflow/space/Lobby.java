@@ -1,0 +1,67 @@
+package de.blazemcworld.fireflow.space;
+
+import de.blazemcworld.fireflow.FireFlow;
+import de.blazemcworld.fireflow.inventory.ActiveSpacesMenu;
+import de.blazemcworld.fireflow.inventory.MySpacesMenu;
+import de.blazemcworld.fireflow.util.WorldUtil;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LoreComponent;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.List;
+
+public class Lobby {
+
+    public static ServerWorld world;
+
+    public static void init() {
+        world = FireFlow.server.getOverworld();
+
+        WorldUtil.setGameRules(world);
+        world.setSpawnPos(BlockPos.ORIGIN, 0f);
+    }
+
+    private static ItemStack mySpacesItem() {
+        ItemStack item = new ItemStack(Items.ENCHANTED_BOOK);
+        item.set(DataComponentTypes.ITEM_NAME, Text.literal("My Spaces").formatted(Formatting.LIGHT_PURPLE));
+        item.set(DataComponentTypes.LORE, new LoreComponent(List.of(
+                Text.literal("Manage your spaces").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY)),
+                Text.literal("using this item.").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY))
+        )));
+        return item;
+    }
+
+    private static ItemStack activeSpacesItem() {
+        ItemStack item = new ItemStack(Items.BLAZE_POWDER);
+        item.set(DataComponentTypes.ITEM_NAME, Text.literal("Active Spaces").formatted(Formatting.GREEN));
+        item.set(DataComponentTypes.LORE, new LoreComponent(List.of(
+                Text.literal("View currently played on").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY)),
+                Text.literal("spaces using this item.").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY))
+        )));
+        return item;
+    }
+
+    public static void onSpawn(ServerPlayerEntity player) {
+        player.getInventory().setStack(0, mySpacesItem());
+        player.getInventory().setStack(4, activeSpacesItem());
+        player.setInvulnerable(true);
+    }
+
+    public static void onUseItem(ServerPlayerEntity player, ItemStack stack) {
+        if (ItemStack.areItemsAndComponentsEqual(stack, mySpacesItem())) {
+            MySpacesMenu.open(player);
+            return;
+        }
+        if (ItemStack.areItemsAndComponentsEqual(stack, activeSpacesItem())) {
+            ActiveSpacesMenu.open(player);
+            return;
+        }
+    }
+}
