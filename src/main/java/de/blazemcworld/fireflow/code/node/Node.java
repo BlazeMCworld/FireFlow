@@ -2,7 +2,7 @@ package de.blazemcworld.fireflow.code.node;
 
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.CodeThread;
-import de.blazemcworld.fireflow.code.type.ConditionType;
+import de.blazemcworld.fireflow.code.node.option.InputOptions;
 import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.value.ListValue;
@@ -58,7 +58,7 @@ public abstract class Node {
         public Output<?> connected;
         public final Varargs<T> varargsParent;
         private Consumer<CodeThread> logic;
-        public List<String> options;
+        public InputOptions options;
 
         public Input(String id, String name, WireType<T> type, Varargs<T> varargsParent) {
             this.id = id;
@@ -66,10 +66,6 @@ public abstract class Node {
             this.type = type;
             this.varargsParent = varargsParent;
             inputs.add(this);
-
-            if (type == ConditionType.INSTANCE && varargsParent == null) {
-                options("false", "true");
-            }
         }
 
         public Input(String id, String name, WireType<T> type) {
@@ -88,8 +84,16 @@ public abstract class Node {
         }
 
         public Input<T> options(String... options) {
-            this.options = Arrays.asList(options);
-            setInset(options[0]);
+            return options(new InputOptions.Choice(Arrays.asList(options), this));
+        }
+
+        public Input<T> options(Function<Input<T>, InputOptions> options) {
+            return options(options.apply(this));
+        }
+
+        private Input<T> options(InputOptions options) {
+            this.options = options;
+            setInset(options.fallback());
             return this;
         }
 
@@ -110,7 +114,7 @@ public abstract class Node {
             inset = value;
             connected = null;
             if (varargsParent != null) varargsParent.update();
-            if (inset == null && options != null) inset = options.getFirst();
+            if (inset == null && options != null) inset = options.fallback();
         }
 
         public void connect(Output<T> output) {
@@ -123,7 +127,7 @@ public abstract class Node {
             }
             if (output != null) inset = null;
             if (varargsParent != null) varargsParent.update();
-            if (connected == null && options != null) inset = options.getFirst();
+            if (connected == null && options != null) inset = options.fallback();
         }
 
         public boolean canUnderstand(WireType<?> other) {

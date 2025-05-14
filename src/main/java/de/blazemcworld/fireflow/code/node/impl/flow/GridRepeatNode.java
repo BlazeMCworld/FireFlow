@@ -38,19 +38,22 @@ public class GridRepeatNode extends Node {
             ctx.submit(new Runnable() {
                 @Override
                 public void run() {
-                    if (val[0].x >= maxX) {
-                        val[0] = new Vec3d(minX, val[0].y + 1, minZ);
-                    } else val[0] = val[0].add(1, 0, 0);
+                    val[0] = val[0].add(1, 0, 0);
 
-                    if (val[0].y >= maxY) {
+                    if (val[0].x > maxX) {
+                        val[0] = new Vec3d(minX, val[0].y + 1, val[0].z);
+                    }
+
+                    if (val[0].y > maxY) {
                         val[0] = new Vec3d(minX, minY, val[0].z + 1);
                     }
 
-                    if (val[0].z >= maxZ) {
+                    if (val[0].z > maxZ) {
                         ctx.sendSignal(next);
                         return;
                     }
 
+                    ctx.setScopeValue(current, val[0]);
                     ctx.submit(this);
                     ctx.sendSignal(repeat);
                 }

@@ -24,13 +24,14 @@ public class ScheduleNode extends Node {
 
             CodeThread spawned = ctx.subThread();
 
-            ctx.evaluator.tickTasks.add(new Runnable() {
+            ctx.evaluator.nextTick(new Runnable() {
                 @Override
                 public void run() {
                     if (remaining.getAndDecrement() <= 0) {
-                        ctx.evaluator.tickTasks.remove(this);
                         spawned.sendSignal(task);
                         spawned.clearQueue();
+                    } else {
+                        ctx.evaluator.nextTick(this);
                     }
                 }
             });

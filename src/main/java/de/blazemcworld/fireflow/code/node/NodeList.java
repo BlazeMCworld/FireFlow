@@ -20,6 +20,7 @@ import de.blazemcworld.fireflow.code.node.impl.text.CombineTextsNode;
 import de.blazemcworld.fireflow.code.node.impl.text.FormatToTextNode;
 import de.blazemcworld.fireflow.code.node.impl.variable.*;
 import de.blazemcworld.fireflow.code.node.impl.vector.*;
+import de.blazemcworld.fireflow.code.node.impl.world.CpuUsageNode;
 import de.blazemcworld.fireflow.code.node.impl.world.GetBlockNode;
 import de.blazemcworld.fireflow.code.node.impl.world.SetBlockNode;
 import de.blazemcworld.fireflow.code.node.impl.world.SetRegionNode;
@@ -160,6 +161,7 @@ public class NodeList {
                                 .add(new SetPlayerInvulnerableNode())
                                 .add(new SetPlayerItemCooldownNode())
                                 .add(new SetPlayerSaturationNode())
+                                .add(new SetPlayerSkinNode())
                                 .add(new SetPlayerSlotItemNode())
                                 .add(new SetPlayerVelocityNode())
                                 .add(new TakePlayerItemNode())
@@ -224,6 +226,7 @@ public class NodeList {
                         .add(new SetVariableNode<>(null))
                 )
                 .add(new Category("World", Items.GRASS_BLOCK)
+                        .add(new CpuUsageNode())
                         .add(new GetBlockNode())
                         .add(new SetBlockNode())
                         .add(new SetRegionNode())

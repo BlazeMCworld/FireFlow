@@ -20,13 +20,14 @@ public class PauseThreadNode extends Node {
 
             AtomicInteger remaining = new AtomicInteger(ticks.getValue(ctx).intValue());
 
-            ctx.evaluator.tickTasks.add(new Runnable() {
+            ctx.evaluator.nextTick(new Runnable() {
                 @Override
                 public void run() {
                     if (remaining.getAndDecrement() <= 0) {
-                        ctx.evaluator.tickTasks.remove(this);
                         ctx.sendSignal(next);
                         ctx.resume();
+                    } else {
+                        ctx.evaluator.nextTick(this);
                     }
                 }
             });

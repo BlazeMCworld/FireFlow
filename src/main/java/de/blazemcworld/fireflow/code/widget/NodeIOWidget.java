@@ -152,17 +152,10 @@ public class NodeIOWidget extends Widget {
             return true;
         }
         if (isInput && input.options != null) {
-            int currentOption = input.options.indexOf(input.inset);
-            if (i.type() == CodeInteraction.Type.LEFT_CLICK) {
-                int next = currentOption + 1;
-                if (next >= input.options.size()) next = 0;
-                insetValue(input.options.get(next));
+            if (i.type() == CodeInteraction.Type.LEFT_CLICK && input.options.handleLeftClick(this::insetValue, this, i)) {
                 return true;
             }
-            if (i.type() == CodeInteraction.Type.RIGHT_CLICK) {
-                int next = currentOption - 1;
-                if (next < 0) next = input.options.size() - 1;
-                insetValue(input.options.get(next));
+            if (i.type() == CodeInteraction.Type.RIGHT_CLICK && input.options.handleRightClick(this::insetValue, this, i)) {
                 return true;
             }
         }

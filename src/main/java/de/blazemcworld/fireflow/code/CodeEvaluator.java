@@ -30,7 +30,7 @@ public class CodeEvaluator {
     public final VariableStore sessionVariables = new VariableStore();
     public final Set<Node> nodes;
     public final PlayWorld world;
-    public final Set<Runnable> tickTasks = new HashSet<>();
+    private final Set<Runnable> tickTasks = new HashSet<>();
     private boolean initCalled = false;
 
     public CodeEvaluator(Space space) {
@@ -160,7 +160,12 @@ public class CodeEvaluator {
     }
 
     public void tick() {
-        Set<Runnable> tasks = new HashSet<>(tickTasks);
+        if (stopped) return;
+        Set<Runnable> tasks;
+        synchronized (tickTasks) {
+            tasks = new HashSet<>(tickTasks);
+            tickTasks.clear();
+        }
         for (Runnable task : tasks) task.run();
     }
 
@@ -253,6 +258,12 @@ public class CodeEvaluator {
             }
         }
         return !cancel;
+    }
+
+    public void nextTick(Runnable r) {
+        synchronized (tickTasks) {
+            tickTasks.add(r);
+        }
     }
 
     public void onJoin(ServerPlayerEntity player) {

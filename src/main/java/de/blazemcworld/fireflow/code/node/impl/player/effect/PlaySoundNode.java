@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.code.node.impl.player.effect;
 
 import com.mojang.serialization.DataResult;
 import de.blazemcworld.fireflow.code.node.Node;
+import de.blazemcworld.fireflow.code.node.option.SoundOptions;
 import de.blazemcworld.fireflow.code.type.*;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
 import net.minecraft.item.Items;
@@ -22,7 +23,7 @@ public class PlaySoundNode extends Node {
 
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
-        Input<String> sound = new Input<>("sound", "Sound", StringType.INSTANCE);
+        Input<String> sound = new Input<>("sound", "Sound", StringType.INSTANCE).options(SoundOptions::new);
         Input<String> mode = new Input<>("mode", "Mode", StringType.INSTANCE);
         Input<Double> volume = new Input<>("volume", "Volume", NumberType.INSTANCE);
         Input<Double> pitch = new Input<>("pitch", "Pitch", NumberType.INSTANCE);

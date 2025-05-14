@@ -39,13 +39,12 @@ public class BorderWidget<T extends Widget> extends Widget {
     public void update() {
         WidgetVec current = pos().sub(margin, margin);
 
+        inner.pos(current.add(-padding, -padding));
+        inner.update();
+
         rect.pos = current;
         rect.size = inner.size().add(padding * 2, padding * 2);
         rect.update();
-
-        current = current.add(-padding, -padding);
-        inner.pos(current);
-        inner.update();
 
         if (background != null) {
             background.pos = rect.pos;
