@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.code.node.impl.world;
 
 import com.mojang.serialization.DataResult;
 import de.blazemcworld.fireflow.code.node.Node;
+import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
@@ -22,12 +23,15 @@ public class SetRegionNode extends Node {
         Input<Vec3d> corner1 = new Input<>("corner1", "Corner 1", VectorType.INSTANCE);
         Input<Vec3d> corner2 = new Input<>("corner2", "Corner 2", VectorType.INSTANCE);
         Input<String> block = new Input<>("block", "Block", StringType.INSTANCE);
+        Input<Boolean> sendUpdate = new Input<>("send_update", "Send Update", ConditionType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         signal.onSignal((ctx) -> {
             DataResult<Identifier> id = Identifier.validate(block.getValue(ctx));
             Optional<Block> placedBlock = id.isSuccess() ? Registries.BLOCK.getOptionalValue(id.getOrThrow()) : Optional.empty();
             if (placedBlock.isPresent()) {
+                int flags = sendUpdate.getValue(ctx) ? Block.NOTIFY_ALL : 0;
+
                 Vec3d corner1Value = corner1.getValue(ctx);
                 Vec3d corner2Value = corner2.getValue(ctx);
                 corner1Value = new Vec3d(
@@ -50,7 +54,7 @@ public class SetRegionNode extends Node {
 
                 BlockState state = placedBlock.get().getDefaultState();
                 for (BlockPos pos : BlockPos.iterate(minX, minY, minZ, maxX, maxY, maxZ)) {
-                    ctx.evaluator.world.setBlockState(pos, state);
+                    ctx.evaluator.world.setBlockState(pos, state, flags);
                 }
             }
             ctx.sendSignal(next);

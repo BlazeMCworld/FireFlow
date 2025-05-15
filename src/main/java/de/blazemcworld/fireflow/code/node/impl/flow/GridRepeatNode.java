@@ -1,8 +1,8 @@
 package de.blazemcworld.fireflow.code.node.impl.flow;
 
 import de.blazemcworld.fireflow.code.node.Node;
-import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
+import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.Vec3d;
@@ -15,7 +15,7 @@ public class GridRepeatNode extends Node {
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<Vec3d> start = new Input<>("start", "Start", VectorType.INSTANCE);
         Input<Vec3d> end = new Input<>("end", "End", VectorType.INSTANCE);
-        Input<Boolean> relativeEnd = new Input<>("relative", "Relative End", ConditionType.INSTANCE);
+        Input<String> mode = new Input<>("mode", "Mode", StringType.INSTANCE).options("absolute_end", "relative_end");
         Output<Void> repeat = new Output<>("repeat", "Repeat", SignalType.INSTANCE);
         Output<Vec3d> current = new Output<>("current", "Current", VectorType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
@@ -23,7 +23,7 @@ public class GridRepeatNode extends Node {
 
         signal.onSignal((ctx) -> {
             Vec3d startValue = start.getValue(ctx);
-            Vec3d endValue = relativeEnd.getValue(ctx) ? startValue.add(end.getValue(ctx)) : end.getValue(ctx);
+            Vec3d endValue = mode.getValue(ctx).equals("relative_end") ? startValue.add(end.getValue(ctx)) : end.getValue(ctx);
 
             int minX = (int) Math.max(-256, Math.min(startValue.x, endValue.x));
             int minY = (int) Math.max(ctx.evaluator.world.getBottomY(), Math.min(startValue.y, endValue.y));

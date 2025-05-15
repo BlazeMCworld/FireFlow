@@ -23,7 +23,7 @@ public class PlaySoundNode extends Node {
 
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
-        Input<String> sound = new Input<>("sound", "Sound", StringType.INSTANCE).options(SoundOptions::new);
+        Input<String> sound = new Input<>("sound", "Sound", StringType.INSTANCE).options(SoundOptions.INSTANCE);
         Input<String> mode = new Input<>("mode", "Mode", StringType.INSTANCE);
         Input<Double> volume = new Input<>("volume", "Volume", NumberType.INSTANCE);
         Input<Double> pitch = new Input<>("pitch", "Pitch", NumberType.INSTANCE);

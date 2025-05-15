@@ -22,23 +22,24 @@ public class EntityValue {
             return;
         }
         uuid = entity.getUuid();
+        cache = new WeakReference<>(entity);
     }
 
     public EntityValue(UUID uuid) {
         this.uuid = uuid;
     }
 
-    public Entity resolve(ServerWorld inst) {
+    public Entity resolve(ServerWorld world) {
         Entity cache = this.cache == null ? null : this.cache.get();
-        if (cache != null && cache.getWorld() == inst && !cache.isRemoved()) return cache;
-        Entity e = inst.getEntity(uuid);
-        if (e instanceof ServerPlayerEntity) return null;
+        if (cache != null && cache.getWorld() == world && !cache.isRemoved()) return cache;
+        Entity e = world.getEntity(uuid);
+        if (e == null || e instanceof ServerPlayerEntity) return null;
         this.cache = new WeakReference<>(e);
         return e;
     }
 
-    public <T> T apply(ServerWorld inst, Function<Entity, T> fn, T fallback) {
-        Entity e = resolve(inst);
+    public <T> T apply(ServerWorld world, Function<Entity, T> fn, T fallback) {
+        Entity e = resolve(world);
         return e == null ? fallback : fn.apply(e);
     }
 
@@ -46,8 +47,8 @@ public class EntityValue {
         return apply(ctx.evaluator.world, fn, fallback);
     }
 
-    public void use(ServerWorld inst, Consumer<Entity> cb) {
-        Entity e = resolve(inst);
+    public void use(ServerWorld world, Consumer<Entity> cb) {
+        Entity e = resolve(world);
         if (e != null) cb.accept(e);
     }
 

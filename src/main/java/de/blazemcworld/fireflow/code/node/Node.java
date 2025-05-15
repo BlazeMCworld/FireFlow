@@ -87,11 +87,7 @@ public abstract class Node {
             return options(new InputOptions.Choice(Arrays.asList(options), this));
         }
 
-        public Input<T> options(Function<Input<T>, InputOptions> options) {
-            return options(options.apply(this));
-        }
-
-        private Input<T> options(InputOptions options) {
+        public Input<T> options(InputOptions options) {
             this.options = options;
             setInset(options.fallback());
             return this;

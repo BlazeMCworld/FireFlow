@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.code.node.impl.world;
 
 import com.mojang.serialization.DataResult;
 import de.blazemcworld.fireflow.code.node.Node;
+import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
@@ -20,7 +21,9 @@ public class SetBlockNode extends Node {
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<Vec3d> position = new Input<>("position", "Position", VectorType.INSTANCE);
         Input<String> block = new Input<>("block", "Block", StringType.INSTANCE);
+        Input<Boolean> sendUpdate = new Input<>("send_update", "Send Update", ConditionType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
+
         signal.onSignal((ctx) -> {
             DataResult<Identifier> id = Identifier.validate(block.getValue(ctx));
             Optional<Block> b = id.isSuccess() ? Registries.BLOCK.getOptionalValue(id.getOrThrow()) : Optional.empty();
@@ -31,7 +34,7 @@ public class SetBlockNode extends Node {
                         (int) Math.floor(pos.x),
                         (int) Math.floor(pos.y),
                         (int) Math.floor(pos.z)
-                ), b.get().getDefaultState());
+                ), b.get().getDefaultState(), sendUpdate.getValue(ctx) ? Block.NOTIFY_ALL : 0);
             }
             ctx.sendSignal(next);
         });

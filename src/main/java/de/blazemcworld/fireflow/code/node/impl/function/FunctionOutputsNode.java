@@ -19,13 +19,13 @@ public class FunctionOutputsNode extends Node {
         Input<?> output = new Input<>(name, name, type);
         if (type == SignalType.INSTANCE) {
             output.onSignal((ctx) -> {
-                if (ctx.functionScope == null) {
+                if (ctx.functionScope.call == null) {
                     for (FunctionCallNode call : function.callNodes) {
                         ctx.sendSignal((Output<Void>) call.getOutput(name));
                     }
                     return;
                 }
-                if (ctx.functionScope.call.function != function) return;
+                if (ctx.functionScope.call.function != function || ctx.functionScope.parent == null) return;
                 FunctionScope s = ctx.functionScope;
                 ctx.functionScope = ctx.functionScope.parent;
                 ctx.submit(() -> ctx.functionScope = s);

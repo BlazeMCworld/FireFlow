@@ -14,11 +14,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public record SoundOptions(Node.Input<String> input) implements InputOptions {
+public class SoundOptions implements InputOptions {
 
-    private static final List<String> soundIds = new ArrayList<>();
+    public static final SoundOptions INSTANCE = new SoundOptions();
+    private final List<String> soundIds = new ArrayList<>();
 
-    static {
+    private SoundOptions() {
         for (Identifier id : Registries.SOUND_EVENT.getIds()) {
             soundIds.add(id.getPath());
         }
@@ -32,11 +33,11 @@ public record SoundOptions(Node.Input<String> input) implements InputOptions {
 
     @Override
     public boolean handleRightClick(Consumer<String> update, NodeIOWidget io, CodeInteraction i) {
-        openSelector(io.pos().add(2.5, 0), update, "back_if_empty");
+        openSelector(io.pos().add(2.5, 0), io.input, update, "back_if_empty");
         return true;
     }
 
-    private void openSelector(WidgetVec pos, Consumer<String> update, String mode) {
+    private void openSelector(WidgetVec pos, Node.Input<?> input, Consumer<String> update, String mode) {
         Set<String> choices = new HashSet<>();
         String current = input.inset;
         for (String sound : soundIds) {
@@ -61,7 +62,7 @@ public record SoundOptions(Node.Input<String> input) implements InputOptions {
                 } else {
                     update.accept("");
                 }
-                openSelector(pos, update, "hide_if_empty");
+                openSelector(pos, input, update, "hide_if_empty");
                 return;
             }
         }
@@ -85,7 +86,7 @@ public record SoundOptions(Node.Input<String> input) implements InputOptions {
                 }
             }
             update.accept(newValue);
-            openSelector(pos, update, "hide_if_empty");
+            openSelector(pos, input, update, "hide_if_empty");
         });
         pos.editor().rootWidgets.add(w);
         w.update();

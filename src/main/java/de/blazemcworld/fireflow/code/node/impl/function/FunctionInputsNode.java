@@ -19,9 +19,8 @@ public class FunctionInputsNode extends Node {
         Output<?> input = new Output<>(name, name, type);
         if (type != SignalType.INSTANCE) {
             ((Output<Object>) input).valueFrom((ctx) -> {
-                if (ctx.functionScope == null) return type.defaultValue();
                 FunctionScope s = ctx.functionScope;
-                if (s.call.function != function) return type.defaultValue();
+                if (s.call == null || s.parent == null || s.call.function != function) return type.defaultValue();
                 ctx.functionScope = s.parent;
                 Object out = s.call.getInput(name).getValue(ctx);
                 ctx.functionScope = s;

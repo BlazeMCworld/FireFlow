@@ -25,11 +25,9 @@ public class PlayerValue {
     public void use(ServerWorld world, Consumer<ServerPlayerEntity> cb) {
         ServerPlayerEntity p = FireFlow.server.getPlayerManager().getPlayer(uuid);
         if (p != null) {
-            synchronized (p) {
-                if (p.getServerWorld() == world && ModeManager.getFor(p) == ModeManager.Mode.PLAY) {
-                    cb.accept(p);
-                    return;
-                }
+            if (p.getServerWorld() == world && ModeManager.getFor(p) == ModeManager.Mode.PLAY) {
+                cb.accept(p);
+                return;
             }
         }
         cb.accept(null);
@@ -38,10 +36,8 @@ public class PlayerValue {
     public <T> T apply(ServerWorld world, Function<ServerPlayerEntity, T> fn) {
         ServerPlayerEntity p = FireFlow.server.getPlayerManager().getPlayer(uuid);
         if (p != null) {
-            synchronized (p) {
-                if (p.getServerWorld() == world && ModeManager.getFor(p) == ModeManager.Mode.PLAY) {
-                    return fn.apply(p);
-                }
+            if (p.getServerWorld() == world && ModeManager.getFor(p) == ModeManager.Mode.PLAY) {
+                return fn.apply(p);
             }
         }
         return fn.apply(null);

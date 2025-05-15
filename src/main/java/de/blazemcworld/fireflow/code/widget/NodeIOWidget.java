@@ -123,7 +123,9 @@ public class NodeIOWidget extends Widget {
                 (output.name + (connections.isEmpty() ? " ○" : " ⏺"));
 
         if (isInput && input.inset != null) {
-            str = "⏹ " + input.inset;
+            String insetText = input.inset;
+            if (insetText.length() > 20) insetText = insetText.substring(0, 20) + "...";
+            str = "⏹ " + insetText;
         }
 
         return Text.literal(str).setStyle(Style.EMPTY.withColor(type.color));
