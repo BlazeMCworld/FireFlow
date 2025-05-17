@@ -22,8 +22,9 @@ public class OnPlayerSwapHandsNode extends Node {
         player.valueFromScope();
     }
 
-    public boolean onSwapHands(CodeEvaluator codeEvaluator, ServerPlayerEntity player) {
+    public boolean onSwapHands(CodeEvaluator codeEvaluator, ServerPlayerEntity player, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
+        thread.eventCancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.sendSignal(signal);
         thread.clearQueue();

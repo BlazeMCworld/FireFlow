@@ -13,6 +13,7 @@ import net.minecraft.network.message.SignedMessage;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.UpdatePlayerAbilitiesC2SPacket;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -74,6 +75,7 @@ public class ServerPlayNetworkHandlerMixin {
 
     @Inject(method = "onClickSlot", at = @At("HEAD"), cancellable = true)
     private void preventClick(ClickSlotC2SPacket packet, CallbackInfo ci) {
+        NetworkThreadUtils.forceMainThread(packet, (ServerPlayNetworkHandler) (Object) this, player.getServerWorld());
         if (player.currentScreenHandler instanceof InventoryMenu) return;
         if (player.getServerWorld() != Lobby.world) return;
         if (player.hasPermissionLevel(4) && player.getGameMode() == GameMode.CREATIVE) return;
@@ -106,6 +108,20 @@ public class ServerPlayNetworkHandlerMixin {
         Space space = SpaceManager.getSpaceForPlayer(player);
         if (space == null || ModeManager.getFor(player) != ModeManager.Mode.PLAY) return;
         if (space.evaluator.onSwingHand(player, packet.getHand() == Hand.MAIN_HAND)) ci.cancel();
+    }
+
+    @Inject(method = "onUpdatePlayerAbilities", at = @At("HEAD"), cancellable = true)
+    private void flightChange(UpdatePlayerAbilitiesC2SPacket packet, CallbackInfo ci) {
+        NetworkThreadUtils.forceMainThread(packet, (ServerPlayNetworkHandler) (Object) this, player.getServerWorld());
+        boolean isFlying = player.getAbilities().flying;
+        if (isFlying == packet.isFlying()) return;
+
+        Space space = SpaceManager.getSpaceForPlayer(player);
+        if (space == null || ModeManager.getFor(player) != ModeManager.Mode.PLAY) return;
+        if (space.evaluator.shouldCancelFlight(player, packet.isFlying())) {
+            ci.cancel();
+            player.sendAbilitiesUpdate();
+        }
     }
 
 }

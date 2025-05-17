@@ -31,6 +31,7 @@ public class Statistics {
         player.getEnderChestInventory().clear();
         player.setLastDeathPos(Optional.empty());
         player.setInvulnerable(false);
+        player.setInvisible(false);
     }
 
 }

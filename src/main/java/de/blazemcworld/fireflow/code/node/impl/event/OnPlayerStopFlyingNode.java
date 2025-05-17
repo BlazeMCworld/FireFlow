@@ -9,26 +9,27 @@ import de.blazemcworld.fireflow.code.value.PlayerValue;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class OnPlayerDropItemNode extends Node {
+public class OnPlayerStopFlyingNode extends Node {
 
     private final Output<Void> signal;
     private final Output<PlayerValue> player;
 
-    public OnPlayerDropItemNode() {
-        super("on_player_drop_item", "On Player Drop Item", "Called when a player drops an item.", Items.DROPPER);
+    public OnPlayerStopFlyingNode() {
+        super("on_player_fly", "On Player Fly", "Emits a signal when a player stops or stops flying (not gliding with an elytra).", Items.ANDESITE);
 
         signal = new Output<>("signal", "Signal", SignalType.INSTANCE);
         player = new Output<>("player", "Player", PlayerType.INSTANCE);
         player.valueFromScope();
+
     }
 
     @Override
     public Node copy() {
-        return new OnPlayerDropItemNode();
+        return new OnPlayerStopFlyingNode();
     }
 
-    public boolean onDropItem(CodeEvaluator codeEvaluator, ServerPlayerEntity player, boolean cancel) {
-        CodeThread thread = codeEvaluator.newCodeThread();
+    public boolean onStopFlying(CodeEvaluator evaluator, ServerPlayerEntity player, boolean cancel) {
+        CodeThread thread = evaluator.newCodeThread();
         thread.eventCancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.sendSignal(signal);

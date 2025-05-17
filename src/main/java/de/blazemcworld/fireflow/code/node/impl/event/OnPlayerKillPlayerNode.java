@@ -29,8 +29,9 @@ public class OnPlayerKillPlayerNode extends Node {
         amount.valueFromScope();
     }
 
-    public boolean onPlayerKillPlayer(CodeEvaluator codeEvaluator, ServerPlayerEntity attacker, ServerPlayerEntity victim, float damage) {
+    public boolean onPlayerKillPlayer(CodeEvaluator codeEvaluator, ServerPlayerEntity attacker, ServerPlayerEntity victim, float damage, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
+        thread.eventCancelled = cancel;
         thread.setScopeValue(this.attacker, new PlayerValue(attacker));
         thread.setScopeValue(this.victim, new PlayerValue(victim));
         thread.setScopeValue(this.amount, (double) damage);

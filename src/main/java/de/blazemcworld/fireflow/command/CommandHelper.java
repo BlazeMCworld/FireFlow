@@ -36,6 +36,15 @@ public class CommandHelper {
         }
         return true;
     }
+    
+    public static boolean isDeveloperOrOwner(ServerPlayerEntity player, Space space) {
+        if (space == null || player == null) return false;
+        if (!space.info.isOwnerOrDeveloper(player.getUuid())) {
+            player.sendMessage(Text.literal("You are not allowed to do that!").formatted(Formatting.RED));
+            return false;
+        }
+        return true;
+    }
 
     public static boolean isInCode(ServerPlayerEntity player, Space space) {
         if (space == null || player == null) return false;

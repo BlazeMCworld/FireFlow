@@ -9,34 +9,34 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class OnEntityKillPlayerNode extends Node {
+public class OnPlayerAttackEntityNode extends Node {
 
     private final Output<Void> signal;
-    private final Output<EntityValue> attacker;
-    private final Output<PlayerValue> victim;
+    private final Output<PlayerValue> attacker;
+    private final Output<EntityValue> victim;
     private final Output<Double> amount;
 
-    public OnEntityKillPlayerNode() {
-        super("on_entity_kill_player", "On Entity Kill Player", "Emits a signal when an entity kills a player.", Items.BOW);
+    public OnPlayerAttackEntityNode() {
+        super("on_player_attack_entity", "On Player Attack Entity", "Emits a signal when a player attacks an entity.", Items.STONE_SWORD);
 
         signal = new Output<>("signal", "Signal", SignalType.INSTANCE);
-        attacker = new Output<>("attacker", "Attacker", EntityType.INSTANCE);
-        victim = new Output<>("victim", "Victim", PlayerType.INSTANCE);
+        attacker = new Output<>("attacker", "Attacker", PlayerType.INSTANCE);
+        victim = new Output<>("victim", "Victim", EntityType.INSTANCE);
         amount = new Output<>("amount", "Amount", NumberType.INSTANCE);
         attacker.valueFromScope();
         victim.valueFromScope();
         amount.valueFromScope();
     }
 
-    public boolean onEntityKillPlayer(CodeEvaluator codeEvaluator, Entity attacker, ServerPlayerEntity victim, float damage, boolean cancel) {
+    public boolean onPlayerAttackEntity(CodeEvaluator codeEvaluator, ServerPlayerEntity attacker, LivingEntity victim, float damage, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.eventCancelled = cancel;
-        thread.setScopeValue(this.attacker, new EntityValue(attacker));
-        thread.setScopeValue(this.victim, new PlayerValue(victim));
+        thread.setScopeValue(this.attacker, new PlayerValue(attacker));
+        thread.setScopeValue(this.victim, new EntityValue(victim));
         thread.setScopeValue(this.amount, (double) damage);
         thread.sendSignal(signal);
         thread.clearQueue();
@@ -45,7 +45,7 @@ public class OnEntityKillPlayerNode extends Node {
 
     @Override
     public Node copy() {
-        return new OnEntityKillPlayerNode();
+        return new OnPlayerAttackEntityNode();
     }
 
 }

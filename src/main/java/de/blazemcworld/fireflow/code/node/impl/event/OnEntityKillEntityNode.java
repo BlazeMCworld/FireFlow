@@ -29,8 +29,9 @@ public class OnEntityKillEntityNode extends Node {
         amount.valueFromScope();
     }
 
-    public boolean onEntityKillEntity(CodeEvaluator codeEvaluator, Entity attacker, Entity victim, float damage) {
+    public boolean onEntityKillEntity(CodeEvaluator codeEvaluator, Entity attacker, Entity victim, float damage, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
+        thread.eventCancelled = cancel;
         thread.setScopeValue(this.attacker, new EntityValue(attacker));
         thread.setScopeValue(this.victim, new EntityValue(victim));
         thread.setScopeValue(this.amount, (double) damage);

@@ -34,8 +34,9 @@ public class OnPlayerBreakBlockNode extends Node {
         return new OnPlayerBreakBlockNode();
     }
 
-    public boolean onBreakBlock(CodeEvaluator codeEvaluator, ServerPlayerEntity player, BlockPos pos) {
+    public boolean onBreakBlock(CodeEvaluator codeEvaluator, ServerPlayerEntity player, BlockPos pos, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
+        thread.eventCancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.setScopeValue(this.position, Vec3d.ofCenter(pos));
         thread.sendSignal(signal);

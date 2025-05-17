@@ -143,7 +143,7 @@ public class CodeEvaluator {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerSwingHandNode n) {
-                cancel = cancel || n.onSwingHand(this, player, isMainHand);
+                cancel = n.onSwingHand(this, player, isMainHand, cancel);
             }
         }
         return cancel;
@@ -153,7 +153,7 @@ public class CodeEvaluator {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerSwapHandsNode n) {
-                cancel = cancel || n.onSwapHands(this, player);
+                cancel = n.onSwapHands(this, player, cancel);
             }
         }
         return cancel;
@@ -173,7 +173,7 @@ public class CodeEvaluator {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerUseItemNode n) {
-                cancel = cancel || n.onUseItem(this, player, stack, hand);
+                cancel = n.onUseItem(this, player, stack, hand, cancel);
             }
         }
         return cancel;
@@ -191,7 +191,7 @@ public class CodeEvaluator {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerPlaceBlockNode n) {
-                cancel = cancel || n.onPlaceBlock(this, context);
+                cancel = n.onPlaceBlock(this, context, cancel);
             }
         }
         return cancel;
@@ -201,7 +201,7 @@ public class CodeEvaluator {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerChatNode n) {
-                cancel = cancel || n.onChat(this, player, message);
+                cancel = n.onChat(this, player, message, cancel);
             }
         }
         return cancel;
@@ -211,7 +211,7 @@ public class CodeEvaluator {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerBreakBlockNode n) {
-                cancel = cancel || n.onBreakBlock(this, player, pos);
+                cancel = n.onBreakBlock(this, player, pos, cancel);
             }
         }
         return cancel;
@@ -221,7 +221,7 @@ public class CodeEvaluator {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerDropItemNode n) {
-                cancel = cancel || n.onDropItem(this, player);
+                cancel = n.onDropItem(this, player, cancel);
             }
         }
         return cancel;
@@ -234,27 +234,27 @@ public class CodeEvaluator {
 
         for (Node node : nodes) {
             if (node instanceof OnPlayerDeathNode n && target instanceof ServerPlayerEntity pl) {
-                cancel = cancel || n.onPlayerDeath(this, pl, damage, type);
+                cancel = n.onPlayerDeath(this, pl, damage, type, cancel);
             }
 
             if (node instanceof OnEntityDeathNode n && !(target instanceof ServerPlayerEntity)) {
-                cancel = cancel || n.onEntityDeath(this, target, damage, type);
+                cancel = n.onEntityDeath(this, target, damage, type, cancel);
             }
 
             if (node instanceof OnPlayerKillPlayerNode n && target instanceof ServerPlayerEntity victim && source.getAttacker() instanceof ServerPlayerEntity attacker) {
-                cancel = cancel || n.onPlayerKillPlayer(this, attacker, victim, damage);
+                cancel = n.onPlayerKillPlayer(this, attacker, victim, damage, cancel);
             }
 
             if (node instanceof OnPlayerKillEntityNode n && !(target instanceof ServerPlayerEntity) && source.getAttacker() instanceof ServerPlayerEntity attacker) {
-                cancel = cancel || n.onPlayerKillEntity(this, attacker, target, damage);
+                cancel = n.onPlayerKillEntity(this, attacker, target, damage, cancel);
             }
 
             if (node instanceof OnEntityKillPlayerNode n && target instanceof ServerPlayerEntity victim && !(source.getAttacker() instanceof ServerPlayerEntity)) {
-                cancel = cancel || n.onEntityKillPlayer(this, source.getAttacker(), victim, damage);
+                cancel = n.onEntityKillPlayer(this, source.getAttacker(), victim, damage, cancel);
             }
 
             if (node instanceof OnEntityKillEntityNode n && !(target instanceof ServerPlayerEntity) && !(source.getAttacker() instanceof ServerPlayerEntity)) {
-                cancel = cancel || n.onEntityKillEntity(this, source.getAttacker(), target, damage);
+                cancel = n.onEntityKillEntity(this, source.getAttacker(), target, damage, cancel);
             }
         }
         return !cancel;
@@ -283,5 +283,51 @@ public class CodeEvaluator {
                 join.onJoin(this, player);
             }
         }
+    }
+
+    public boolean shouldCancelFlight(ServerPlayerEntity player, boolean enabled) {
+        boolean cancel = false;
+        for (Node n : nodes) {
+            if (enabled && n instanceof OnPlayerStartFlyingNode fly) {
+                cancel = fly.onStartFlying(this, player, cancel);
+            }
+            if (!enabled && n instanceof OnPlayerStopFlyingNode fly) {
+                cancel = fly.onStopFlying(this, player, cancel);
+            }
+        }
+        return cancel;
+    }
+
+    public boolean allowDamage(LivingEntity target, DamageSource source, float damage) {
+        boolean cancel = false;
+
+        String type = source.getTypeRegistryEntry().getKey().map(k -> k.getValue().getPath()).orElse("unknown");
+
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerHurtNode n && target instanceof ServerPlayerEntity pl) {
+                cancel = n.onPlayerHurt(this, pl, damage, type, cancel);
+            }
+
+            if (node instanceof OnEntityHurtNode n && !(target instanceof ServerPlayerEntity)) {
+                cancel = n.onEntityHurt(this, target, damage, type, cancel);
+            }
+
+            if (node instanceof OnPlayerAttackPlayerNode n && target instanceof ServerPlayerEntity victim && source.getAttacker() instanceof ServerPlayerEntity attacker) {
+                cancel = n.onPlayerAttackPlayer(this, attacker, victim, damage, cancel);
+            }
+
+            if (node instanceof OnPlayerAttackEntityNode n && !(target instanceof ServerPlayerEntity) && source.getAttacker() instanceof ServerPlayerEntity attacker) {
+                cancel = n.onPlayerAttackEntity(this, attacker, target, damage, cancel);
+            }
+
+            if (node instanceof OnEntityAttackPlayerNode n && target instanceof ServerPlayerEntity victim && !(source.getAttacker() instanceof ServerPlayerEntity)) {
+                cancel = n.onEntityAttackPlayer(this, source.getAttacker(), victim, damage, cancel);
+            }
+
+            if (node instanceof OnEntityAttackEntityNode n && !(target instanceof ServerPlayerEntity) && !(source.getAttacker() instanceof ServerPlayerEntity)) {
+                cancel = n.onEntityAttackEntity(this, source.getAttacker(), target, damage, cancel);
+            }
+        }
+        return !cancel;
     }
 }

@@ -30,12 +30,7 @@ public class MonitorCommand {
                     }
 
                     Space space = CommandHelper.getSpace(player);
-                    if (space == null) return Command.SINGLE_SUCCESS;
-
-                    if (!space.info.isOwnerOrDeveloper(player.getUuid())) {
-                        player.sendMessage(Text.literal("You are not allowed to do that!").formatted(Formatting.RED));
-                        return Command.SINGLE_SUCCESS;
-                    }
+                    if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
 
                     monitors.put(player, space);
                     player.sendMessage(Text.literal("Now monitoring space #" + space.info.id).formatted(Formatting.AQUA));

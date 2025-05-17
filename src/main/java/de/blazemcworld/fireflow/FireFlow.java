@@ -107,6 +107,11 @@ public class FireFlow implements ModInitializer {
             if (space != null && space.playWorld == entity.getWorld()) return space.evaluator.allowDeath(entity, source, amount);
             return true;
         });
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+            Space space = SpaceManager.getSpaceForWorld((ServerWorld) entity.getWorld());
+            if (space != null && space.playWorld == entity.getWorld()) return space.evaluator.allowDamage(entity, source, amount);
+            return true;
+        });
 
         CommandRegistrationCallback.EVENT.register((cd, reg, env) -> {
             CodeCommand.register(cd);

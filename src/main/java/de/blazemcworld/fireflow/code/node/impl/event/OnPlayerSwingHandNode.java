@@ -31,8 +31,9 @@ public class OnPlayerSwingHandNode extends Node {
         return new OnPlayerSwingHandNode();
     }
 
-    public boolean onSwingHand(CodeEvaluator codeEvaluator, ServerPlayerEntity player, boolean isMainHand) {
+    public boolean onSwingHand(CodeEvaluator codeEvaluator, ServerPlayerEntity player, boolean isMainHand, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
+        thread.eventCancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.setScopeValue(this.isMainHand, isMainHand);
         thread.sendSignal(signal);

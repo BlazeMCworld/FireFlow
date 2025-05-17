@@ -82,5 +82,14 @@ public class VariableStore {
         types.clear();
     }
 
+    public boolean has(String name) {
+        return values.containsKey(name);
+    }
+
+    public void remove(String name) {
+        values.remove(name);
+        types.remove(name);
+    }
+
     public record VarEntry(String name, WireType<?> type, Object value) {}
 }

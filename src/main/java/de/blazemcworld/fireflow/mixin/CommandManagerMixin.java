@@ -49,7 +49,6 @@ public class CommandManagerMixin {
         SeedCommand.register(this.dispatcher, environment != CommandManager.RegistrationEnvironment.INTEGRATED);
         SetBlockCommand.register(this.dispatcher, commandRegistryAccess);
         SpawnPointCommand.register(this.dispatcher);
-        SpectateCommand.register(this.dispatcher);
         SpreadPlayersCommand.register(this.dispatcher);
         StopSoundCommand.register(this.dispatcher);
         SummonCommand.register(this.dispatcher, commandRegistryAccess);

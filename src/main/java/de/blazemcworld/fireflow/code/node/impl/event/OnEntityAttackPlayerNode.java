@@ -13,15 +13,15 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class OnEntityKillPlayerNode extends Node {
+public class OnEntityAttackPlayerNode extends Node {
 
     private final Output<Void> signal;
     private final Output<EntityValue> attacker;
     private final Output<PlayerValue> victim;
     private final Output<Double> amount;
 
-    public OnEntityKillPlayerNode() {
-        super("on_entity_kill_player", "On Entity Kill Player", "Emits a signal when an entity kills a player.", Items.BOW);
+    public OnEntityAttackPlayerNode() {
+        super("on_entity_attack_player", "On Entity Attack Player", "Emits a signal when an entity attacks a player.", Items.IRON_SHOVEL);
 
         signal = new Output<>("signal", "Signal", SignalType.INSTANCE);
         attacker = new Output<>("attacker", "Attacker", EntityType.INSTANCE);
@@ -32,7 +32,7 @@ public class OnEntityKillPlayerNode extends Node {
         amount.valueFromScope();
     }
 
-    public boolean onEntityKillPlayer(CodeEvaluator codeEvaluator, Entity attacker, ServerPlayerEntity victim, float damage, boolean cancel) {
+    public boolean onEntityAttackPlayer(CodeEvaluator codeEvaluator, Entity attacker, ServerPlayerEntity victim, float damage, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.eventCancelled = cancel;
         thread.setScopeValue(this.attacker, new EntityValue(attacker));
@@ -45,7 +45,7 @@ public class OnEntityKillPlayerNode extends Node {
 
     @Override
     public Node copy() {
-        return new OnEntityKillPlayerNode();
+        return new OnEntityAttackPlayerNode();
     }
 
 }

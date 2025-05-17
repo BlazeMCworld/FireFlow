@@ -23,7 +23,7 @@ public class Space {
     public final PlayWorld playWorld;
     public final CodeWorld codeWorld;
     public final CodeEditor editor;
-    public VariableStore savedVariables;
+    public final VariableStore savedVariables;
     private int emptyTimer = 0;
     public CodeEvaluator evaluator;
 

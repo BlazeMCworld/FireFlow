@@ -39,9 +39,10 @@ public class OnPlayerPlaceBlockNode extends Node {
         return new OnPlayerPlaceBlockNode();
     }
 
-    public boolean onPlaceBlock(CodeEvaluator codeEvaluator, ItemPlacementContext context) {
+    public boolean onPlaceBlock(CodeEvaluator codeEvaluator, ItemPlacementContext context, boolean cancel) {
         if (context.getPlayer() instanceof ServerPlayerEntity p) {
             CodeThread thread = codeEvaluator.newCodeThread();
+            thread.eventCancelled = cancel;
             thread.setScopeValue(this.player, new PlayerValue(p));
             thread.setScopeValue(this.position, Vec3d.of(context.getBlockPos()));
             thread.setScopeValue(this.item, context.getStack());
