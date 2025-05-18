@@ -3,6 +3,7 @@ package de.blazemcworld.fireflow.code.node.impl.flow;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.SingleGenericNode;
 import de.blazemcworld.fireflow.code.type.ListType;
+import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.value.ListValue;
@@ -18,21 +19,23 @@ public class ListForEachNode<T> extends SingleGenericNode<T> {
         
         Output<Void> each = new Output<>("each", "Each", SignalType.INSTANCE);
         Output<T> value = new Output<>("value", "Value", type);
+        Output<Double> index = new Output<>("index", "Index", NumberType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         value.valueFromScope();
 
         signal.onSignal((ctx) -> {
-            int[] index = new int[] { 0 };
+            int[] i = new int[] { 0 };
             ListValue<T> listValue = list.getValue(ctx);
 
             Runnable[] step = { null };
             step[0] = () -> {
-                if (index[0] >= listValue.size()) {
+                if (i[0] >= listValue.size()) {
                     ctx.sendSignal(next);
                     return;
                 }
-                ctx.setScopeValue(value, listValue.get(index[0]++));
+                ctx.setScopeValue(index, (double) i[0]);
+                ctx.setScopeValue(value, listValue.get(i[0]++));
                 ctx.submit(step[0]);
                 ctx.sendSignal(each);
             };

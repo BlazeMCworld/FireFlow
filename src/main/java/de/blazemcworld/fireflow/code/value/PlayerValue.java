@@ -1,6 +1,5 @@
 package de.blazemcworld.fireflow.code.value;
 
-import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.CodeThread;
 import de.blazemcworld.fireflow.util.ModeManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -23,8 +22,7 @@ public class PlayerValue {
     }
 
     public void use(ServerWorld world, Consumer<ServerPlayerEntity> cb) {
-        ServerPlayerEntity p = FireFlow.server.getPlayerManager().getPlayer(uuid);
-        if (p != null) {
+        if (world.getPlayerByUuid(uuid) instanceof ServerPlayerEntity p) {
             if (p.getServerWorld() == world && ModeManager.getFor(p) == ModeManager.Mode.PLAY) {
                 cb.accept(p);
                 return;
@@ -34,8 +32,7 @@ public class PlayerValue {
     }
 
     public <T> T apply(ServerWorld world, Function<ServerPlayerEntity, T> fn) {
-        ServerPlayerEntity p = FireFlow.server.getPlayerManager().getPlayer(uuid);
-        if (p != null) {
+        if (world.getPlayerByUuid(uuid) instanceof ServerPlayerEntity p) {
             if (p.getServerWorld() == world && ModeManager.getFor(p) == ModeManager.Mode.PLAY) {
                 return fn.apply(p);
             }

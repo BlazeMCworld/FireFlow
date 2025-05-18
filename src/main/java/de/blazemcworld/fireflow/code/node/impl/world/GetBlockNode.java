@@ -17,11 +17,7 @@ public class GetBlockNode extends Node {
 
         block.valueFrom((ctx) -> {
             Vec3d pos = position.getValue(ctx);
-            return Registries.BLOCK.getId(ctx.evaluator.world.getBlockState(new BlockPos(
-                (int) pos.x,
-                (int) pos.y,
-                (int) pos.z
-            )).getBlock()).getPath();
+            return Registries.BLOCK.getId(ctx.evaluator.world.getBlockState(BlockPos.ofFloored(pos)).getBlock()).getPath();
         });
     }
 

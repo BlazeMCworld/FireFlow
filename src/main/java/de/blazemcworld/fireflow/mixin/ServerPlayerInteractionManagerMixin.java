@@ -35,9 +35,7 @@ public class ServerPlayerInteractionManagerMixin {
             if (ModeManager.getFor(player) == ModeManager.Mode.PLAY && space.evaluator.onBreakBlock(player, pos)) {
                 cir.setReturnValue(false);
             }
-            if (ModeManager.getFor(player) == ModeManager.Mode.BUILD) {
-                cir.setReturnValue(false);
-            }
+            if (ModeManager.getFor(player) == ModeManager.Mode.BUILD) return;
             return;
         }
         if (player.hasPermissionLevel(4) && player.getGameMode() == GameMode.CREATIVE && world == Lobby.world) return;

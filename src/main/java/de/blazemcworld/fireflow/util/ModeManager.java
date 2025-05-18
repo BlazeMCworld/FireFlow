@@ -24,6 +24,7 @@ public class ModeManager {
     public static WeakHashMap<ServerPlayerEntity, TeleportTarget> respawnOverwrite = new WeakHashMap<>();
 
     public static Mode getFor(ServerPlayerEntity player) {
+        if (player instanceof DummyPlayer) return Mode.PLAY;
         return modes.getOrDefault(player.getUuid(), Mode.LOBBY);
     }
 
@@ -38,6 +39,7 @@ public class ModeManager {
 
     public static void move(ServerPlayerEntity player, Mode mode, Space space) {
         runOnWorld(player.getServerWorld(), () -> handleExit(player));
+        if (player instanceof DummyPlayer) return;
 
         space = space != null ? space : SpaceManager.getSpaceForPlayer(player);
         if (space == null) mode = Mode.LOBBY;

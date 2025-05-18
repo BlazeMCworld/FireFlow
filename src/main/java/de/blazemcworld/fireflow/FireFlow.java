@@ -125,6 +125,7 @@ public class FireFlow implements ModInitializer {
             FunctionCommand.register(cd);
             LocateCommand.register(cd);
             ShowLagCommand.register(cd);
+            DummyCommand.register(cd);
         });
     }
 }

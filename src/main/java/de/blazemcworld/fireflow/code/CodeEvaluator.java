@@ -11,6 +11,7 @@ import de.blazemcworld.fireflow.code.widget.NodeWidget;
 import de.blazemcworld.fireflow.code.widget.Widget;
 import de.blazemcworld.fireflow.space.PlayWorld;
 import de.blazemcworld.fireflow.space.Space;
+import de.blazemcworld.fireflow.util.DummyPlayer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemPlacementContext;
@@ -184,6 +185,9 @@ public class CodeEvaluator {
             if (node instanceof OnPlayerLeaveNode n) {
                 n.onLeave(this, player);
             }
+        }
+        if (player instanceof DummyPlayer) {
+            player.discard();
         }
     }
 
