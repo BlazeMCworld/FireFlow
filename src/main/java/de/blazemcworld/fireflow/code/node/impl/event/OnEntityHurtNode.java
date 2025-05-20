@@ -30,15 +30,14 @@ public class OnEntityHurtNode extends Node {
         type.valueFromScope();
     }
 
-    public boolean onEntityHurt(CodeEvaluator codeEvaluator, LivingEntity entity, float damage, String type, boolean cancel) {
+    public void onEntityHurt(CodeEvaluator codeEvaluator, LivingEntity entity, float damage, String type, CodeThread.EventContext ctx) {
         CodeThread thread = codeEvaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context = ctx;
         thread.setScopeValue(this.entity, new EntityValue(entity));
         thread.setScopeValue(this.amount, (double) damage);
         thread.setScopeValue(this.type, type);
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
     }
 
     @Override

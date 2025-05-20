@@ -19,17 +19,12 @@ public class SetVariableNode<T> extends SingleGenericNode<T> {
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<String> name = new Input<>("name", "Name", StringType.INSTANCE);
         Input<String> scope = new Input<>("scope", "Scope", StringType.INSTANCE)
-                .options("thread", "session", "saved");
+                .options(VariableStore.KNOWN_SCOPES);
         Input<T> value = new Input<>("value", "Value", type);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         signal.onSignal((ctx) -> {
-            VariableStore store = switch (scope.getValue(ctx)) {
-                case "saved" -> ctx.evaluator.space.savedVariables;
-                case "session" -> ctx.evaluator.sessionVariables;
-                case "thread" -> ctx.threadVariables;
-                default -> null;
-            };
+            VariableStore store = VariableStore.getScope(ctx, scope.getValue(ctx));
             if (store != null) store.set(name.getValue(ctx), type, value.getValue(ctx));
             ctx.sendSignal(next);
         });

@@ -32,13 +32,13 @@ public class OnPlayerDeathNode extends Node {
 
     public boolean onPlayerDeath(CodeEvaluator codeEvaluator, ServerPlayerEntity player, float damage, String type, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.setScopeValue(this.amount, (double) damage);
         thread.setScopeValue(this.type, type);
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
+        return thread.context.cancelled;
     }
 
     @Override

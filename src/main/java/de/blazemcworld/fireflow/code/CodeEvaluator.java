@@ -186,8 +186,9 @@ public class CodeEvaluator {
                 n.onLeave(this, player);
             }
         }
-        if (player instanceof DummyPlayer) {
-            player.discard();
+        if (player instanceof DummyPlayer dummy && !dummy.exitCalled) {
+            dummy.exitCalled = true;
+            dummy.discard();
         }
     }
 
@@ -270,7 +271,7 @@ public class CodeEvaluator {
         }
     }
 
-    public void onJoin(ServerPlayerEntity player) {
+    private void ensureInit() {
         if (!initCalled) {
             initCalled = true;
             world.markStarted();
@@ -281,7 +282,9 @@ public class CodeEvaluator {
                 }
             }
         }
+    }
 
+    public void onJoin(ServerPlayerEntity player) {
         for (Node n : nodes) {
             if (n instanceof OnPlayerJoinNode join) {
                 join.onJoin(this, player);
@@ -302,36 +305,47 @@ public class CodeEvaluator {
         return cancel;
     }
 
-    public boolean allowDamage(LivingEntity target, DamageSource source, float damage) {
-        boolean cancel = false;
-
+    public float adjustDamage(LivingEntity target, DamageSource source, float damage) {
         String type = source.getTypeRegistryEntry().getKey().map(k -> k.getValue().getPath()).orElse("unknown");
+        CodeThread.EventContext ctx = new CodeThread.EventContext(CodeThread.EventType.DAMAGE_EVENT);
+        ctx.eventNumber = damage;
 
         for (Node node : nodes) {
             if (node instanceof OnPlayerHurtNode n && target instanceof ServerPlayerEntity pl) {
-                cancel = n.onPlayerHurt(this, pl, damage, type, cancel);
+                n.onPlayerHurt(this, pl, damage, type, ctx);
             }
 
             if (node instanceof OnEntityHurtNode n && !(target instanceof ServerPlayerEntity)) {
-                cancel = n.onEntityHurt(this, target, damage, type, cancel);
+                n.onEntityHurt(this, target, damage, type, ctx);
             }
 
             if (node instanceof OnPlayerAttackPlayerNode n && target instanceof ServerPlayerEntity victim && source.getAttacker() instanceof ServerPlayerEntity attacker) {
-                cancel = n.onPlayerAttackPlayer(this, attacker, victim, damage, cancel);
+                n.onPlayerAttackPlayer(this, attacker, victim, damage, ctx);
             }
 
             if (node instanceof OnPlayerAttackEntityNode n && !(target instanceof ServerPlayerEntity) && source.getAttacker() instanceof ServerPlayerEntity attacker) {
-                cancel = n.onPlayerAttackEntity(this, attacker, target, damage, cancel);
+                n.onPlayerAttackEntity(this, attacker, target, damage, ctx);
             }
 
             if (node instanceof OnEntityAttackPlayerNode n && target instanceof ServerPlayerEntity victim && !(source.getAttacker() instanceof ServerPlayerEntity)) {
-                cancel = n.onEntityAttackPlayer(this, source.getAttacker(), victim, damage, cancel);
+                n.onEntityAttackPlayer(this, source.getAttacker(), victim, damage, ctx);
             }
 
             if (node instanceof OnEntityAttackEntityNode n && !(target instanceof ServerPlayerEntity) && !(source.getAttacker() instanceof ServerPlayerEntity)) {
-                cancel = n.onEntityAttackEntity(this, source.getAttacker(), target, damage, cancel);
+                n.onEntityAttackEntity(this, source.getAttacker(), target, damage, ctx);
             }
         }
-        return !cancel;
+
+        if (ctx.cancelled) return -1;
+        return (float) ctx.eventNumber;
+    }
+
+    public void onChunkLoad(int x, int z) {
+        ensureInit();
+        for (Node node : nodes) {
+            if (node instanceof OnChunkLoadNode onChunkLoadNode) {
+                onChunkLoadNode.emit(this, x, z);
+            }
+        }
     }
 }

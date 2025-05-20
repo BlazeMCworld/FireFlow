@@ -1,8 +1,6 @@
 package de.blazemcworld.fireflow;
 
-import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.NodeList;
-import de.blazemcworld.fireflow.code.node.impl.event.OnChunkLoadNode;
 import de.blazemcworld.fireflow.code.type.AllTypes;
 import de.blazemcworld.fireflow.command.*;
 import de.blazemcworld.fireflow.space.Lobby;
@@ -82,24 +80,12 @@ public class FireFlow implements ModInitializer {
 
         ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
             if (world instanceof PlayWorld play) {
-                play.submit(() -> {
-                    for (Node node : play.space.evaluator.nodes) {
-                        if (node instanceof OnChunkLoadNode onChunkLoadNode) {
-                            onChunkLoadNode.emit(play.space.evaluator, chunk.getPos().x, chunk.getPos().z);
-                        }
-                    }
-                });
+                play.submit(() -> play.space.evaluator.onChunkLoad(chunk.getPos().x, chunk.getPos().z));
             }
         });
         ServerChunkEvents.CHUNK_GENERATE.register((world, chunk) -> {
             if (world instanceof PlayWorld play) {
-                play.submit(() -> {
-                    for (Node node : play.space.evaluator.nodes) {
-                        if (node instanceof OnChunkLoadNode onChunkLoadNode) {
-                            onChunkLoadNode.emit(play.space.evaluator, chunk.getPos().x, chunk.getPos().z);
-                        }
-                    }
-                });
+                play.submit(() -> play.space.evaluator.onChunkLoad(chunk.getPos().x, chunk.getPos().z));
             }
         });
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
@@ -107,11 +93,7 @@ public class FireFlow implements ModInitializer {
             if (space != null && space.playWorld == entity.getWorld()) return space.evaluator.allowDeath(entity, source, amount);
             return true;
         });
-        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
-            Space space = SpaceManager.getSpaceForWorld((ServerWorld) entity.getWorld());
-            if (space != null && space.playWorld == entity.getWorld()) return space.evaluator.allowDamage(entity, source, amount);
-            return true;
-        });
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> amount >= 0);
 
         CommandRegistrationCallback.EVENT.register((cd, reg, env) -> {
             CodeCommand.register(cd);
@@ -126,6 +108,7 @@ public class FireFlow implements ModInitializer {
             LocateCommand.register(cd);
             ShowLagCommand.register(cd);
             DummyCommand.register(cd);
+            VariablesCommand.register(cd);
         });
     }
 }

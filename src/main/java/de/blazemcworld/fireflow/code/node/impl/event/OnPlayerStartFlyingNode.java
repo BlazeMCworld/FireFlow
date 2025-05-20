@@ -30,10 +30,10 @@ public class OnPlayerStartFlyingNode extends Node {
 
     public boolean onStartFlying(CodeEvaluator evaluator, ServerPlayerEntity player, boolean cancel) {
         CodeThread thread = evaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
+        return thread.context.cancelled;
     }
 }

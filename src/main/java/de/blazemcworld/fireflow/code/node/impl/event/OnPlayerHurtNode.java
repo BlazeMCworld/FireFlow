@@ -30,15 +30,14 @@ public class OnPlayerHurtNode extends Node {
         type.valueFromScope();
     }
 
-    public boolean onPlayerHurt(CodeEvaluator codeEvaluator, ServerPlayerEntity player, float damage, String type, boolean cancel) {
+    public void onPlayerHurt(CodeEvaluator codeEvaluator, ServerPlayerEntity player, float damage, String type, CodeThread.EventContext ctx) {
         CodeThread thread = codeEvaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context = ctx;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.setScopeValue(this.amount, (double) damage);
         thread.setScopeValue(this.type, type);
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
     }
 
     @Override

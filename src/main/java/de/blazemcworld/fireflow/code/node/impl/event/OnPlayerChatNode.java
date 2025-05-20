@@ -34,11 +34,11 @@ public class OnPlayerChatNode extends Node {
 
     public boolean onChat(CodeEvaluator evaluator, ServerPlayerEntity player, String message, boolean cancel) {
         CodeThread thread = evaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.setScopeValue(this.message, message);
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
+        return thread.context.cancelled;
     }
 }

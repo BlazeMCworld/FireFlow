@@ -42,14 +42,14 @@ public class OnPlayerPlaceBlockNode extends Node {
     public boolean onPlaceBlock(CodeEvaluator codeEvaluator, ItemPlacementContext context, boolean cancel) {
         if (context.getPlayer() instanceof ServerPlayerEntity p) {
             CodeThread thread = codeEvaluator.newCodeThread();
-            thread.eventCancelled = cancel;
+            thread.context.cancelled = cancel;
             thread.setScopeValue(this.player, new PlayerValue(p));
             thread.setScopeValue(this.position, Vec3d.of(context.getBlockPos()));
             thread.setScopeValue(this.item, context.getStack());
             thread.setScopeValue(this.isMainHand, context.getHand() == Hand.MAIN_HAND);
             thread.sendSignal(signal);
             thread.clearQueue();
-            return thread.eventCancelled;
+            return thread.context.cancelled;
         }
         return false;
     }

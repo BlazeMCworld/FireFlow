@@ -14,7 +14,7 @@ public class CancelEventNode extends Node {
         Input<Boolean> cancel = new Input<>("cancel", "Cancel", ConditionType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
         signal.onSignal((ctx) -> {
-            ctx.eventCancelled = cancel.getValue(ctx);
+            ctx.context.cancelled = cancel.getValue(ctx);
             ctx.sendSignal(next);
         });
     }

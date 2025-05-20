@@ -17,10 +17,7 @@ import de.blazemcworld.fireflow.code.node.impl.text.CombineTextsNode;
 import de.blazemcworld.fireflow.code.node.impl.text.FormatToTextNode;
 import de.blazemcworld.fireflow.code.node.impl.variable.*;
 import de.blazemcworld.fireflow.code.node.impl.vector.*;
-import de.blazemcworld.fireflow.code.node.impl.world.CpuUsageNode;
-import de.blazemcworld.fireflow.code.node.impl.world.GetBlockNode;
-import de.blazemcworld.fireflow.code.node.impl.world.SetBlockNode;
-import de.blazemcworld.fireflow.code.node.impl.world.SetRegionNode;
+import de.blazemcworld.fireflow.code.node.impl.world.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 
@@ -92,6 +89,7 @@ public class NodeList {
                         .add(new OnPlayerSwapHandsNode())
                         .add(new OnPlayerSwingHandNode())
                         .add(new OnPlayerUseItemNode())
+                        .add(new SetEventDamageNode())
                 )
                 .add(new Category("Control", Items.REPEATER)
                         .add(new GridRepeatNode())
@@ -194,8 +192,10 @@ public class NodeList {
                                 .add(new GetExperienceLevelNode())
                                 .add(new GetExperiencePercentageNode())
                                 .add(new GetHeldSlotNode())
+                                .add(new GetPlayerEquipmentNode())
                                 .add(new GetPlayerFoodNode())
                                 .add(new GetPlayerHealthNode())
+                                .add(new GetPlayerInventoryNode())
                                 .add(new GetPlayerItemCooldownNode())
                                 .add(new GetPlayerNameNode())
                                 .add(new GetPlayerSaturationNode())
@@ -209,6 +209,7 @@ public class NodeList {
                                 .add(new PlayerFromUUIDNode())
                                 .add(new PlayerHandItemsNode())
                                 .add(new PlayerHasItemNode())
+                                .add(new PlayerHasPermissionNode())
                                 .add(new PlayerIsFlyingNode())
                                 .add(new PlayerItemHasCooldownNode())
                                 .add(new PlayerListNode())
@@ -227,6 +228,7 @@ public class NodeList {
                         .add(new CharacterAtNode())
                         .add(new CombineStringsNode())
                         .add(new ReplaceStringNode())
+                        .add(new SplitStringNode())
                         .add(new StringLengthNode())
                         .add(new SubstringNode())
                 )
@@ -234,6 +236,7 @@ public class NodeList {
                         .add(new AddVectorsNode())
                         .add(new GetVectorComponentNode())
                         .add(new PackVectorNode())
+                        .add(new ReflectVectorNode())
                         .add(new RoundVectorAxesNode())
                         .add(new SetVectorComponentNode())
                         .add(new SetVectorLengthNode())
@@ -256,7 +259,10 @@ public class NodeList {
                 )
                 .add(new Category("World", Items.GRASS_BLOCK)
                         .add(new CpuUsageNode())
+                        .add(new DebugMessageNode())
                         .add(new GetBlockNode())
+                        .add(new GetBlockLightNode())
+                        .add(new RaycastNode())
                         .add(new SetBlockNode())
                         .add(new SetRegionNode())
                 )

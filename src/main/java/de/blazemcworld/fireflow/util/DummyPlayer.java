@@ -14,10 +14,11 @@ import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket;
 import net.minecraft.server.network.ConnectedClientData;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class DummyPlayer extends ServerPlayerEntity {
 
@@ -33,6 +34,7 @@ public class DummyPlayer extends ServerPlayerEntity {
     public final Space space;
     public final DummyManager manager;
     private final List<Runnable> nextTick = new ArrayList<>();
+    public boolean exitCalled = false;
 
     public DummyPlayer(Space space, int id) {
         super(FireFlow.server, space.playWorld, dummyProfiles[id - 1], SyncedClientOptions.createDefault());
@@ -53,6 +55,10 @@ public class DummyPlayer extends ServerPlayerEntity {
 
     @Override
     public void remove(RemovalReason reason) {
+        if (!exitCalled) {
+            exitCalled = true;
+            space.evaluator.exitPlay(this);
+        }
         super.remove(reason);
         manager.forgetDummy(dummyId);
         FireFlow.server.getPlayerManager().sendToAll(new PlayerRemoveS2CPacket(List.of(uuid)));
@@ -65,10 +71,15 @@ public class DummyPlayer extends ServerPlayerEntity {
         for (Runnable task : tasks) task.run();
         updateSupportingBlockPos(true, null);
         setOnGround(supportingBlockPos.isPresent());
-        travel(Vec3d.ZERO);
         super.tick();
+        super.playerTick();
     }
-    
+
+    @Override
+    public void playerTick() {
+        // Moved into regular tick
+    }
+
     @Override
     public boolean isControlledByPlayer() {
         return false;

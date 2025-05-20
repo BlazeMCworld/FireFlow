@@ -40,12 +40,12 @@ public class OnPlayerUseItemNode extends Node {
 
     public boolean onUseItem(CodeEvaluator codeEvaluator, ServerPlayerEntity player, ItemStack stack, Hand hand, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.setScopeValue(this.item, stack);
         thread.setScopeValue(this.isMainHand, hand == Hand.MAIN_HAND);
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
+        return thread.context.cancelled;
     }
 }

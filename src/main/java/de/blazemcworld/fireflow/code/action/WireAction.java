@@ -58,6 +58,7 @@ public class WireAction implements CodeAction {
             endPos = io.pos().sub(-1 / 4f, 1 / 8f);
             hover = io;
         }
+        cursor = cursor.gridAligned();
         if (wires.isEmpty()) {
             WireWidget lastWire = new WireWidget(startPos, type, startPos);
             lastWire.update();

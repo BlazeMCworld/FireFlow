@@ -14,16 +14,11 @@ public class GetVariableNode<T> extends SingleGenericNode<T> {
 
         Input<String> name = new Input<>("name", "Name", StringType.INSTANCE);
         Input<String> scope = new Input<>("scope", "Scope", StringType.INSTANCE)
-                .options("Thread", "Session", "Saved");
+                .options(VariableStore.KNOWN_SCOPES);
         Output<T> value = new Output<>("value", "Value", type);
 
         value.valueFrom((ctx) -> {
-            VariableStore store = switch (scope.getValue(ctx)) {
-                case "Saved" -> ctx.evaluator.space.savedVariables;
-                case "Session" -> ctx.evaluator.sessionVariables;
-                case "Thread" -> ctx.threadVariables;
-                default -> null;
-            };
+            VariableStore store = VariableStore.getScope(ctx, scope.getValue(ctx));
             if (store == null) return type.defaultValue();
             return store.get(name.getValue(ctx), type);
         });

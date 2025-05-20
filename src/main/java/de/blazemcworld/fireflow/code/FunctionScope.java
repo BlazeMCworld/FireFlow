@@ -6,7 +6,8 @@ import de.blazemcworld.fireflow.code.node.impl.function.FunctionCallNode;
 import java.util.HashMap;
 
 public final class FunctionScope {
-    public final HashMap<Node.Output<?>, Object> store = new HashMap<>();
+    public final HashMap<Node.Output<?>, Object> scopeStore = new HashMap<>();
+    public final VariableStore varStore = new VariableStore();
     public final FunctionCallNode call;
     public final FunctionScope parent;
 
@@ -18,7 +19,7 @@ public final class FunctionScope {
     public FunctionScope copy() {
         FunctionScope p = parent == null ? null : parent.copy();
         FunctionScope c = new FunctionScope(p, call);
-        c.store.putAll(store);
+        c.scopeStore.putAll(scopeStore);
         return c;
     }
 }

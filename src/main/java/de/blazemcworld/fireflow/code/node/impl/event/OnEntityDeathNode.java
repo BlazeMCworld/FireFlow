@@ -37,12 +37,12 @@ public class OnEntityDeathNode extends Node {
 
     public boolean onEntityDeath(CodeEvaluator codeEvaluator, LivingEntity target, float damage, String type, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context.cancelled = cancel;
         thread.setScopeValue(this.entity, new EntityValue(target));
         thread.setScopeValue(this.amount, (double) damage);
         thread.setScopeValue(this.type, type);
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
+        return thread.context.cancelled;
     }
 }

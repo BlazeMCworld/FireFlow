@@ -32,15 +32,14 @@ public class OnPlayerAttackEntityNode extends Node {
         amount.valueFromScope();
     }
 
-    public boolean onPlayerAttackEntity(CodeEvaluator codeEvaluator, ServerPlayerEntity attacker, LivingEntity victim, float damage, boolean cancel) {
+    public void onPlayerAttackEntity(CodeEvaluator codeEvaluator, ServerPlayerEntity attacker, LivingEntity victim, float damage, CodeThread.EventContext ctx) {
         CodeThread thread = codeEvaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context = ctx;
         thread.setScopeValue(this.attacker, new PlayerValue(attacker));
         thread.setScopeValue(this.victim, new EntityValue(victim));
         thread.setScopeValue(this.amount, (double) damage);
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
     }
 
     @Override

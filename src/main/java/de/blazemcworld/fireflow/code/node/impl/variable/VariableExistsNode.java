@@ -16,16 +16,11 @@ public class VariableExistsNode extends Node {
 
         Input<String> name = new Input<>("name", "Name", StringType.INSTANCE);
         Input<String> scope = new Input<>("scope", "Scope", StringType.INSTANCE)
-                .options("thread", "session", "saved");
+                .options(VariableStore.KNOWN_SCOPES);
         Output<Boolean> exists = new Output<>("exists", "Exists", ConditionType.INSTANCE);
 
         exists.valueFrom((ctx) -> {
-            VariableStore store = switch (scope.getValue(ctx)) {
-                case "saved" -> ctx.evaluator.space.savedVariables;
-                case "session" -> ctx.evaluator.sessionVariables;
-                case "thread" -> ctx.threadVariables;
-                default -> null;
-            };
+            VariableStore store = VariableStore.getScope(ctx, scope.getValue(ctx));
             if (store == null) return false;
             return store.has(name.getValue(ctx));
         });

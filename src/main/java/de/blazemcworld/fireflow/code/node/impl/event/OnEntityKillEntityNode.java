@@ -31,13 +31,13 @@ public class OnEntityKillEntityNode extends Node {
 
     public boolean onEntityKillEntity(CodeEvaluator codeEvaluator, Entity attacker, Entity victim, float damage, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
-        thread.eventCancelled = cancel;
+        thread.context.cancelled = cancel;
         thread.setScopeValue(this.attacker, new EntityValue(attacker));
         thread.setScopeValue(this.victim, new EntityValue(victim));
         thread.setScopeValue(this.amount, (double) damage);
         thread.sendSignal(signal);
         thread.clearQueue();
-        return thread.eventCancelled;
+        return thread.context.cancelled;
     }
 
     @Override

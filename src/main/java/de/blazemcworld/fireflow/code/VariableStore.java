@@ -5,11 +5,26 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.code.type.AllTypes;
 import de.blazemcworld.fireflow.code.type.WireType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
 
 public class VariableStore {
+
+    public static final String[] KNOWN_SCOPES = new String[] {
+            "thread", "function", "session", "saved"
+    };
+
+    public static @Nullable VariableStore getScope(CodeThread thread, String type) {
+        return switch (type) {
+            case "thread" -> thread.threadVariables;
+            case "function" -> thread.functionScope.varStore;
+            case "session" -> thread.evaluator.sessionVariables;
+            case "saved" -> thread.evaluator.space.savedVariables;
+            default -> null;
+        };
+    }
 
     private final HashMap<String, Object> values = new HashMap<>();
     private final HashMap<String, WireType<?>> types = new HashMap<>();
