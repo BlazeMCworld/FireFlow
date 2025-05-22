@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.mixin;
 
 import com.mojang.brigadier.ParseResults;
 import de.blazemcworld.fireflow.code.CodeInteraction;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.inventory.InventoryMenu;
 import de.blazemcworld.fireflow.space.Lobby;
 import de.blazemcworld.fireflow.space.PlayWorld;
@@ -66,7 +67,7 @@ public class ServerPlayNetworkHandlerMixin {
                 }
             }
             if (space != null && ModeManager.getFor(player) == ModeManager.Mode.CODE && packet.getAction() == PlayerActionC2SPacket.Action.SWAP_ITEM_WITH_OFFHAND) {
-                space.editor.handleInteraction(player, CodeInteraction.Type.SWAP_HANDS);
+                space.editor.handleInteraction(EditOrigin.ofPlayer(player), CodeInteraction.Type.SWAP_HANDS);
             }
             ci.cancel();
             player.playerScreenHandler.syncState();
@@ -88,7 +89,7 @@ public class ServerPlayNetworkHandlerMixin {
     private void handleChat(ServerPlayNetworkHandler instance, SignedMessage message) {
         Space space = SpaceManager.getSpaceForPlayer(player);
         if (space != null && ModeManager.getFor(player) == ModeManager.Mode.CODE) {
-            if (space.editor.handleInteraction(player, CodeInteraction.Type.CHAT, message.getSignedContent())) {
+            if (space.editor.handleInteraction(EditOrigin.ofPlayer(player), CodeInteraction.Type.CHAT, message.getSignedContent())) {
                 return;
             }
         }

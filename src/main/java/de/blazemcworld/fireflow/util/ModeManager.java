@@ -1,6 +1,7 @@
 package de.blazemcworld.fireflow.util;
 
 import de.blazemcworld.fireflow.FireFlow;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.node.impl.player.effect.SetPlayerSkinNode;
 import de.blazemcworld.fireflow.space.Lobby;
 import de.blazemcworld.fireflow.space.PlayWorld;
@@ -58,7 +59,7 @@ public class ModeManager {
             runOnWorld(space.codeWorld, () -> {
                 ServerPlayerEntity newPlayer = transfer(player, lambdaSpace.codeWorld);
                 modes.put(newPlayer.getUuid(), Mode.CODE);
-                lambdaSpace.editor.enterCode(newPlayer);
+                lambdaSpace.editor.enterCode(EditOrigin.ofPlayer(newPlayer));
             });
             return;
         }
@@ -98,7 +99,7 @@ public class ModeManager {
         Mode mode = getFor(player);
 
         if (mode == Mode.CODE && space != null) {
-            space.editor.exitCode(player);
+            space.editor.exitCode(EditOrigin.ofPlayer(player));
         }
         if (mode == Mode.PLAY && space != null) {
             space.playWorld.submit(() -> {

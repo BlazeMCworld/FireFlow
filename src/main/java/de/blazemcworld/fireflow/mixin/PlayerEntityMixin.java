@@ -1,6 +1,7 @@
 package de.blazemcworld.fireflow.mixin;
 
 import de.blazemcworld.fireflow.code.CodeInteraction;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.ModeManager;
@@ -24,7 +25,7 @@ public class PlayerEntityMixin {
 
         Space space = SpaceManager.getSpaceForPlayer(player);
         if (ModeManager.getFor(player) == ModeManager.Mode.CODE && space != null && hand == Hand.MAIN_HAND) {
-            space.editor.handleInteraction(player, CodeInteraction.Type.RIGHT_CLICK);
+            space.editor.handleInteraction(EditOrigin.ofPlayer(player), CodeInteraction.Type.RIGHT_CLICK);
             cir.setReturnValue(ActionResult.SUCCESS);
         }
     }
@@ -35,7 +36,7 @@ public class PlayerEntityMixin {
 
         Space space = SpaceManager.getSpaceForPlayer(player);
         if (ModeManager.getFor(player) == ModeManager.Mode.CODE && space != null) {
-            space.editor.handleInteraction(player, CodeInteraction.Type.LEFT_CLICK);
+            space.editor.handleInteraction(EditOrigin.ofPlayer(player), CodeInteraction.Type.LEFT_CLICK);
             ci.cancel();
         }
     }

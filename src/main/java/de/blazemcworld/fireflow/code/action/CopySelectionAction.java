@@ -1,10 +1,10 @@
 package de.blazemcworld.fireflow.code.action;
 
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionInputsNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionOutputsNode;
 import de.blazemcworld.fireflow.code.widget.*;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.*;
 
@@ -118,7 +118,7 @@ public class CopySelectionAction implements CodeAction {
     }
 
     @Override
-    public void tick(WidgetVec cursor, ServerPlayerEntity player) {
+    public void tick(WidgetVec cursor, EditOrigin player) {
         cursor.editor().stopAction(player);
         if (widgets.isEmpty()) return;
         cursor.editor().lockWidgets(widgets, player);

@@ -33,7 +33,7 @@ public class NodeWidget extends Widget {
             ButtonWidget helpButton = new ButtonWidget(pos, Text.literal(" ?").formatted(Formatting.GRAY));
             helpButton.handler = interaction -> {
                 if (interaction.type() != CodeInteraction.Type.RIGHT_CLICK) return false;
-                interaction.player().sendMessage(Text.literal(node.description).formatted(Formatting.YELLOW));
+                interaction.origin().sendInfo(node.description);
                 return true;
             };
             title.widgets.add(helpButton);
@@ -219,7 +219,7 @@ public class NodeWidget extends Widget {
         boolean lockedWire = false;
         for (NodeIOWidget io : getIOWidgets()) {
             for (WireWidget wire : io.connections) {
-                if (i.pos().editor().isLocked(wire) != null && !i.pos().editor().isLockedByPlayer(wire, i.player())) {
+                if (i.pos().editor().isLocked(wire) != null && !i.pos().editor().isLockedByPlayer(wire, i.origin())) {
                     lockedWire = true;
                     break;
                 }
@@ -227,10 +227,10 @@ public class NodeWidget extends Widget {
         }
         if (i.type() == CodeInteraction.Type.LEFT_CLICK) {
             if (lockedWire) {
-                i.player().sendMessage(Text.literal("Node is currently in use by another player!").formatted(Formatting.RED));
+                i.origin().sendError("Node is currently in use by another player!");
             } else {
                 if (node instanceof FunctionInputsNode || node instanceof FunctionOutputsNode) {
-                    i.player().sendMessage(Text.literal("Use /function delete to delete a function!").formatted(Formatting.RED));
+                    i.origin().sendError("Use /function delete to delete a function!");
                     return true;
                 }
                 remove();
@@ -238,9 +238,9 @@ public class NodeWidget extends Widget {
             }
             return true;
         }
-        if (i.type() == CodeInteraction.Type.RIGHT_CLICK && i.pos().editor().lockWidget(this, i.player())) {
-            if (!lockedWire) i.pos().editor().setAction(i.player(), new DragNodeAction(this, pos().sub(i.pos()), i.player()));
-            else i.player().sendMessage(Text.literal("Node is currently in use by another player!").formatted(Formatting.RED));
+        if (i.type() == CodeInteraction.Type.RIGHT_CLICK && i.pos().editor().lockWidget(this, i.origin())) {
+            if (!lockedWire) i.pos().editor().setAction(i.origin(), new DragNodeAction(this, pos().sub(i.pos()), i.origin()));
+            else i.origin().sendError("Node is currently in use by another player!");
             return true;
         }
         return false;

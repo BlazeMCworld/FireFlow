@@ -6,6 +6,8 @@ import de.blazemcworld.fireflow.space.Space;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public class ReloadCommand {
 
@@ -17,6 +19,7 @@ public class ReloadCommand {
                     if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
 
                     space.reload();
+                    player.sendMessage(Text.literal("Reloaded space!").formatted(Formatting.AQUA));
                     return Command.SINGLE_SUCCESS;
                 })
         );

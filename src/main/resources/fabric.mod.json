@@ -7,7 +7,7 @@
     "authors": [],
     "contact": {},
     "license": "GPL-3.0",
-    "icon": "assets/fireflow/icon.png",
+    "icon": "fireflow.png",
     "environment": "server",
     "entrypoints": {
         "main": [

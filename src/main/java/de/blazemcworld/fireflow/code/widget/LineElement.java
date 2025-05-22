@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.code.widget;
 
+import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.FireFlow;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -54,13 +55,34 @@ public class LineElement {
             });
             spawned = true;
         }
+
+        sendWeb();
     }
 
     public void remove() {
         display.remove(Entity.RemovalReason.DISCARDED);
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "remove");
+        json.addProperty("id", display.getUuid().toString());
+        from.editor().webBroadcast(json);
     }
 
     public void color(TextColor color) {
         display.setText(Text.literal("-").setStyle(Style.EMPTY.withColor(color)));
+        sendWeb();
+    }
+
+    private void sendWeb() {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "line");
+        json.addProperty("id", display.getUuid().toString());
+        json.addProperty("fromX", from.x());
+        json.addProperty("fromY", from.y());
+        json.addProperty("toX", to.x());
+        json.addProperty("toY", to.y());
+        TextColor color = display.getText().getStyle().getColor();
+        json.addProperty("color", color == null ? "" : color.getHexCode());
+        from.editor().webBroadcast(json);
     }
 }

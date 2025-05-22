@@ -21,7 +21,7 @@ public class DeleteSelectAction extends SelectAction {
     @Override
     public boolean interact(CodeInteraction i) {
         if (i.type() == CodeInteraction.Type.RIGHT_CLICK) {
-            i.pos().editor().stopAction(i.player());
+            i.pos().editor().stopAction(i.origin());
             return true;
         }
         else if (i.type() == CodeInteraction.Type.LEFT_CLICK) {
@@ -48,7 +48,7 @@ public class DeleteSelectAction extends SelectAction {
                     i.pos().editor().rootWidgets.remove(nodeWidget);
                 }
             }
-            i.pos().editor().stopAction(i.player());
+            i.pos().editor().stopAction(i.origin());
             return true;
         }
         return false;

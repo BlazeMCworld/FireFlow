@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.code.node.impl.world;
 
+import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
@@ -37,6 +38,10 @@ public class DebugMessageNode extends Node {
                     player.sendMessage(msg, false);
                 }
             }
+            JsonObject json = new JsonObject();
+            json.addProperty("type", "info");
+            json.addProperty("message", "Debug: " + out);
+            ctx.evaluator.space.editor.webBroadcast(json);
             ctx.sendSignal(next);
         });
     }

@@ -1,6 +1,7 @@
 package de.blazemcworld.fireflow.code;
 
 import de.blazemcworld.fireflow.code.node.Node;
+import de.blazemcworld.fireflow.code.type.SignalType;
 
 import java.util.Stack;
 
@@ -12,6 +13,7 @@ public class CodeThread {
     public FunctionScope functionScope = new FunctionScope(null, null);
     private boolean paused = false;
     public EventContext context = new EventContext(EventType.UNSPECIFIED);
+    private boolean isDebug = false;
 
     public CodeThread(CodeEvaluator evaluator) {
         this.evaluator = evaluator;
@@ -28,7 +30,21 @@ public class CodeThread {
     }
 
     public void sendSignal(Node.Output<Void> signal) {
-        todo.add(() -> signal.sendSignalImmediately(this));
+        todo.add(() -> {
+            notifyDebug(signal);
+            signal.sendSignalImmediately(this);
+        });
+    }
+
+    public void notifyDebug(Node.Output<?> out) {
+        if (!isDebug) return;
+        if (out.type == SignalType.INSTANCE) {
+            Node.Input<?> input = out.connected;
+            if (input == null) return;
+            evaluator.visualizeDebug(input.getNode());
+        } else {
+            evaluator.visualizeDebug(out.getNode());
+        }
     }
 
     public void submit(Runnable r) {
@@ -46,6 +62,7 @@ public class CodeThread {
     public CodeThread subThread() {
         CodeThread thread = new CodeThread(evaluator);
         thread.functionScope = functionScope.copy();
+        thread.isDebug = isDebug;
         return thread;
     }
 
@@ -56,6 +73,10 @@ public class CodeThread {
     public void resume() {
         paused = false;
         clearQueue();
+    }
+
+    public void markDebug() {
+        isDebug = true;
     }
 
     public static class EventContext {

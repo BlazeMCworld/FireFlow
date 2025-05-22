@@ -3,6 +3,7 @@ package de.blazemcworld.fireflow.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.space.Space;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -18,7 +19,7 @@ public class FunctionCommand {
                                     ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
                                     Space space = CommandHelper.getSpace(player);
                                     if (!CommandHelper.isInCode(player, space)) return Command.SINGLE_SUCCESS;
-                                    space.editor.createFunction(player, StringArgumentType.getString(ctx, "name"));
+                                    space.editor.createFunction(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "name"));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -28,7 +29,7 @@ public class FunctionCommand {
                             ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
                             Space space = CommandHelper.getSpace(player);
                             if (!CommandHelper.isInCode(player, space)) return Command.SINGLE_SUCCESS;
-                            space.editor.deleteFunction(player);
+                            space.editor.deleteFunction(EditOrigin.ofPlayer(player));
                             return Command.SINGLE_SUCCESS;
                         })
                 )
@@ -38,7 +39,7 @@ public class FunctionCommand {
                                     ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
                                     Space space = CommandHelper.getSpace(player);
                                     if (!CommandHelper.isInCode(player, space)) return Command.SINGLE_SUCCESS;
-                                    space.editor.setFunctionIcon(player, StringArgumentType.getString(ctx, "icon"));
+                                    space.editor.setFunctionIcon(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "icon"));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -50,7 +51,7 @@ public class FunctionCommand {
                                             ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
                                             Space space = CommandHelper.getSpace(player);
                                             if (!CommandHelper.isInCode(player, space)) return Command.SINGLE_SUCCESS;
-                                            space.editor.addFunctionInput(player, StringArgumentType.getString(ctx, "input"));
+                                            space.editor.addFunctionInput(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "input"));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -61,7 +62,7 @@ public class FunctionCommand {
                                             ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
                                             Space space = CommandHelper.getSpace(player);
                                             if (!CommandHelper.isInCode(player, space)) return Command.SINGLE_SUCCESS;
-                                            space.editor.addFunctionOutput(player, StringArgumentType.getString(ctx, "output"));
+                                            space.editor.addFunctionOutput(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "output"));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -74,7 +75,7 @@ public class FunctionCommand {
                                             ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
                                             Space space = CommandHelper.getSpace(player);
                                             if (!CommandHelper.isInCode(player, space)) return Command.SINGLE_SUCCESS;
-                                            space.editor.removeFunctionInput(player, StringArgumentType.getString(ctx, "input"));
+                                            space.editor.removeFunctionInput(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "input"));
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -85,7 +86,7 @@ public class FunctionCommand {
                                                     Space space = CommandHelper.getSpace(player);
                                                     if (!CommandHelper.isInCode(player, space))
                                                         return Command.SINGLE_SUCCESS;
-                                                    space.editor.removeFunctionOutput(player, StringArgumentType.getString(ctx, "output"));
+                                                    space.editor.removeFunctionOutput(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "output"));
                                                     return Command.SINGLE_SUCCESS;
                                                 })
                                         )

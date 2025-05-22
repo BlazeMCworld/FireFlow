@@ -75,6 +75,7 @@ public class Space {
         for (ServerPlayerEntity player : new ArrayList<>(codeWorld.getPlayers())) {
             ModeManager.move(player, ModeManager.Mode.LOBBY, this);
         }
+        editor.close();
 
         evaluator.stop();
         playWorld.closeSoon(null);

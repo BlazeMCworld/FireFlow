@@ -6,8 +6,10 @@ import de.blazemcworld.fireflow.code.node.option.InputOptions;
 import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.value.ListValue;
+import de.blazemcworld.fireflow.code.widget.NodeWidget;
 import net.minecraft.item.Item;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +26,7 @@ public abstract class Node {
     public List<Input<?>> inputs = new ArrayList<>();
     public List<Varargs<?>> varargs = new ArrayList<>();
     public List<Output<?>> outputs = new ArrayList<>();
+    public WeakReference<NodeWidget> originWidget; // Only available in the CodeEvaluator nodes, reference to the widget that created this node
 
     protected Node(String id, String name, String description, Item icon) {
         this.id = id;
@@ -75,6 +78,7 @@ public abstract class Node {
         @SuppressWarnings("unchecked")
         public T getValue(CodeThread ctx) {
             if (connected != null) {
+                ctx.notifyDebug(connected);
                 Object out = connected.computeNow(ctx);
                 if (connected.type == type) return (T) out;
                 return type.convert(connected.type, out);
@@ -113,7 +117,7 @@ public abstract class Node {
             if (inset == null && options != null) inset = options.fallback();
         }
 
-        public void connect(Output<T> output) {
+        public void connect(Output<?> output) {
             if (output == null) {
                 connected = null;
             } else if (canUnderstand(output.type)) {
@@ -140,7 +144,7 @@ public abstract class Node {
         public final String id;
         public final String name;
         public final WireType<T> type;
-        public Input<T> connected;
+        public Input<?> connected;
         private Function<CodeThread, T> logic;
 
         public Output(String id, String name, WireType<T> type) {

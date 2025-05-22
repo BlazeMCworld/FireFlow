@@ -2,13 +2,13 @@ package de.blazemcworld.fireflow.code.action;
 
 import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.CodeInteraction;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionInputsNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionOutputsNode;
 import de.blazemcworld.fireflow.code.widget.NodeIOWidget;
 import de.blazemcworld.fireflow.code.widget.NodeWidget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
 import de.blazemcworld.fireflow.code.widget.WireWidget;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 
@@ -21,7 +21,7 @@ public class DragNodeAction implements CodeAction {
     private final WidgetVec offset;
     private final List<NodeIOWidget> iowidgets;
 
-    public DragNodeAction(NodeWidget node, WidgetVec offset, ServerPlayerEntity player) {
+    public DragNodeAction(NodeWidget node, WidgetVec offset, EditOrigin player) {
         this.node = node;
         this.offset = offset;
 
@@ -53,7 +53,7 @@ public class DragNodeAction implements CodeAction {
     }
 
     @Override
-    public void tick(WidgetVec cursor, ServerPlayerEntity player) {
+    public void tick(WidgetVec cursor, EditOrigin player) {
         node.pos(cursor.add(offset).gridAligned());
         node.update();
         for (NodeIOWidget ioWidget : iowidgets) {
@@ -76,7 +76,7 @@ public class DragNodeAction implements CodeAction {
 
     @Override
     public boolean interact(CodeInteraction i) {
-        if (i.type() == CodeInteraction.Type.RIGHT_CLICK) i.pos().editor().stopAction(i.player());
+        if (i.type() == CodeInteraction.Type.RIGHT_CLICK) i.pos().editor().stopAction(i.origin());
         if (i.type() == CodeInteraction.Type.SWAP_HANDS) {
             if (node.node instanceof FunctionInputsNode || node.node instanceof FunctionOutputsNode) return false;
             NodeWidget copy = new NodeWidget(node.pos(), node.node.copy());
@@ -92,14 +92,14 @@ public class DragNodeAction implements CodeAction {
             }
             copy.update();
             i.pos().editor().rootWidgets.add(copy);
-            i.pos().editor().stopAction(i.player());
-            i.pos().editor().setAction(i.player(), new DragNodeAction(copy, offset, i.player()));
+            i.pos().editor().stopAction(i.origin());
+            i.pos().editor().setAction(i.origin(), new DragNodeAction(copy, offset, i.origin()));
         }
         return true;
     }
 
     @Override
-    public void stop(CodeEditor editor, ServerPlayerEntity player) {
+    public void stop(CodeEditor editor, EditOrigin player) {
         node.borderColor(TextColor.fromFormatting(Formatting.WHITE));
         editor.unlockWidget(node, player);
         for (NodeIOWidget IOWidget : iowidgets) {

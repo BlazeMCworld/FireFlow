@@ -2,20 +2,20 @@ package de.blazemcworld.fireflow.code.action;
 
 import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.CodeInteraction;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
 import de.blazemcworld.fireflow.code.widget.WireWidget;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 public class DragWireAction implements CodeAction {
     private final WireWidget wire;
 
-    public DragWireAction(WireWidget wire, CodeEditor editor, ServerPlayerEntity player) {
+    public DragWireAction(WireWidget wire, EditOrigin player) {
         this.wire = wire;
         wire.lockWire(player);
     }
 
     @Override
-    public void tick(WidgetVec cursor, ServerPlayerEntity player) {
+    public void tick(WidgetVec cursor, EditOrigin player) {
         cursor = cursor.gridAligned();
         if (wire.line.from.y() != wire.line.to.y()) {
             wire.line.from = wire.line.from.withX(cursor.x());
@@ -66,14 +66,14 @@ public class DragWireAction implements CodeAction {
     @Override
     public boolean interact(CodeInteraction i) {
         if (i.type() == CodeInteraction.Type.RIGHT_CLICK) {
-            i.pos().editor().stopAction(i.player());
+            i.pos().editor().stopAction(i.origin());
             return true;
         }
         return false;
     }
 
     @Override
-    public void stop(CodeEditor editor, ServerPlayerEntity player) {
+    public void stop(CodeEditor editor, EditOrigin player) {
         wire.unlockWire(player);
         wire.cleanup();
     }

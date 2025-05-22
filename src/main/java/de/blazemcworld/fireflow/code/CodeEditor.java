@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.code;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
@@ -24,10 +25,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
@@ -47,10 +45,12 @@ public class CodeEditor {
     public final CodeWorld world;
     public final Set<Widget> rootWidgets = new HashSet<>();
     public final Pathfinder pathfinder = new Pathfinder(this);
-    public final HashMap<ServerPlayerEntity, Set<Widget>> lockedWidgets = new HashMap<>();
-    private final HashMap<ServerPlayerEntity, CodeAction> actions = new HashMap<>();
+    public final HashMap<EditOrigin, Set<Widget>> lockedWidgets = new HashMap<>();
+    private final HashMap<EditOrigin, CodeAction> actions = new HashMap<>();
     public final HashMap<String, FunctionDefinition> functions = new HashMap<>();
     private final Path codePath;
+    private final Set<EditOrigin> webUsers = new HashSet<>();
+    private final List<Runnable> tickTasks = new ArrayList<>();
 
     public CodeEditor(Space space, CodeWorld world) {
         this.space = space;
@@ -58,35 +58,47 @@ public class CodeEditor {
         codePath = space.path().resolve("code.json");
     }
 
-    public void enterCode(ServerPlayerEntity player) {
-        player.getAbilities().flying = true;
-        player.getAbilities().allowFlying = true;
-        player.sendAbilitiesUpdate();
+    public void enterCode(EditOrigin origin) {
+        ServerPlayerEntity player = origin.getPlayer();
+        if (player != null) {
+            player.getAbilities().flying = true;
+            player.getAbilities().allowFlying = true;
+            player.sendAbilitiesUpdate();
 
-        InteractionEntity helper = new InteractionEntity(EntityType.INTERACTION, world);
-        helper.setInteractionHeight(-0.5f);
-        helper.setInteractionWidth(-0.5f);
-        helper.setPosition(Vec3d.ZERO);
-        world.spawnEntity(helper);
-        helper.vehicle = player;
-        player.addPassenger(helper);
-    }
-
-    public void exitCode(ServerPlayerEntity player) {
-        for (Entity helper : new ArrayList<>(player.getPassengerList())) {
-            if (helper instanceof InteractionEntity) helper.remove(Entity.RemovalReason.DISCARDED);
+            InteractionEntity helper = new InteractionEntity(EntityType.INTERACTION, world);
+            helper.setInteractionHeight(-0.5f);
+            helper.setInteractionWidth(-0.5f);
+            helper.setPosition(Vec3d.ZERO);
+            world.spawnEntity(helper);
+            helper.vehicle = player;
+            player.addPassenger(helper);
         }
 
-        if (actions.containsKey(player)) actions.get(player).stop(this, player);
-        actions.remove(player);
-        lockedWidgets.remove(player);
+        if (origin.isWeb()) {
+            // Not authorized at this point in time
+            webUsers.add(origin);
+        }
     }
 
-    public boolean handleInteraction(ServerPlayerEntity player, CodeInteraction.Type type) {
+    public void exitCode(EditOrigin origin) {
+        ServerPlayerEntity player = origin.getPlayer();
+        if (player != null) {
+            for (Entity helper : new ArrayList<>(player.getPassengerList())) {
+                if (helper instanceof InteractionEntity) helper.remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
+
+        if (actions.containsKey(origin)) actions.get(origin).stop(this, origin);
+        actions.remove(origin);
+        lockedWidgets.remove(origin);
+        webUsers.remove(origin);
+    }
+
+    public boolean handleInteraction(EditOrigin player, CodeInteraction.Type type) {
         return handleInteraction(player, type, null);
     }
 
-    public boolean handleInteraction(ServerPlayerEntity player, CodeInteraction.Type type, String message) {
+    public boolean handleInteraction(EditOrigin player, CodeInteraction.Type type, String message) {
         Optional<WidgetVec> cursor = getCodeCursor(player);
         if (cursor.isEmpty()) return false;
         CodeInteraction i = new CodeInteraction(player, cursor.get(), type, message);
@@ -97,7 +109,7 @@ public class CodeEditor {
 
         for (Widget w : new HashSet<>(rootWidgets)) {
             if (w.inBounds(i.pos()) && isLocked(w) != null && !isLockedByPlayer(w, player)) {
-                player.sendMessage(Text.literal("Widget is currently in use by another player!").formatted(Formatting.RED));
+                player.sendError("Widget is currently in use by another player!");
                 return true;
             }
             if (w.interact(i)) return true;
@@ -120,17 +132,19 @@ public class CodeEditor {
         return false;
     }
 
-    public Optional<WidgetVec> getCodeCursor(ServerPlayerEntity origin) {
-        if (origin.getWorld() != world) return Optional.empty();
-        if (origin.getRotationVec(0).getZ() <= 0.1) return Optional.empty();
-        double scale = Math.abs(origin.getZ() - 16) / origin.getRotationVec(0).getZ();
-        Vec3d pos = origin.getEyePos().add(origin.getRotationVec(0).multiply(scale));
+    public Optional<WidgetVec> getCodeCursor(EditOrigin origin) {
+        ServerPlayerEntity player = origin.getPlayer();
+        if (player == null) return origin.getCursor(this);
+        if (player.getWorld() != world) return Optional.empty();
+        if (player.getRotationVec(0).getZ() <= 0.1) return Optional.empty();
+        double scale = Math.abs(player.getZ() - 16) / player.getRotationVec(0).getZ();
+        Vec3d pos = player.getEyePos().add(player.getRotationVec(0).multiply(scale));
         if (world.getBottomY() > pos.getY() || world.getTopYInclusive() + 1 < pos.getY()) return Optional.empty();
         if (pos.getX() > 256 || pos.getX() < -256) return Optional.empty();
         return Optional.of(new WidgetVec(this, pos.getX(), pos.getY()));
     }
 
-    public void addNode(ServerPlayerEntity player, String query, boolean isSearch) {
+    public void addNode(EditOrigin player, String query, boolean isSearch) {
         String lowerQuery = query.toLowerCase();
         Optional<WidgetVec> cursor = getCodeCursor(player);
         if (cursor.isEmpty()) return;
@@ -151,19 +165,19 @@ public class CodeEditor {
     }
 
 
-    public void unlockWidget(Widget widget, ServerPlayerEntity player) {
+    public void unlockWidget(Widget widget, EditOrigin player) {
         lockedWidgets.computeIfAbsent(player, p -> new HashSet<>()).remove(widget);
     }
 
-    public void unlockWidgets(List<Widget> widgets, ServerPlayerEntity player) {
+    public void unlockWidgets(List<Widget> widgets, EditOrigin player) {
         widgets.forEach(lockedWidgets.computeIfAbsent(player, p -> new HashSet<>())::remove);
     }
 
-    public void unlockWidgets(ServerPlayerEntity player) {
+    public void unlockWidgets(EditOrigin player) {
         lockedWidgets.remove(player);
     }
 
-    public List<Widget> lockWidgets(List<Widget> widgets, ServerPlayerEntity player) {
+    public List<Widget> lockWidgets(List<Widget> widgets, EditOrigin player) {
         List<Widget> failed = new ArrayList<>();
         for (Widget widget : widgets) {
             if (!lockWidget(widget, player)) failed.add(widget);
@@ -171,41 +185,41 @@ public class CodeEditor {
         return failed;
     }
 
-    public boolean lockWidget(Widget widget, ServerPlayerEntity player) {
-        ServerPlayerEntity widgetLockedBy = isLocked(widget);
+    public boolean lockWidget(Widget widget, EditOrigin player) {
+        EditOrigin widgetLockedBy = isLocked(widget);
         if (widgetLockedBy != null) return widgetLockedBy == player;
         lockedWidgets.computeIfAbsent(player, p -> new HashSet<>()).add(widget);
         return true;
     }
 
-    public ServerPlayerEntity isLocked(Widget widget) {
-        for (Map.Entry<ServerPlayerEntity, Set<Widget>> entry : lockedWidgets.entrySet()) {
+    public EditOrigin isLocked(Widget widget) {
+        for (Map.Entry<EditOrigin, Set<Widget>> entry : lockedWidgets.entrySet()) {
             if (entry.getValue().contains(widget)) return entry.getKey();
         }
         return null;
     }
 
-    public boolean isLockedByPlayer(Widget widget, ServerPlayerEntity player) {
+    public boolean isLockedByPlayer(Widget widget, EditOrigin player) {
         return lockedWidgets.containsKey(player) && lockedWidgets.get(player).contains(widget);
     }
 
-    public void setAction(ServerPlayerEntity player, CodeAction action) {
+    public void setAction(EditOrigin player, CodeAction action) {
         if (actions.containsKey(player)) {
             actions.get(player).stop(this, player);
         }
         actions.put(player, action);
     }
 
-    public void stopAction(ServerPlayerEntity player) {
+    public void stopAction(EditOrigin player) {
         if (actions.containsKey(player)) {
             actions.get(player).stop(this, player);
         }
         actions.remove(player);
     }
 
-    public void createFunction(ServerPlayerEntity player, String name) {
+    public void createFunction(EditOrigin player, String name) {
         if (functions.containsKey(name)) {
-            player.sendMessage(Text.literal("Function " + name + " already exists").formatted(Formatting.RED));
+            player.sendError("Function " + name + " already exists");
             return;
         }
 
@@ -214,7 +228,7 @@ public class CodeEditor {
 
         Optional<WidgetVec> pos = getCodeCursor(player);
         if (pos.isEmpty()) {
-            player.sendMessage(Text.literal("You must be looking at the code wall!").formatted(Formatting.RED));
+            player.sendError("You must be looking at the code area!");
             return;
         }
 
@@ -230,10 +244,10 @@ public class CodeEditor {
         rootWidgets.add(outputs);
     }
 
-    private FunctionDefinition tryGetFunction(ServerPlayerEntity player) {
+    private FunctionDefinition tryGetFunction(EditOrigin player) {
         Optional<WidgetVec> pos = getCodeCursor(player);
         if (pos.isEmpty()) {
-            player.sendMessage(Text.literal("You must be looking at the code wall!").formatted(Formatting.RED));
+            player.sendError("You must be looking at the code wall!");
             return null;
         }
 
@@ -245,7 +259,7 @@ public class CodeEditor {
 
                     for (Node.Output<?> output : function.outputsNode.outputs) {
                         if (output.connected == null) continue;
-                        player.sendMessage(Text.literal("Function is currently in use!").formatted(Formatting.RED));
+                        player.sendError("Function is currently in use!");
                         return null;
                     }
                 } else if (nodeWidget.node instanceof FunctionOutputsNode outputsNode) {
@@ -253,7 +267,7 @@ public class CodeEditor {
 
                     for (Node.Input<?> input : function.inputsNode.inputs) {
                         if (input.connected == null) continue;
-                        player.sendMessage(Text.literal("Function is currently in use!").formatted(Formatting.RED));
+                        player.sendError("Function is currently in use!");
                         return null;
                     }
                 }
@@ -261,12 +275,12 @@ public class CodeEditor {
         }
 
         if (function == null) {
-            player.sendMessage(Text.literal("You must be looking at a function.").formatted(Formatting.RED));
+            player.sendError("You must be looking at a function.");
             return null;
         }
 
         if (!function.callNodes.isEmpty()) {
-            player.sendMessage(Text.literal("Function is currently in use!").formatted(Formatting.RED));
+            player.sendError("Function is currently in use!");
             return null;
         }
 
@@ -295,7 +309,7 @@ public class CodeEditor {
         }
     }
 
-    public void deleteFunction(ServerPlayerEntity player) {
+    public void deleteFunction(EditOrigin player) {
         FunctionDefinition function = tryGetFunction(player);
         if (function == null) return;
 
@@ -313,18 +327,18 @@ public class CodeEditor {
         }
     }
 
-    public void addFunctionInput(ServerPlayerEntity player, String name) {
+    public void addFunctionInput(EditOrigin player, String name) {
         FunctionDefinition function = tryGetFunction(player);
         if (function == null) return;
 
         if (function.getInput(name) != null) {
-            player.sendMessage(Text.literal("Input " + name + " already exists!").formatted(Formatting.RED));
+            player.sendError("Input " + name + " already exists!");
             return;
         }
 
         Optional<WidgetVec> pos = getCodeCursor(player);
         if (pos.isEmpty()) {
-            player.sendMessage(Text.literal("You must be looking at the code wall!").formatted(Formatting.RED));
+            player.sendError("You must be looking at the code wall!");
             return;
         }
 
@@ -338,18 +352,18 @@ public class CodeEditor {
         rootWidgets.add(typeSelectorWidget);
     }
 
-    public void addFunctionOutput(ServerPlayerEntity player, String name) {
+    public void addFunctionOutput(EditOrigin player, String name) {
         FunctionDefinition function = tryGetFunction(player);
         if (function == null) return;
 
         if (function.getOutput(name) != null) {
-            player.sendMessage(Text.literal("Output " + name + " already exists!").formatted(Formatting.RED));
+            player.sendError("Output " + name + " already exists!");
             return;
         }
 
         Optional<WidgetVec> pos = getCodeCursor(player);
         if (pos.isEmpty()) {
-            player.sendMessage(Text.literal("You must be looking at the code wall!").formatted(Formatting.RED));
+            player.sendError("You must be looking at the code wall!");
             return;
         }
 
@@ -363,12 +377,12 @@ public class CodeEditor {
         rootWidgets.add(typeSelectorWidget);
     }
 
-    public void removeFunctionInput(ServerPlayerEntity player, String name) {
+    public void removeFunctionInput(EditOrigin player, String name) {
         FunctionDefinition function = tryGetFunction(player);
         if (function == null) return;
 
         if (function.getInput(name) == null) {
-            player.sendMessage(Text.literal("Input " + name + " does not exist!").formatted(Formatting.RED));
+            player.sendError("Input " + name + " does not exist!");
             return;
         }
 
@@ -384,12 +398,12 @@ public class CodeEditor {
         refreshFunctionWidgets(function, adjusted);
     }
 
-    public void removeFunctionOutput(ServerPlayerEntity player, String name) {
+    public void removeFunctionOutput(EditOrigin player, String name) {
         FunctionDefinition function = tryGetFunction(player);
         if (function == null) return;
 
         if (function.getOutput(name) == null) {
-            player.sendMessage(Text.literal("Output " + name + " does not exist!").formatted(Formatting.RED));
+            player.sendError("Output " + name + " does not exist!");
             return;
         }
 
@@ -405,7 +419,7 @@ public class CodeEditor {
         refreshFunctionWidgets(function, adjusted);
     }
 
-    public void setFunctionIcon(ServerPlayerEntity player, String icon) {
+    public void setFunctionIcon(EditOrigin player, String icon) {
         FunctionDefinition function = tryGetFunction(player);
         if (function == null) return;
 
@@ -413,7 +427,7 @@ public class CodeEditor {
         Optional<Item> item = id.isSuccess() ? Registries.ITEM.getOptionalValue(id.getOrThrow()) : Optional.empty();
 
         if (item.isEmpty()) {
-            player.sendMessage(Text.literal("Unknown item!").formatted(Formatting.RED));
+            player.sendError("Unknown item!");
             return;
         }
 
@@ -428,7 +442,7 @@ public class CodeEditor {
         refreshFunctionWidgets(function, adjusted);
     }
 
-    public void createSnippet(ServerPlayerEntity player) {
+    public void createSnippet(EditOrigin player) {
         Set<NodeWidget> nodes = new HashSet<>();
         Set<WireWidget> wires = new HashSet<>();
         Set<FunctionDefinition> functions = new HashSet<>();
@@ -436,7 +450,7 @@ public class CodeEditor {
 
         Optional<WidgetVec> pos = getCodeCursor(player);
         if (pos.isEmpty()) {
-            player.sendMessage(Text.literal("You must be looking at the code wall!").formatted(Formatting.RED));
+            player.sendError("You must be looking at the code wall!");
             return;
         }
 
@@ -498,17 +512,15 @@ public class CodeEditor {
             gz.finish();
         } catch (Exception e) {
             FireFlow.LOGGER.error("Error gzipping snippet!", e);
-            player.sendMessage(Text.literal("Internal error!").formatted(Formatting.RED));
+            player.sendError("Internal error!");
             return;
         }
 
         String data = new String(Base64.getEncoder().encode(out.toByteArray()));
-        player.sendMessage(Text.literal("Snippet created! Click to copy.").setStyle(
-                Style.EMPTY.withClickEvent(new ClickEvent.CopyToClipboard(data)).withColor(TextColor.fromFormatting(Formatting.AQUA))
-        ));
+        player.sendSnippet(data);
     }
 
-    public void placeSnippet(ServerPlayerEntity player, byte[] base64Str) {
+    public void placeSnippet(EditOrigin player, byte[] base64Str) {
         try {
             ByteArrayInputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(base64Str));
             GZIPInputStream gz = new GZIPInputStream(in);
@@ -519,11 +531,11 @@ public class CodeEditor {
             Set<String> newFunctionNames = new HashSet<>();
             for (FunctionDefinition fn : definitions) {
                 if (functions.containsKey(fn.name)) {
-                    player.sendMessage(Text.literal("Snippet contains function " + fn.name + " which already exists!").formatted(Formatting.RED));
+                    player.sendError("Snippet contains function " + fn.name + " which already exists!");
                     return;
                 }
                 if (newFunctionNames.contains(fn.name)) {
-                    player.sendMessage(Text.literal("Snippet contains multiple functions named " + fn.name + "!").formatted(Formatting.RED));
+                    player.sendError("Snippet contains multiple functions named " + fn.name + "!");
                     return;
                 }
                 newFunctionNames.add(fn.name);
@@ -531,7 +543,7 @@ public class CodeEditor {
 
             Optional<WidgetVec> pos = getCodeCursor(player);
             if (pos.isEmpty()) {
-                player.sendMessage(Text.literal("You must be looking at the code wall!").formatted(Formatting.RED));
+                player.sendError("You must be looking at the code wall!");
                 return;
             }
             WidgetVec cursor = pos.get().gridAligned();
@@ -549,7 +561,7 @@ public class CodeEditor {
             List<WireWidget> wireWidgets = CodeJSON.wireFromJson(this, json.getAsJsonArray("wires"), nodeWidgets::get, v -> v.add(cursor));
 
             if (nodeWidgets.contains(null) || wireWidgets.contains(null)) {
-                player.sendMessage(Text.literal("Snippet only partially valid!").formatted(Formatting.RED));
+                player.sendError("Snippet only partially valid!");
                 nodeWidgets.removeIf(Objects::isNull);
                 wireWidgets.removeIf(Objects::isNull);
             }
@@ -559,11 +571,9 @@ public class CodeEditor {
             for (NodeWidget n : nodeWidgets) n.update();
             for (WireWidget w : wireWidgets) w.update();
             for (FunctionDefinition fn : definitions) functions.put(fn.name, fn);
-
-            player.sendMessage(Text.literal("Snippet placed!").formatted(Formatting.AQUA));
         } catch (Exception e) {
             FireFlow.LOGGER.warn("Error reading snippet!", e);
-            player.sendMessage(Text.literal("Internal error!").formatted(Formatting.RED));
+            player.sendError("Internal error!");
         }
     }
 
@@ -689,12 +699,57 @@ public class CodeEditor {
     }
 
     public void tick() {
-        for (ServerPlayerEntity player : world.getPlayers()) {
-            if (actions.containsKey(player)) {
-                Optional<WidgetVec> cursor = getCodeCursor(player);
-                if (cursor.isEmpty()) continue;
-                actions.get(player).tick(cursor.get(), player);
+        for (EditOrigin origin : webUsers) {
+            origin.tick();
+        }
+        for (EditOrigin origin : new ArrayList<>(actions.keySet())) {
+            CodeAction action = actions.get(origin);
+            if (action == null) continue;
+            Optional<WidgetVec> cursor = getCodeCursor(origin);
+            if (cursor.isEmpty()) continue;
+            action.tick(cursor.get(), origin);
+        }
+
+        List<Runnable> tasks;
+        synchronized (tickTasks) {
+            tasks = new ArrayList<>(tickTasks);
+            tickTasks.clear();
+        }
+        for (Runnable r : tasks) r.run();
+    }
+
+    public void webBroadcast(JsonElement json) {
+        for (EditOrigin origin : webUsers) {
+            origin.sendWebIfAuthorized(json);
+        }
+    }
+
+    public void authorizeWeb(String webId, ServerPlayerEntity approver) {
+        for (EditOrigin origin : webUsers) {
+            if (origin.tryAuth(webId)) {
+                approver.sendMessage(Text.literal("Authorized web to edit code!").formatted(Formatting.GREEN), false);
+                for (ServerPlayerEntity player : space.getPlayers()) {
+                    if (!space.info.isOwnerOrDeveloper(player.getUuid())) continue;
+                    if (player == approver) continue;
+                    player.sendMessage(Text.literal(approver.getGameProfile().getName() + " authorized a web editor request!").formatted(Formatting.YELLOW), false);
+                }
+                return;
             }
+        }
+
+        approver.sendMessage(Text.literal("Could not find web editor with matching id!").formatted(Formatting.RED), false);
+    }
+
+    public void close() {
+        for (EditOrigin origin : new ArrayList<>(webUsers)) {
+            origin.disconnectWeb();
+        }
+        webUsers.clear();
+    }
+
+    public void nextTick(Runnable r) {
+        synchronized (tickTasks) {
+            tickTasks.add(r);
         }
     }
 }

@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow;
 
 import de.blazemcworld.fireflow.code.node.NodeList;
 import de.blazemcworld.fireflow.code.type.AllTypes;
+import de.blazemcworld.fireflow.code.web.WebServer;
 import de.blazemcworld.fireflow.command.*;
 import de.blazemcworld.fireflow.space.Lobby;
 import de.blazemcworld.fireflow.space.PlayWorld;
@@ -43,11 +44,13 @@ public class FireFlow implements ModInitializer {
             Lobby.init();
             NodeList.init();
             AllTypes.init();
+            WebServer.init();
 
-            server.getOverworld().getWorldBorder().setSize(256);
+            server.getOverworld().getWorldBorder().setSize(512);
         });
 
         ServerLifecycleEvents.SERVER_STOPPING.register((srv -> {
+            WebServer.stop();
             for (ServerPlayerEntity player : new ArrayList<>(srv.getPlayerManager().getPlayerList())) {
                 player.networkHandler.disconnect(Text.literal("Server stopped!"));
             }
@@ -109,6 +112,8 @@ public class FireFlow implements ModInitializer {
             ShowLagCommand.register(cd);
             DummyCommand.register(cd);
             VariablesCommand.register(cd);
+            AuthWebCommand.register(cd);
+            DebugCommand.register(cd);
         });
     }
 }

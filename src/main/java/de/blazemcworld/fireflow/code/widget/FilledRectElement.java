@@ -1,10 +1,12 @@
 package de.blazemcworld.fireflow.code.widget;
 
+import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.FireFlow;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.Direction;
 import org.joml.Vector3f;
@@ -45,9 +47,24 @@ public class FilledRectElement {
             FireFlow.server.execute(() -> pos.world().spawnEntity(display));
             spawned = true;
         }
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "filled-rect");
+        json.addProperty("id", display.getUuid().toString());
+        json.addProperty("x", pos.x());
+        json.addProperty("y", pos.y());
+        json.addProperty("width", size.x());
+        json.addProperty("height", size.y());
+        json.addProperty("color", TextColor.fromRgb(color).getHexCode());
+        pos.editor().webBroadcast(json);
     }
 
     public void remove() {
         display.remove(Entity.RemovalReason.DISCARDED);
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "remove");
+        json.addProperty("id", display.getUuid().toString());
+        pos.editor().webBroadcast(json);
     }
 }

@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.code;
 
+import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.Node.Varargs;
 import de.blazemcworld.fireflow.code.node.impl.event.*;
@@ -9,6 +10,7 @@ import de.blazemcworld.fireflow.code.node.impl.function.FunctionInputsNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionOutputsNode;
 import de.blazemcworld.fireflow.code.widget.NodeWidget;
 import de.blazemcworld.fireflow.code.widget.Widget;
+import de.blazemcworld.fireflow.code.widget.WidgetVec;
 import de.blazemcworld.fireflow.space.PlayWorld;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.util.DummyPlayer;
@@ -16,10 +18,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +34,7 @@ public class CodeEvaluator {
     public final Space space;
     private boolean stopped = false;
     public final VariableStore sessionVariables = new VariableStore();
-    public final Set<Node> nodes;
+    public Set<Node> nodes;
     public final PlayWorld world;
     private final Set<Runnable> tickTasks = new HashSet<>();
     private boolean initCalled = false;
@@ -38,10 +43,10 @@ public class CodeEvaluator {
         this.space = space;
         world = space.playWorld;
 
-        Set<Node> nodes = new HashSet<>();
+        Set<NodeWidget> nodes = new HashSet<>();
         for (Widget widget : space.editor.rootWidgets) {
             if (widget instanceof NodeWidget nodeWidget) {
-                nodes.add(nodeWidget.node);
+                nodes.add(nodeWidget);
             }
         }
 
@@ -57,7 +62,7 @@ public class CodeEvaluator {
     }
 
     @SuppressWarnings("unchecked")
-    private Set<Node> copyNodes(Set<Node> nodes) {
+    private Set<Node> copyNodes(Set<NodeWidget> nodes) {
         HashMap<Node, Node> old2new = new HashMap<>();
 
         HashMap<String, FunctionDefinition> functions = new HashMap<>();
@@ -73,9 +78,10 @@ public class CodeEvaluator {
             functions.put(old.name, copy);
         }
 
-        for (Node node : nodes) {
+        for (NodeWidget nodeWidget : nodes) {
+            Node node = nodeWidget.node;
             Node copy = null;
-            
+
             if (node instanceof FunctionCallNode call) {
                 copy = new FunctionCallNode(functions.get(call.function.name));
             }
@@ -104,9 +110,11 @@ public class CodeEvaluator {
             }
 
             old2new.put(node, copy);
+            copy.originWidget = new WeakReference<>(nodeWidget);
         }
 
-        for (Node old : nodes) {
+        for (NodeWidget oldWidget : nodes) {
+            Node old = oldWidget.node;
             Node copy = old2new.get(old);
             for (int i = 0; i < copy.inputs.size(); i++) {
                 Node.Input<?> newInput = copy.inputs.get(i);
@@ -114,15 +122,14 @@ public class CodeEvaluator {
                 if (oldTarget == null) continue;
                 Node.Output<?> newTarget = old2new.get(oldTarget.getNode()).outputs.get(oldTarget.getNode().outputs.indexOf(oldTarget));
                 if (newTarget == null) continue;
-                ((Node.Input<Object>) newInput).connect((Node.Output<Object>) newTarget);
+                newInput.connect(newTarget);
             }
 
             for (int i = 0; i < copy.outputs.size(); i++) {
                 Node.Output<?> newOutput = copy.outputs.get(i);
                 Node.Input<?> oldTarget = old.outputs.get(i).connected;
                 if (oldTarget == null) continue;
-                Node.Input<?> newTarget = old2new.get(oldTarget.getNode()).inputs.get(oldTarget.getNode().inputs.indexOf(oldTarget));
-                ((Node.Output<Object>) newOutput).connected = (Node.Input<Object>) newTarget;
+                newOutput.connected = old2new.get(oldTarget.getNode()).inputs.get(oldTarget.getNode().inputs.indexOf(oldTarget));
             }
 
             for (int i = 0; i < copy.inputs.size(); i++) {
@@ -347,5 +354,40 @@ public class CodeEvaluator {
                 onChunkLoadNode.emit(this, x, z);
             }
         }
+    }
+
+    public void triggerDebug(String id, EditOrigin origin) {
+        ensureInit();
+        boolean found = false;
+        for (Node node : nodes) {
+            if (node instanceof DebugEventNode debugEventNode) {
+                found = debugEventNode.trigger(this, id) || found;
+            }
+        }
+        if (!found) origin.sendError("No debug event with id '" + id + "' found.");
+    }
+
+    public void visualizeDebug(Node node) {
+        space.editor.nextTick(() -> {
+            NodeWidget widget = node.originWidget.get();
+            if (widget == null) return;
+
+            WidgetVec pos = widget.pos();
+            ParticleS2CPacket packet = new ParticleS2CPacket(
+                    new DustParticleEffect(0xFFFF00, 1f),
+                    false, false, pos.x(), pos.y(), 15.9,
+                    0, 0, 0, 0, 1
+            );
+
+            for (ServerPlayerEntity player : space.editor.world.getPlayers()) {
+                player.networkHandler.sendPacket(packet);
+            }
+
+            JsonObject json = new JsonObject();
+            json.addProperty("type", "debug");
+            json.addProperty("x", pos.x());
+            json.addProperty("y", pos.y());
+            space.editor.webBroadcast(json);
+        });
     }
 }

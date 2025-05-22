@@ -288,7 +288,7 @@ public class CodeJSON {
                         if (other == null) continue;
                         for (Node.Input<?> input : nodeWidget.node.inputs) {
                             if (input.id.equals(inputId)) {
-                                ((Node.Input<Object>) input).connect((Node.Output<Object>) other.node.outputs.get(outputId));
+                                input.connect(other.node.outputs.get(outputId));
                                 break;
                             }
                         }
@@ -305,7 +305,7 @@ public class CodeJSON {
                         if (other == null) continue;
                         for (Node.Output<?> output : nodeWidget.node.outputs) {
                             if (output.id.equals(outputId)) {
-                                ((Node.Output<Object>) output).connected = (Node.Input<Object>) other.node.inputs.get(inputId);
+                                output.connected = other.node.inputs.get(inputId);
                                 break;
                             }
                         }

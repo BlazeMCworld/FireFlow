@@ -66,6 +66,7 @@ public class NodeList {
                 )
                 .add(new Category("Event", Items.OBSERVER)
                         .add(new CancelEventNode())
+                        .add(new DebugEventNode())
                         .add(new OnChunkLoadNode())
                         .add(new OnEntityAttackEntityNode())
                         .add(new OnEntityAttackPlayerNode())

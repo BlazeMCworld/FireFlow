@@ -1,12 +1,15 @@
 package de.blazemcworld.fireflow.code.widget;
 
+import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.CodeInteraction;
 import de.blazemcworld.fireflow.util.TextWidth;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
+import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.math.AffineTransformation;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -19,6 +22,7 @@ public class TextWidget extends Widget {
     private boolean spawned = false;
     private double xScale = 1;
     private double yScale = 1;
+    private int rotation = 0;
 
     public TextWidget(WidgetVec pos) {
         super(pos);
@@ -51,11 +55,40 @@ public class TextWidget extends Widget {
             FireFlow.server.execute(() -> pos().world().spawnEntity(display));
             spawned = true;
         }
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "text");
+        json.addProperty("id", display.getUuid().toString());
+        json.addProperty("x", pos.x());
+        json.addProperty("y", pos.y());
+        json.addProperty("text", getPlainText(display.getText()));
+        json.addProperty("scaleX", xScale);
+        json.addProperty("scaleY", yScale);
+        json.addProperty("rotation", rotation);
+        TextColor c = display.getText().getStyle().getColor();
+        json.addProperty("color", c == null ? "" : c.getHexCode());
+        pos.editor().webBroadcast(json);
+    }
+
+    private String getPlainText(Text text) {
+        StringBuilder builder = new StringBuilder();
+        if (text.getContent() instanceof PlainTextContent.Literal(String literal)) {
+            builder.append(literal);
+        }
+        for (Text child : text.getSiblings()) {
+            builder.append(getPlainText(child));
+        }
+        return builder.toString();
     }
 
     @Override
     public void remove() {
         if (spawned) display.remove(Entity.RemovalReason.DISCARDED);
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "remove");
+        json.addProperty("id", display.getUuid().toString());
+        pos().editor().webBroadcast(json);
     }
 
     @Override
@@ -81,8 +114,9 @@ public class TextWidget extends Widget {
         return this;
     }
 
-    public void setRotation(double rotation) {
-        rotation = Math.toRadians(rotation);
+    public void setRotation(int deg) {
+        this.rotation = deg;
+        double rotation = Math.toRadians(deg);
         AffineTransformation transform = DisplayEntity.getTransformation(display.getDataTracker());
         display.setTransformation(new AffineTransformation(
                 transform.getTranslation(),

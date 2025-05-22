@@ -23,6 +23,17 @@ dependencies {
 
     modImplementation include("net.kyori:adventure-platform-fabric:6.4.0")
     implementation include('me.xdrop:fuzzywuzzy:1.4.0')
+
+    implementation include('org.eclipse.jetty.websocket:jetty-websocket-core-common:12.0.21')
+    implementation include('org.eclipse.jetty.websocket:jetty-websocket-core-server:12.0.21')
+    implementation include('org.eclipse.jetty.websocket:jetty-websocket-jetty-api:12.0.21')
+    implementation include('org.eclipse.jetty.websocket:jetty-websocket-jetty-common:12.0.21')
+    implementation include('org.eclipse.jetty.websocket:jetty-websocket-jetty-server:12.0.21')
+    implementation include('org.eclipse.jetty:jetty-util:12.0.21')
+    implementation include('org.eclipse.jetty:jetty-server:12.0.21')
+    implementation include('org.eclipse.jetty:jetty-io:12.0.21')
+    implementation include('org.eclipse.jetty:jetty-http:12.0.21')
+
 }
 
 processResources {

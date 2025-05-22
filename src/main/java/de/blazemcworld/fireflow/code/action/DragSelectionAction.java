@@ -2,12 +2,8 @@ package de.blazemcworld.fireflow.code.action;
 
 import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.CodeInteraction;
-import de.blazemcworld.fireflow.code.widget.NodeIOWidget;
-import de.blazemcworld.fireflow.code.widget.NodeWidget;
-import de.blazemcworld.fireflow.code.widget.Widget;
-import de.blazemcworld.fireflow.code.widget.WidgetVec;
-import de.blazemcworld.fireflow.code.widget.WireWidget;
-import net.minecraft.server.network.ServerPlayerEntity;
+import de.blazemcworld.fireflow.code.EditOrigin;
+import de.blazemcworld.fireflow.code.widget.*;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 
@@ -21,7 +17,7 @@ public class DragSelectionAction implements CodeAction {
     private final List<NodeIOWidget> ioWidgets = new ArrayList<>();
     private final WidgetVec offset;
 
-    public DragSelectionAction(List<Widget> widgets, WidgetVec offset, ServerPlayerEntity player) {
+    public DragSelectionAction(List<Widget> widgets, WidgetVec offset, EditOrigin player) {
         offset.editor().lockWidgets(widgets, player);
         this.offset = offset;
         for (Widget w : widgets) {
@@ -56,7 +52,7 @@ public class DragSelectionAction implements CodeAction {
     }
 
     @Override
-    public void tick(WidgetVec cursor, ServerPlayerEntity player) {
+    public void tick(WidgetVec cursor, EditOrigin player) {
         WidgetVec newPos = cursor.sub(offset).gridAligned();
         nodeWidgets.forEach((nodeWidget, pos) -> {
             nodeWidget.pos(pos.add(newPos));
@@ -89,7 +85,7 @@ public class DragSelectionAction implements CodeAction {
     @Override
     public boolean interact(CodeInteraction i) {
         if (i.type() == CodeInteraction.Type.RIGHT_CLICK) {
-            i.pos().editor().stopAction(i.player());
+            i.pos().editor().stopAction(i.origin());
             return true;
         }
         else if (i.type() == CodeInteraction.Type.LEFT_CLICK) {
@@ -120,20 +116,20 @@ public class DragSelectionAction implements CodeAction {
                     wire.update();
                 }
             }
-            i.pos().editor().stopAction(i.player());
+            i.pos().editor().stopAction(i.origin());
             return true;
         } else if (i.type() == CodeInteraction.Type.SWAP_HANDS) {
-            i.pos().editor().stopAction(i.player());
+            i.pos().editor().stopAction(i.origin());
             List<Widget> widgets = new ArrayList<>(nodeWidgets.keySet());
             widgets.addAll(wireWidgets.keySet());
-            i.pos().editor().setAction(i.player(), new CopySelectionAction(widgets, i.pos()));
+            i.pos().editor().setAction(i.origin(), new CopySelectionAction(widgets, i.pos()));
             return true;
         }
         return false;
     }
 
     @Override
-    public void stop(CodeEditor editor, ServerPlayerEntity player) {
+    public void stop(CodeEditor editor, EditOrigin player) {
         nodeWidgets.forEach((nodeWidget, pos) -> nodeWidget.borderColor(TextColor.fromFormatting(Formatting.WHITE)));
         wireWidgets.forEach((wire, points) -> wire.cleanup());
         for (NodeIOWidget IOWidget : ioWidgets) {

@@ -1,0 +1,12 @@
+html, body {
+    background: #001122;
+    color: #eee;
+    margin: 0;
+    overflow: hidden;
+}
+
+#messages {
+    position: fixed;
+    bottom: 5%;
+    left: 5%;
+}

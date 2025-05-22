@@ -1,12 +1,12 @@
 package de.blazemcworld.fireflow.code.widget;
 
 import de.blazemcworld.fireflow.code.CodeInteraction;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.action.DragWireAction;
 import de.blazemcworld.fireflow.code.action.WireAction;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.WireType;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
@@ -496,12 +496,12 @@ public class WireWidget extends Widget {
         return crossProduct == 0 && dotProduct > 0;
     }
 
-    public boolean lockWire(ServerPlayerEntity player) {
+    public boolean lockWire(EditOrigin player) {
         List<Widget> widgets = pos().editor().lockWidgets(new ArrayList<>(getFullWire()), player);
         return widgets.isEmpty();
     }
 
-    public void unlockWire(ServerPlayerEntity player) {
+    public void unlockWire(EditOrigin player) {
         pos().editor().unlockWidgets(new ArrayList<>(getFullWire()), player);
     }
 
@@ -565,7 +565,7 @@ public class WireWidget extends Widget {
             return true;
         } else if (i.type() == CodeInteraction.Type.SWAP_HANDS) {
             if (type != SignalType.INSTANCE) {
-                i.pos().editor().setAction(i.player(), new WireAction(this, i.pos().gridAligned(), i.player()));
+                i.pos().editor().setAction(i.origin(), new WireAction(this, i.pos().gridAligned(), i.origin()));
                 return true;
             }
         } else if (i.type() == CodeInteraction.Type.RIGHT_CLICK) {
@@ -585,7 +585,7 @@ public class WireWidget extends Widget {
                         if (wire.previousWires.isEmpty() || wire.nextWires.isEmpty()) return false;
                     }
                 }
-                i.pos().editor().setAction(i.player(), new DragWireAction(this, i.pos().editor(), i.player()));
+                i.pos().editor().setAction(i.origin(), new DragWireAction(this, i.origin()));
                 return true;
             }
         }

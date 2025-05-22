@@ -2,11 +2,10 @@ package de.blazemcworld.fireflow.code.action;
 
 import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.CodeInteraction;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.widget.*;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class WireAction implements CodeAction {
     private WireWidget startWire;
     private WireWidget endWire;
 
-    public WireAction(NodeIOWidget io, CodeEditor editor, ServerPlayerEntity player) {
+    public WireAction(NodeIOWidget io, CodeEditor editor, EditOrigin player) {
         if (!io.isInput()) {
             output = io;
             startPos = io.pos().sub(output.size().sub(-1 / 4f, 1 / 8f));
@@ -36,7 +35,7 @@ public class WireAction implements CodeAction {
 //        }
     }
 
-    public WireAction(WireWidget wire, WidgetVec cursor, ServerPlayerEntity player) {
+    public WireAction(WireWidget wire, WidgetVec cursor, EditOrigin player) {
         inputWire = wire;
         startPos = cursor;
         if (inputWire.line.from.x() == inputWire.line.to.x()) {
@@ -48,7 +47,7 @@ public class WireAction implements CodeAction {
     }
 
     @Override
-    public void tick(WidgetVec cursor, ServerPlayerEntity player) {
+    public void tick(WidgetVec cursor, EditOrigin player) {
         if (startWire != null) startWire.update();
         WidgetVec endPos = cursor.gridAligned();
         NodeIOWidget hover = null;
@@ -120,8 +119,8 @@ public class WireAction implements CodeAction {
                 if (!io.isInput()) return false;
                 if (!io.input.canUnderstand(type)) return false;
                 if (!io.connections.isEmpty() && type != SignalType.INSTANCE) return false;
-                if (i.pos().editor().isLocked(io.parent) != null && !i.pos().editor().isLockedByPlayer(io.parent, i.player())) {
-                    i.player().sendMessage(Text.literal("This widget is currently in use by another player!"));
+                if (i.pos().editor().isLocked(io.parent) != null && !i.pos().editor().isLockedByPlayer(io.parent, i.origin())) {
+                    i.origin().sendError("This widget is currently in use by another player!");
                     return true;
                 }
                 input = io;
@@ -164,7 +163,7 @@ public class WireAction implements CodeAction {
                 wires = null;
                 startWire = null;
                 endWire = null;
-                i.pos().editor().stopAction(i.player());
+                i.pos().editor().stopAction(i.origin());
                 return true;
             }
 
@@ -208,7 +207,7 @@ public class WireAction implements CodeAction {
                         this.wires = null;
                         startWire = null;
                         endWire = null;
-                        i.pos().editor().stopAction(i.player());
+                        i.pos().editor().stopAction(i.origin());
                         return true;
                     }
                 }
@@ -219,7 +218,7 @@ public class WireAction implements CodeAction {
             wires = new ArrayList<>();
         } else if (i.type() == CodeInteraction.Type.LEFT_CLICK) {
             if (permanentWires.isEmpty()) {
-                i.pos().editor().stopAction(i.player());
+                i.pos().editor().stopAction(i.origin());
                 return true;
             }
             for (WireWidget wire : wires) {
@@ -234,7 +233,7 @@ public class WireAction implements CodeAction {
     }
 
     @Override
-    public void stop(CodeEditor editor, ServerPlayerEntity player) {
+    public void stop(CodeEditor editor, EditOrigin player) {
         if (permanentWires != null) {
             for (List<WireWidget> list : permanentWires) {
                 for (WireWidget wire : list) {

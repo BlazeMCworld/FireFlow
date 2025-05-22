@@ -37,7 +37,7 @@ public class FlatChunkGenerator extends net.minecraft.world.gen.chunk.FlatChunkG
 
     @Override
     public CompletableFuture<Chunk> populateNoise(Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
-        if (chunk.getPos().x < -8 || chunk.getPos().x >= 8 || chunk.getPos().z < -8 || chunk.getPos().z >= 8) {
+        if (chunk.getPos().x < -16 || chunk.getPos().x >= 16 || chunk.getPos().z < -16 || chunk.getPos().z >= 16) {
             return CompletableFuture.completedFuture(chunk);
         }
         return super.populateNoise(blender, noiseConfig, structureAccessor, chunk);

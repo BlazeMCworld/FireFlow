@@ -3,6 +3,7 @@ package de.blazemcworld.fireflow.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.util.ModeManager;
 import net.minecraft.server.command.CommandManager;
@@ -31,7 +32,7 @@ public class AddNodeCommand {
                                 return Command.SINGLE_SUCCESS;
                             }
 
-                            space.editor.addNode(player, StringArgumentType.getString(ctx, "node"), flag);
+                            space.editor.addNode(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "node"), flag);
 
                             return Command.SINGLE_SUCCESS;
                         })

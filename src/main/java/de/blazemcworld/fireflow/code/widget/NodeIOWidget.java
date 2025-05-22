@@ -8,7 +8,6 @@ import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,17 +69,16 @@ public class NodeIOWidget extends Widget {
         return type;
     }
 
-    @SuppressWarnings("unchecked")
     public void connect(WireWidget wire) {
         if (wire.type() == SignalType.INSTANCE) {
             NodeIOWidget input = wire.getOutputs().getFirst();
             for (NodeIOWidget output : wire.getInputs()) {
-                ((Node.Output<Object>) output.output).connected = (Node.Input<Object>) input.input;
+                output.output.connected = input.input;
             }
         } else {
             NodeIOWidget output = wire.getInputs().getFirst();
             for (NodeIOWidget input : wire.getOutputs()) {
-                ((Node.Input<Object>) input.input).connect((Node.Output<Object>) output.output);
+                input.input.connect(output.output);
             }
         }
         text.setText(displayText());
@@ -140,16 +138,16 @@ public class NodeIOWidget extends Widget {
     public boolean interact(CodeInteraction i) {
         if (!inBounds(i.pos())) return false;
         if (isInput && i.type() == CodeInteraction.Type.CHAT) {
-            if (i.pos().editor().isLocked(this) != null && !i.pos().editor().isLockedByPlayer(this, i.player())) {
-                i.player().sendMessage(Text.literal("Node is currently in use by another player!").formatted(Formatting.RED));
+            if (i.pos().editor().isLocked(this) != null && !i.pos().editor().isLockedByPlayer(this, i.origin())) {
+                i.origin().sendError("Node is currently in use by another player!");
                 return true;
             }
             if (input.type.parseInset(i.message()) == null) {
-                i.player().sendMessage(Text.literal("Failed to parse inset!").formatted(Formatting.RED));
+                i.origin().sendError("Failed to parse inset!");
                 return true;
             }
 
-            insetValue(i.message().replaceAll("(?<!\\\\)\\(space\\)", " "));
+            insetValue(i.message().replaceAll("(?<!\\\\)\\(space\\)", " ").replaceAll("(?<!\\\\)\\(empty\\)", ""));
             update();
             return true;
         }
@@ -167,7 +165,7 @@ public class NodeIOWidget extends Widget {
                     return true;
                 }
             }
-            if (!this.isInput()) i.pos().editor().setAction(i.player(), new WireAction(this, i.pos().editor(), i.player()));
+            if (!this.isInput()) i.pos().editor().setAction(i.origin(), new WireAction(this, i.pos().editor(), i.origin()));
             return true;
         }
         if (i.type() == CodeInteraction.Type.LEFT_CLICK && isInput && input.inset != null) {

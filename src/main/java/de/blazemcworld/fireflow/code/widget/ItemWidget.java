@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.code.widget;
 
+import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.CodeInteraction;
 import net.minecraft.entity.Entity;
@@ -8,6 +9,7 @@ import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.Direction;
 import org.joml.Vector3f;
@@ -55,6 +57,15 @@ public class ItemWidget extends Widget {
             FireFlow.server.execute(() -> pos().world().spawnEntity(display));
             spawned = true;
         }
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "item");
+        json.addProperty("id", display.getUuid().toString());
+        json.addProperty("x", pos().x());
+        json.addProperty("y", pos().y());
+        json.addProperty("size", size);
+        json.addProperty("item", Registries.ITEM.getId(display.getItemStack().getItem()).getPath());
+        pos().editor().webBroadcast(json);
     }
 
     @Override
@@ -65,6 +76,11 @@ public class ItemWidget extends Widget {
     @Override
     public void remove() {
         display.remove(Entity.RemovalReason.DISCARDED);
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "remove");
+        json.addProperty("id", display.getUuid().toString());
+        pos().editor().webBroadcast(json);
     }
 
     @Override
