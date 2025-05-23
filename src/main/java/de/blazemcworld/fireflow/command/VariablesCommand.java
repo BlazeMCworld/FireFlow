@@ -1,8 +1,8 @@
 package de.blazemcworld.fireflow.command;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.blazemcworld.fireflow.code.VariableStore;
 import de.blazemcworld.fireflow.space.Space;
 import net.minecraft.server.command.CommandManager;
@@ -17,13 +17,13 @@ import java.util.function.Predicate;
 
 public class VariablesCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> cd) {
-        register(cd, "variables");
-        register(cd, "vars");
+    public static void attach(LiteralArgumentBuilder<ServerCommandSource> node) {
+        attach(node, "variables");
+        attach(node, "vars");
     }
 
-    private static void register(CommandDispatcher<ServerCommandSource> cd, String alias) {
-        cd.register(CommandManager.literal(alias)
+    private static void attach(LiteralArgumentBuilder<ServerCommandSource> node, String alias) {
+        node.then(CommandManager.literal(alias)
                 .executes(ctx -> {
                     listVariables(ctx.getSource(), null);
                     return Command.SINGLE_SUCCESS;

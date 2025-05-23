@@ -38,6 +38,7 @@ public class CodeEvaluator {
     public final PlayWorld world;
     private final Set<Runnable> tickTasks = new HashSet<>();
     private boolean initCalled = false;
+    private int revision = 0; // Incremented after each live reload
 
     public CodeEvaluator(Space space) {
         this.space = space;
@@ -61,7 +62,6 @@ public class CodeEvaluator {
         return stopped;
     }
 
-    @SuppressWarnings("unchecked")
     private Set<Node> copyNodes(Set<NodeWidget> nodes) {
         HashMap<Node, Node> old2new = new HashMap<>();
 
@@ -111,6 +111,8 @@ public class CodeEvaluator {
 
             old2new.put(node, copy);
             copy.originWidget = new WeakReference<>(nodeWidget);
+            copy.evalUUID = node.evalUUID;
+            copy.evalRevision = revision;
         }
 
         for (NodeWidget oldWidget : nodes) {
@@ -389,5 +391,49 @@ public class CodeEvaluator {
             json.addProperty("y", pos.y());
             space.editor.webBroadcast(json);
         });
+    }
+
+    public void liveReload() {
+        nextTick(() -> {
+            revision++;
+            Set<NodeWidget> widgets = new HashSet<>();
+            for (Widget widget : space.editor.rootWidgets) {
+                if (widget instanceof NodeWidget nodeWidget) {
+                    widgets.add(nodeWidget);
+                }
+            }
+            this.nodes = copyNodes(widgets);
+        });
+    }
+
+    public void syncRevision(Node old) {
+        if (old.evalRevision == revision) return;
+
+        for (Node current : nodes) {
+            if (current.originWidget.get() != old.originWidget.get()) continue;
+            if (old.originWidget.get() == null) continue;
+
+            for (Node.Input<?> oldInput : old.inputs) {
+                for (Node.Input<?> currentInput : current.inputs) {
+                    if (!oldInput.id.equals(currentInput.id)) continue;
+
+                    oldInput.connected = currentInput.connected;
+                    oldInput.inset = currentInput.inset;
+                    break;
+                }
+            }
+
+            for (Node.Output<?> oldOutput : old.outputs) {
+                for (Node.Output<?> currentOutput : current.outputs) {
+                    if (!oldOutput.id.equals(currentOutput.id)) continue;
+
+                    oldOutput.connected = currentOutput.connected;
+                    break;
+                }
+            }
+            break;
+        }
+
+        old.evalRevision = revision;
     }
 }

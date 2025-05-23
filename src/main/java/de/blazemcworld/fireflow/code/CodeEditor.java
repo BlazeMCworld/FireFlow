@@ -140,7 +140,7 @@ public class CodeEditor {
         double scale = Math.abs(player.getZ() - 16) / player.getRotationVec(0).getZ();
         Vec3d pos = player.getEyePos().add(player.getRotationVec(0).multiply(scale));
         if (world.getBottomY() > pos.getY() || world.getTopYInclusive() + 1 < pos.getY()) return Optional.empty();
-        if (pos.getX() > 256 || pos.getX() < -256) return Optional.empty();
+        if (pos.getX() > 512 || pos.getX() < -512) return Optional.empty();
         return Optional.of(new WidgetVec(this, pos.getX(), pos.getY()));
     }
 

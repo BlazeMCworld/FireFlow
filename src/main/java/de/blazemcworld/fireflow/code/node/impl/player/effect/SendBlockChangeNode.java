@@ -28,8 +28,7 @@ public class SendBlockChangeNode extends Node {
             if (placedBlock.isPresent()) {
                 Vec3d pos = position.getValue(ctx);
                 player.getValue(ctx).tryUse(ctx, p -> p.networkHandler.sendPacket(new BlockUpdateS2CPacket(
-                        new BlockPos((int) pos.x, (int) pos.y, (int) pos.z),
-                        placedBlock.get().getDefaultState()
+                        BlockPos.ofFloored(pos), placedBlock.get().getDefaultState()
                 )));
             }
             ctx.sendSignal(next);

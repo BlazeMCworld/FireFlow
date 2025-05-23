@@ -173,7 +173,7 @@ public class WebEditor extends Handler.Abstract {
                 case "move-cursor" -> {
                     float x = json.get("x").getAsFloat();
                     float y = json.get("y").getAsFloat();
-                    if (x > 256 || x < -256 || y > editor.world.getTopYInclusive() || y < editor.world.getBottomY()) {
+                    if (x > 512 || x < -512 || y > editor.world.getTopYInclusive() || y < editor.world.getBottomY()) {
                         cursor = null;
                         return;
                     }
@@ -217,6 +217,11 @@ public class WebEditor extends Handler.Abstract {
             if (msg.equals("/reload")) {
                 editor.space.reload();
                 sendInfo("Reloaded space!");
+                return;
+            }
+            if (msg.equals("/reload live")) {
+                editor.space.evaluator.liveReload();
+                sendInfo("Live reloaded space!");
                 return;
             }
 
@@ -291,9 +296,7 @@ public class WebEditor extends Handler.Abstract {
 
             if (msg.startsWith("/debug ")) {
                 String id = msg.substring(7);
-                editor.space.evaluator.nextTick(() -> {
-                    editor.space.evaluator.triggerDebug(id, origin);
-                });
+                editor.space.evaluator.triggerDebug(id, origin);
                 return;
             }
 
@@ -341,7 +344,9 @@ public class WebEditor extends Handler.Abstract {
                     if (!authorized) {
                         handleAuth(json.getAsJsonObject());
                     } else {
-                        handleEditor(json.getAsJsonObject());
+                        editor.nextTick(() -> {
+                            handleEditor(json.getAsJsonObject());
+                        });
                     }
                 } catch (Exception e) {
                     FireFlow.LOGGER.error("Failed to handle payload from web editor!", e);

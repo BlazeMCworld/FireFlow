@@ -27,6 +27,8 @@ public abstract class Node {
     public List<Varargs<?>> varargs = new ArrayList<>();
     public List<Output<?>> outputs = new ArrayList<>();
     public WeakReference<NodeWidget> originWidget; // Only available in the CodeEvaluator nodes, reference to the widget that created this node
+    public String evalUUID = UUID.randomUUID().toString();
+    public int evalRevision = 0;
 
     protected Node(String id, String name, String description, Item icon) {
         this.id = id;
@@ -77,6 +79,7 @@ public abstract class Node {
 
         @SuppressWarnings("unchecked")
         public T getValue(CodeThread ctx) {
+            ctx.evaluator.syncRevision(Node.this);
             if (connected != null) {
                 ctx.notifyDebug(connected);
                 Object out = connected.computeNow(ctx);

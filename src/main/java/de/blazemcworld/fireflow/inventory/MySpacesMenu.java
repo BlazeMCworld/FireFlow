@@ -51,7 +51,9 @@ public class MySpacesMenu extends InventoryMenu {
             setStack(i, item);
         }
 
-        setStack(26, createSpaceItem());
+        if (infos.size() < 5) {
+            setStack(26, createSpaceItem());
+        }
     }
 
     @Override
@@ -64,7 +66,7 @@ public class MySpacesMenu extends InventoryMenu {
             return;
         }
 
-        if (slotIndex == 26) {
+        if (slotIndex == 26 && infos.size() < 5) {
             SpaceInfo info = new SpaceInfo(SpaceManager.lastId++);
             info.name = player.getGameProfile().getName() + "'s New Space";
             info.icon = Items.PAPER;

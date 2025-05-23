@@ -12,6 +12,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,15 +56,15 @@ public class SpaceManager {
 
         for (Space space : getLoadedSpaces()) {
             space.save();
-            if (space.isInactive() || stop) unloadSpace(space);
+            if (space.isInactive() || stop) unloadSpace(space, null);
         }
     }
 
-    public static void unloadSpace(Space space) {
+    public static void unloadSpace(Space space, Runnable callback) {
         synchronized (spaces) {
             spaces.remove(space.info.id);
         }
-        space.unload();
+        space.unload(callback);
         FireFlow.LOGGER.info("Unloading space {}", space.info.id);
     }
 
@@ -168,5 +169,18 @@ public class SpaceManager {
         synchronized (spaces) {
             return new ArrayList<>(spaces.values());
         }
+    }
+
+    public static void delete(Space space) {
+        unloadSpace(space, () -> Thread.startVirtualThread(() -> {
+            try {
+                FileUtils.deleteDirectory(space.path().toFile());
+
+                FileUtils.deleteDirectory(FireFlow.server.session.getWorldDirectory(space.playWorld.getRegistryKey()).toFile());
+                FileUtils.deleteDirectory(FireFlow.server.session.getWorldDirectory(space.codeWorld.getRegistryKey()).toFile());
+            } catch (IOException e) {
+                FireFlow.LOGGER.error("Failed to delete space {}!", space.info.id, e);
+            }
+        }));
     }
 }

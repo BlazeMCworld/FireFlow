@@ -67,7 +67,7 @@ public class Space {
         return emptyTimer > 100;
     }
 
-    protected void unload() {
+    protected void unload(Runnable callback) {
         dummyManager.reset();
         for (ServerPlayerEntity player : new ArrayList<>(playWorld.getPlayers())) {
             ModeManager.move(player, ModeManager.Mode.LOBBY, this);
@@ -77,13 +77,14 @@ public class Space {
         }
         editor.close();
 
-        evaluator.stop();
-        playWorld.closeSoon(null);
         try {
             codeWorld.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        evaluator.stop();
+        playWorld.closeSoon(callback);
     }
 
     public Set<ServerPlayerEntity> getPlayers() {

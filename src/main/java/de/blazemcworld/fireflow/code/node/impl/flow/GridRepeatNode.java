@@ -5,6 +5,7 @@ import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public class GridRepeatNode extends Node {
@@ -25,12 +26,12 @@ public class GridRepeatNode extends Node {
             Vec3d startValue = start.getValue(ctx);
             Vec3d endValue = mode.getValue(ctx).equals("relative_end") ? startValue.add(end.getValue(ctx)) : end.getValue(ctx);
 
-            int minX = (int) Math.max(-256, Math.min(startValue.x, endValue.x));
-            int minY = (int) Math.max(ctx.evaluator.world.getBottomY(), Math.min(startValue.y, endValue.y));
-            int minZ = (int) Math.max(-256, Math.min(startValue.z, endValue.z));
-            int maxX = (int) Math.min(255, Math.max(startValue.x, endValue.x));
-            int maxY = (int) Math.min(ctx.evaluator.world.getTopYInclusive() - 1, Math.max(startValue.y, endValue.y));
-            int maxZ = (int) Math.min(255, Math.max(startValue.z, endValue.z));
+            int minX = MathHelper.floor(Math.max(-512, Math.min(startValue.x, endValue.x)));
+            int minY = MathHelper.floor(Math.max(ctx.evaluator.world.getBottomY(), Math.min(startValue.y, endValue.y)));
+            int minZ = MathHelper.floor(Math.max(-512, Math.min(startValue.z, endValue.z)));
+            int maxX = MathHelper.floor(Math.min(511, Math.max(startValue.x, endValue.x)));
+            int maxY = MathHelper.floor(Math.min(ctx.evaluator.world.getTopYInclusive() - 1, Math.max(startValue.y, endValue.y)));
+            int maxZ = MathHelper.floor(Math.min(511, Math.max(startValue.z, endValue.z)));
 
             Vec3d[] val = new Vec3d[]{new Vec3d(minX, minY, minZ)};
             ctx.setScopeValue(current, val[0]);

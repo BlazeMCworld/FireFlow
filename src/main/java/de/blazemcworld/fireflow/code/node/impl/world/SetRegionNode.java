@@ -12,6 +12,7 @@ import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Optional;
@@ -45,12 +46,12 @@ public class SetRegionNode extends Node {
                         Math.floor(corner2Value.z)
                 );
 
-                int minX = (int) Math.max(-256, Math.min(corner1Value.x, corner2Value.x));
-                int minY = (int) Math.max(ctx.evaluator.world.getBottomY(), Math.min(corner1Value.y, corner2Value.y));
-                int minZ = (int) Math.max(-256, Math.min(corner1Value.z, corner2Value.z));
-                int maxX = (int) Math.min(255, Math.max(corner1Value.x, corner2Value.x));
-                int maxY = (int) Math.min(ctx.evaluator.world.getTopYInclusive() - 1, Math.max(corner1Value.y, corner2Value.y));
-                int maxZ = (int) Math.min(255, Math.max(corner1Value.z, corner2Value.z));
+                int minX = MathHelper.floor(Math.max(-512, Math.min(corner1Value.x, corner2Value.x)));
+                int minY = MathHelper.floor(Math.max(ctx.evaluator.world.getBottomY(), Math.min(corner1Value.y, corner2Value.y)));
+                int minZ = MathHelper.floor(Math.max(-512, Math.min(corner1Value.z, corner2Value.z)));
+                int maxX = MathHelper.floor(Math.min(511, Math.max(corner1Value.x, corner2Value.x)));
+                int maxY = MathHelper.floor(Math.min(ctx.evaluator.world.getTopYInclusive() - 1, Math.max(corner1Value.y, corner2Value.y)));
+                int maxZ = MathHelper.floor(Math.min(511, Math.max(corner1Value.z, corner2Value.z)));
 
                 BlockState state = placedBlock.get().getDefaultState();
                 for (BlockPos pos : BlockPos.iterate(minX, minY, minZ, maxX, maxY, maxZ)) {

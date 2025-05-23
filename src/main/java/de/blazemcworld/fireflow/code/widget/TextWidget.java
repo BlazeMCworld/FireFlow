@@ -59,8 +59,8 @@ public class TextWidget extends Widget {
         JsonObject json = new JsonObject();
         json.addProperty("type", "text");
         json.addProperty("id", display.getUuid().toString());
-        json.addProperty("x", pos.x());
-        json.addProperty("y", pos.y());
+        json.addProperty("x", pos().x());
+        json.addProperty("y", pos().y());
         json.addProperty("text", getPlainText(display.getText()));
         json.addProperty("scaleX", xScale);
         json.addProperty("scaleY", yScale);

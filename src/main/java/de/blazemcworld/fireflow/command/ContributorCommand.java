@@ -3,8 +3,8 @@ package de.blazemcworld.fireflow.command;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.space.PlayWorld;
 import de.blazemcworld.fireflow.space.Space;
@@ -25,13 +25,14 @@ import java.util.function.Function;
 
 public class ContributorCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> cd) {
-        register(cd, "builder", info -> info.builders);
-        register(cd, "developer", info -> info.developers);
+
+    public static void attach(LiteralArgumentBuilder<ServerCommandSource> node) {
+        attach(node, "builder", info -> info.builders);
+        attach(node, "developer", info -> info.developers);
     }
 
-    private static void register(CommandDispatcher<ServerCommandSource> cd, String id, Function<SpaceInfo, Set<UUID>> getMap) {
-        cd.register(CommandManager.literal(id)
+    private static void attach(LiteralArgumentBuilder<ServerCommandSource> node, String id, Function<SpaceInfo, Set<UUID>> getMap) {
+        node.then(CommandManager.literal(id)
                 .then(CommandManager.literal("list")
                         .executes(ctx -> {
                             ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
@@ -173,5 +174,4 @@ public class ContributorCommand {
             FireFlow.server.execute(() -> callback.accept(profile));
         });
     }
-
 }

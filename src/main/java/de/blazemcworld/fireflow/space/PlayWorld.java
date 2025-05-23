@@ -141,7 +141,7 @@ public class PlayWorld extends ServerWorld {
                 stack.append(e).append("\n");
             }
 
-            SpaceManager.unloadSpace(space);
+            SpaceManager.unloadSpace(space, null);
             FireFlow.LOGGER.error("Space {} took too long to tick! Thread dump:\n{}", space.info.id, stack.toString());
         }
     }

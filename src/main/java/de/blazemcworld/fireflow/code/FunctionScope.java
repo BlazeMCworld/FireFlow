@@ -1,12 +1,11 @@
 package de.blazemcworld.fireflow.code;
 
-import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionCallNode;
 
 import java.util.HashMap;
 
 public final class FunctionScope {
-    public final HashMap<Node.Output<?>, Object> scopeStore = new HashMap<>();
+    public final HashMap<String, Object> scopeStore = new HashMap<>();
     public final VariableStore varStore = new VariableStore();
     public final FunctionCallNode call;
     public final FunctionScope parent;

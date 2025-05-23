@@ -198,18 +198,10 @@ if (location.hash == "" || location.hash == "#") {
                         ctx.font = "0.25px sans-serif";
                         ctx.fillStyle = self.color || "white";
                         ctx.save();
-                        ctx.translate(-self.x, -self.y);
-                        ctx.scale(self.scaleX, self.scaleY);
-                        let totalWidth = 0;
-                        for (let char of self.text) {
-                            let charData = fontWidthData.chars[char];
-                            if (!charData) charData = fontWidthData.missing_char;
-                            totalWidth += charData.width / 40;
-                        }
-                        ctx.translate(-totalWidth / 2 + 1 / 64, 1 / 64);
+                        ctx.translate(0.1 - self.x, 0.25 - self.y);
                         ctx.rotate(-self.rotation * Math.PI / 180);
-                        ctx.translate(window.postX, window.postY);
-                        ctx.translate(0, -3 / 64);
+                        ctx.scale(self.scaleX, self.scaleY);
+                        ctx.translate(-4 / 64, -3 / 64);
                         for (let char of self.text) {
                             let charData = fontWidthData.chars[char];
                             if (!charData) charData = fontWidthData.missing_char;

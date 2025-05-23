@@ -46,7 +46,7 @@ public class FireFlow implements ModInitializer {
             AllTypes.init();
             WebServer.init();
 
-            server.getOverworld().getWorldBorder().setSize(512);
+            server.getOverworld().getWorldBorder().setSize(1024);
         });
 
         ServerLifecycleEvents.SERVER_STOPPING.register((srv -> {
@@ -101,19 +101,17 @@ public class FireFlow implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((cd, reg, env) -> {
             CodeCommand.register(cd);
             PlayCommand.register(cd);
-            MonitorCommand.register(cd);
             LobbyCommand.register(cd);
             BuildCommand.register(cd);
             ReloadCommand.register(cd);
             AddNodeCommand.register(cd);
-            ContributorCommand.register(cd);
             FunctionCommand.register(cd);
             LocateCommand.register(cd);
             ShowLagCommand.register(cd);
             DummyCommand.register(cd);
-            VariablesCommand.register(cd);
             AuthWebCommand.register(cd);
             DebugCommand.register(cd);
+            SpaceCommand.register(cd);
         });
     }
 }

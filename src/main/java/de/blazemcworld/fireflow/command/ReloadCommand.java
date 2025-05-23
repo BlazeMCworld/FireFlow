@@ -22,6 +22,17 @@ public class ReloadCommand {
                     player.sendMessage(Text.literal("Reloaded space!").formatted(Formatting.AQUA));
                     return Command.SINGLE_SUCCESS;
                 })
+                .then(CommandManager.literal("live")
+                        .executes(ctx -> {
+                            ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
+                            Space space = CommandHelper.getSpace(player);
+                            if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
+
+                            space.evaluator.liveReload();
+                            player.sendMessage(Text.literal("Live reloaded space!").formatted(Formatting.AQUA));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
         );
     }
 

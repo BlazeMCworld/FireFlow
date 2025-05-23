@@ -21,17 +21,18 @@ public class CodeThread {
 
     @SuppressWarnings("unchecked")
     public <T> T getScopeValue(Node.Output<T> out) {
-        Object v = functionScope.scopeStore.get(out);
+        Object v = functionScope.scopeStore.get(out.getNode().evalUUID + "_" + out.id);
         return v == null ? out.type.defaultValue() : (T) v;
     }
 
     public <T> void setScopeValue(Node.Output<T> out, T value) {
-        functionScope.scopeStore.put(out, value);
+        functionScope.scopeStore.put(out.getNode().evalUUID + "_" + out.id, value);
     }
 
     public void sendSignal(Node.Output<Void> signal) {
         todo.add(() -> {
             notifyDebug(signal);
+            evaluator.syncRevision(signal.getNode());
             signal.sendSignalImmediately(this);
         });
     }

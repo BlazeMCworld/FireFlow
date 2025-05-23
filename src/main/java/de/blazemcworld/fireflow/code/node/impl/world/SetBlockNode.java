@@ -29,12 +29,8 @@ public class SetBlockNode extends Node {
             Optional<Block> b = id.isSuccess() ? Registries.BLOCK.getOptionalValue(id.getOrThrow()) : Optional.empty();
             if (b.isPresent()) {
                 Vec3d pos = position.getValue(ctx);
-                if (pos.x < -256 || pos.x > 255 || pos.z < -256 || pos.z > 255) return;
-                ctx.evaluator.world.setBlockState(new BlockPos(
-                        (int) Math.floor(pos.x),
-                        (int) Math.floor(pos.y),
-                        (int) Math.floor(pos.z)
-                ), b.get().getDefaultState(), sendUpdate.getValue(ctx) ? Block.NOTIFY_ALL : 0);
+                if (pos.x < -512 || pos.x > 511 || pos.z < -512 || pos.z > 511 || pos.y < ctx.evaluator.world.getBottomY() || pos.y > ctx.evaluator.world.getTopYInclusive()) return;
+                ctx.evaluator.world.setBlockState(BlockPos.ofFloored(pos), b.get().getDefaultState(), sendUpdate.getValue(ctx) ? Block.NOTIFY_ALL : 0);
             }
             ctx.sendSignal(next);
         });

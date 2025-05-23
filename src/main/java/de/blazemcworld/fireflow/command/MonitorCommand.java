@@ -1,7 +1,7 @@
 package de.blazemcworld.fireflow.command;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -18,8 +18,8 @@ public class MonitorCommand {
 
     private static final Map<ServerPlayerEntity, Space> monitors = new ConcurrentHashMap<>();
 
-    public static void register(CommandDispatcher<ServerCommandSource> cd) {
-        cd.register(CommandManager.literal("monitor")
+    public static void attach(LiteralArgumentBuilder<ServerCommandSource> node) {
+        node.then(CommandManager.literal("monitor")
                 .executes(ctx -> {
                     ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
 
@@ -37,7 +37,9 @@ public class MonitorCommand {
                     return Command.SINGLE_SUCCESS;
                 })
         );
+    }
 
+    static {
         ServerTickEvents.END_WORLD_TICK.register((w) -> {
             for (ServerPlayerEntity p : w.getPlayers()) {
                 Space space = monitors.get(p);
