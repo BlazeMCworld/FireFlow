@@ -30,12 +30,12 @@ jobs:
       - name: Generate Wiki
         id: build
         run: |
-          wget -O paper.jar https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/231/downloads/paper-1.21.4-231.jar
+          wget -O fabric.jar https://meta.fabricmc.net/v2/versions/loader/1.21.5/0.16.14/1.0.3/server/jar
           mkdir mods
           wget -O mods/fabric-api.jar https://github.com/FabricMC/fabric/releases/download/0.124.2%2B1.21.5/fabric-api-0.124.2+1.21.5.jar
           cp build/libs/fireflow-${{ github.run_number }}.jar mods/
           echo "eula=true" > eula.txt
-          FIREFLOW_GENERATE_WIKI=true java -jar paper.jar
+          FIREFLOW_GENERATE_WIKI=true java -jar fabric.jar
 
       - name: Upload Wiki Artifact
         id: deployment

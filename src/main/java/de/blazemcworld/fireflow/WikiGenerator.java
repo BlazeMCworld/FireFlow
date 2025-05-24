@@ -19,7 +19,6 @@ public class WikiGenerator {
 
     public static void generate() {
         FireFlow.LOGGER.info("Generating wiki...");
-        NodeList.init();
 
         sidebar = new StringBuilder();
         sidebar("Nodes", "nodes");

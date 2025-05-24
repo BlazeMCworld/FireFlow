@@ -37,17 +37,18 @@ public class FireFlow implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        if (String.valueOf(System.getenv("FIREFLOW_GENERATE_WIKI")).equalsIgnoreCase("true")) {
-            WikiGenerator.generate();
-            System.exit(0);
-        }
-
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
             FireFlow.server = server;
+            NodeList.init();
+
+            if (String.valueOf(System.getenv("FIREFLOW_GENERATE_WIKI")).equalsIgnoreCase("true")) {
+                WikiGenerator.generate();
+                Runtime.getRuntime().halt(0);
+            }
+
             TextWidth.init();
             SpaceManager.load();
             Lobby.init();
-            NodeList.init();
             AllTypes.init();
             WebServer.init();
 
