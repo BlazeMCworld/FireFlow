@@ -34,7 +34,7 @@ jobs:
           mkdir mods
           wget -O mods/fabric-api.jar https://github.com/FabricMC/fabric/releases/download/0.124.2%2B1.21.5/fabric-api-0.124.2+1.21.5.jar
           cp build/libs/fireflow-${{ github.run_number }}.jar mods/
-          echo "EULA=true" > eula.txt
+          echo "eula=true" > eula.txt
           FIREFLOW_GENERATE_WIKI=true java -jar paper.jar
 
       - name: Upload Wiki Artifact
