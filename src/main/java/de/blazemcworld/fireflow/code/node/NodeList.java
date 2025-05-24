@@ -31,7 +31,7 @@ public class NodeList {
     public static Category root;
 
     public static void init() {
-        root = new Category("root", null)
+        root = new Category("All", null)
                 .add(new Category("Condition", Items.COMPARATOR)
                         .add(new ConditionAndNode())
                         .add(new ConditionalChoiceNode<>(null))
