@@ -8,24 +8,39 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
+import java.util.Set;
 
 public class Lobby {
 
     public static ServerWorld world;
+    public static Vec3d spawnPos;
 
     public static void init() {
         world = FireFlow.server.getOverworld();
 
         WorldUtil.setGameRules(world);
         world.setSpawnPos(BlockPos.ORIGIN, 0f);
+
+        try {
+            if (FireFlow.server instanceof MinecraftDedicatedServer dedicated) {
+                String spawn = dedicated.getProperties().properties.getProperty("fireflow-spawn");
+                if (spawn != null) {
+                    String[] split = spawn.split(",");
+                    spawnPos = new Vec3d(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]));
+                }
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private static ItemStack mySpacesItem() {
@@ -52,6 +67,10 @@ public class Lobby {
         player.getInventory().setStack(0, mySpacesItem());
         player.getInventory().setStack(4, activeSpacesItem());
         player.setInvulnerable(true);
+
+        if (spawnPos != null) {
+            player.teleport(world, spawnPos.x, spawnPos.y, spawnPos.z, Set.of(), 0, 0, true);
+        }
     }
 
     public static void onUseItem(ServerPlayerEntity player, ItemStack stack) {

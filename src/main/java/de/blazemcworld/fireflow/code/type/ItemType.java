@@ -11,15 +11,20 @@ import com.mojang.serialization.Dynamic;
 import de.blazemcworld.fireflow.FireFlow;
 import net.minecraft.MinecraftVersion;
 import net.minecraft.datafixer.TypeReferences;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.util.Base64;
+import java.util.Optional;
 
 public class ItemType extends WireType<ItemStack> {
 
@@ -84,8 +89,9 @@ public class ItemType extends WireType<ItemStack> {
     @Override
     public ItemStack parseInset(String str) {
         DataResult<Identifier> id = Identifier.validate(str);
-        if (id.isError()) return new ItemStack(Items.AIR);
-        return new ItemStack(Registries.ITEM.getOptionalValue(id.getOrThrow()).orElse(Items.AIR));
+        if (id.isError()) return null;
+        Optional<Item> item = Registries.ITEM.getOptionalValue(id.getOrThrow());
+        return item.map(ItemStack::new).orElse(null);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class WireWidget extends Widget {
         if (!previousOutput.isInput()) this.previousOutput = previousOutput;
         else this.nextInput = previousOutput;
         if (previousOutput.isInput()) line.from = previousOutput.pos().sub(1/8f-1/32f, 1/8f);
-        else line.from = previousOutput.pos().sub(previousOutput.size().sub(1/8f, 1/8f));
+        else line.from = previousOutput.pos().sub(previousOutput.size().sub(0, 1/8f));
         line.to = cursor;
         line.color(previousOutput.type().color);
         this.type = type;

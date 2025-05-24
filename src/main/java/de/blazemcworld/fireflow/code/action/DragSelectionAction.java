@@ -72,7 +72,7 @@ public class DragSelectionAction implements CodeAction {
                     wire.previousWires.getFirst().line.to = new WidgetVec(cursor.editor(), wire.previousWires.getFirst().line.to.x(), io.pos().y() - 1 / 8f);
                     wire.previousWires.getFirst().update();
                 } else {
-                    wire.line.from = io.pos().sub(io.size().sub(1 / 8f, 1 / 8f));
+                    wire.line.from = io.pos().sub(io.size().sub(0, 1 / 8f));
                     wire.line.to = new WidgetVec(io.pos().editor(), wire.line.to.x(), io.pos().y() - 1 / 8f);
                     wire.nextWires.getFirst().line.from = new WidgetVec(cursor.editor(), wire.nextWires.getFirst().line.from.x(), io.pos().y() - 1 / 8f);
                     wire.nextWires.getFirst().update();
@@ -108,7 +108,7 @@ public class DragSelectionAction implements CodeAction {
                         wire.previousWires.getFirst().line.to = new WidgetVec(editor, wire.previousWires.getFirst().line.to.x(), io.pos().y() - 1 / 8f);
                         wire.previousWires.getFirst().update();
                     } else {
-                        wire.line.from = io.pos().sub(io.size().sub(1 / 8f, 1 / 8f));
+                        wire.line.from = io.pos().sub(io.size().sub(0, 1 / 8f));
                         wire.line.to = new WidgetVec(editor, wire.line.to.x(), io.pos().y() - 1 / 8f);
                         wire.nextWires.getFirst().line.from = new WidgetVec(editor, wire.nextWires.getFirst().line.from.x(), io.pos().y() - 1 / 8f);
                         wire.nextWires.getFirst().update();

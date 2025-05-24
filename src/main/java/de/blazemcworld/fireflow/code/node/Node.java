@@ -86,7 +86,10 @@ public abstract class Node {
                 if (connected.type == type) return (T) out;
                 return type.convert(connected.type, out);
             }
-            if (inset != null) return type.parseInset(inset);
+            if (inset != null) {
+                T value = type.parseInset(inset);
+                if (value != null) return value;
+            }
             return type.defaultValue();
         }
 

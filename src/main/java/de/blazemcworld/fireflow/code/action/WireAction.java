@@ -20,12 +20,13 @@ public class WireAction implements CodeAction {
     private List<List<WireWidget>> permanentWires = new ArrayList<>();
     private WireWidget startWire;
     private WireWidget endWire;
+    private WidgetVec lastCursor;
 
     public WireAction(NodeIOWidget io, CodeEditor editor, EditOrigin player) {
         if (!io.isInput()) {
             output = io;
             startPos = io.pos().sub(output.size().sub(-1 / 4f, 1 / 8f));
-            startWire = new WireWidget(io.pos().sub(output.size().sub(1 / 8f, 1 / 8f)), output.type(), startPos);
+            startWire = new WireWidget(io.pos().sub(output.size().sub(0, 1 / 8f)), output.type(), startPos);
             editor.lockWidget(io.parent, player);
         }
 //        else {
@@ -50,6 +51,8 @@ public class WireAction implements CodeAction {
     public void tick(WidgetVec cursor, EditOrigin player) {
         if (startWire != null) startWire.update();
         WidgetVec endPos = cursor.gridAligned();
+        if (endPos.equals(lastCursor)) return;
+        lastCursor = endPos;
         NodeIOWidget hover = null;
         WireType<?> type = (output != null) ? output.type() : inputWire.type();
         NodeIOWidget io = cursor.editor().selectIOWidget(cursor);
@@ -101,7 +104,7 @@ public class WireAction implements CodeAction {
             WireWidget lastWire = wires.get(index);
             if (endWire == null) endWire = new WireWidget(lastWire, type, hover.pos());
             endWire.line.from = lastWire.line.to;
-            endWire.line.to = (hover.isInput()) ? hover.pos().sub(1 / 8f, 1 / 8f) : hover.pos().sub(hover.size().sub(1 / 8f, 1 / 8f));
+            endWire.line.to = (hover.isInput()) ? hover.pos().sub(1 / 8f, 1 / 8f) : hover.pos().sub(hover.size().sub(0, 1 / 8f));
             endWire.update();
         } else if (endWire != null) {
             endWire.remove();

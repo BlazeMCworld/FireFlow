@@ -26,6 +26,7 @@ public class BlockItemMixin {
         if (context.getPlayer() instanceof ServerPlayerEntity p && space != null && space.playWorld == world) {
             if (ModeManager.getFor(p) == ModeManager.Mode.PLAY && space.evaluator.onPlaceBlock(context)) {
                 cir.setReturnValue(ActionResult.FAIL);
+                p.playerScreenHandler.syncState();
             }
             return;
         }

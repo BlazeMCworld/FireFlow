@@ -20,7 +20,7 @@ public class EditOrigin {
     private static final WeakHashMap<ServerPlayerEntity, EditOrigin> playerOrigins = new WeakHashMap<>();
     private static final WeakHashMap<WebEditor.WebUser, EditOrigin> webOrigins = new WeakHashMap<>();
 
-    private final ServerPlayerEntity player;
+    private ServerPlayerEntity player;
     private final WebEditor.WebUser web;
 
     private EditOrigin(ServerPlayerEntity player, WebEditor.WebUser web) {
@@ -29,7 +29,9 @@ public class EditOrigin {
     }
 
     public static EditOrigin ofPlayer(ServerPlayerEntity player) {
-        return playerOrigins.computeIfAbsent(player, p -> new EditOrigin(p, null));
+        EditOrigin origin = playerOrigins.computeIfAbsent(player, p -> new EditOrigin(p, null));
+        origin.player = player; // ServerPlayerEntities can be recreated, having the same hash code
+        return origin;
     }
 
     public static EditOrigin ofWeb(WebEditor.WebUser web) {

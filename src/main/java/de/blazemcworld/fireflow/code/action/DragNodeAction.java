@@ -64,7 +64,7 @@ public class DragNodeAction implements CodeAction {
                     wire.previousWires.getFirst().line.to = new WidgetVec(cursor.editor(), wire.previousWires.getFirst().line.to.x(), ioWidget.pos().y() - 1 / 8f);
                     wire.previousWires.getFirst().update();
                 } else {
-                    wire.line.from = ioWidget.pos().sub(ioWidget.size().sub(1 / 8f, 1 / 8f));
+                    wire.line.from = ioWidget.pos().sub(ioWidget.size().sub(0, 1 / 8f));
                     wire.line.to = new WidgetVec(cursor.editor(), wire.line.to.x(), ioWidget.pos().y() - 1 / 8f);
                     wire.nextWires.getFirst().line.from = new WidgetVec(cursor.editor(), wire.nextWires.getFirst().line.from.x(), ioWidget.pos().y() - 1 / 8f);
                     wire.nextWires.getFirst().update();

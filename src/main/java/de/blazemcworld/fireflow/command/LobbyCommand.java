@@ -21,6 +21,7 @@ public class LobbyCommand {
         cd.register(CommandManager.literal(alias)
                 .executes(ctx -> {
                     ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
+                    if (player == null) return Command.SINGLE_SUCCESS;
 
                     if (player.getServerWorld() == Lobby.world) {
                         player.sendMessage(Text.literal("You are already in the lobby!").formatted(Formatting.RED));

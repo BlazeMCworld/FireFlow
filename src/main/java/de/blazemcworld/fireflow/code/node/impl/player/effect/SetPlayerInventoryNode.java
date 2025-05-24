@@ -10,7 +10,7 @@ import net.minecraft.item.Items;
 public class SetPlayerInventoryNode extends Node {
 
     public SetPlayerInventoryNode() {
-        super("set_player_inventory", "Set Player Inventory", "Sets the inventory of the player", Items.WATER_BUCKET);
+        super("set_player_inventory", "Set Player Inventory", "Changes the entire inventory of a player", Items.WATER_BUCKET);
 
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);

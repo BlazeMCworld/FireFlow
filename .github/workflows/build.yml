@@ -26,3 +26,32 @@ jobs:
         with:
           name: FireFlow
           path: ./build/libs/fireflow-*.jar
+
+      - name: Generate Wiki
+        id: build
+        run: |
+          wget -O paper.jar https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/231/downloads/paper-1.21.4-231.jar
+          mkdir mods
+          wget -O mods/fabric-api.jar https://github.com/FabricMC/fabric/releases/download/0.124.2%2B1.21.5/fabric-api-0.124.2+1.21.5.jar
+          cp build/libs/fireflow-*.jar mods/fireflow.jar
+          FIREFLOW_GENERATE_WIKI=true java -jar paper.jar
+
+      - name: Upload Wiki Artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: wiki/
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pages: write
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
