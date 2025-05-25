@@ -1,4 +1,4 @@
-package de.blazemcworld.fireflow.code.node.impl.flow;
+package de.blazemcworld.fireflow.code.node.impl.control;
 
 import de.blazemcworld.fireflow.code.node.DualGenericNode;
 import de.blazemcworld.fireflow.code.node.Node;

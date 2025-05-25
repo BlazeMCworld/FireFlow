@@ -507,38 +507,19 @@ public class WireWidget extends Widget {
 
     public Set<WireWidget> getFullWire() {
         Set<WireWidget> wires = new HashSet<>();
+        collectWires(wires);
+        return wires;
+    }
+
+    private void collectWires(Set<WireWidget> wires) {
+        if (wires.contains(this)) return;
         wires.add(this);
-        wires.addAll(previousWires);
-        wires.addAll(nextWires);
-        previousWires.forEach(wire -> wires.addAll(wire.getFullPreviousWires(this)));
-        nextWires.forEach(wire -> wires.addAll(wire.getFullNextWires(this)));
-        return wires;
-    }
-
-    private Set<WireWidget> getFullPreviousWires(WireWidget avoid) {
-        Set<WireWidget> wires = new HashSet<>(previousWires);
-        Set<WireWidget> nextWiresClone = new HashSet<>(nextWires);
-        nextWiresClone.remove(avoid);
-        wires.addAll(nextWiresClone);
-        previousWires.forEach(wire -> wires.addAll(wire.getFullPreviousWires(this)));
-        nextWires.forEach(wire -> {
-            if (wire == avoid) return;
-            wires.addAll(wire.getFullNextWires(this));
-        });
-        return wires;
-    }
-
-    private Set<WireWidget> getFullNextWires(WireWidget avoid) {
-        Set<WireWidget> wires = new HashSet<>(nextWires);
-        Set<WireWidget> previousWiresClone = new HashSet<>(previousWires);
-        previousWiresClone.remove(avoid);
-        wires.addAll(previousWiresClone);
-        previousWires.forEach(wire -> {
-            if (wire == avoid) return;
-            wires.addAll(wire.getFullPreviousWires(this));
-        });
-        nextWires.forEach(wire -> wires.addAll(wire.getFullNextWires(this)));
-        return wires;
+        for (WireWidget w : previousWires) {
+            w.collectWires(wires);
+        }
+        for (WireWidget w : nextWires) {
+            w.collectWires(wires);
+        }
     }
 
     @Override
@@ -560,8 +541,8 @@ public class WireWidget extends Widget {
             List<NodeIOWidget> inputs = getInputs();
             List<NodeIOWidget> outputs = getOutputs();
             removeConnection();
-            if (this.type == SignalType.INSTANCE && !outputs.getFirst().connections.isEmpty()) outputs.getFirst().connections.getFirst().cleanup();
-            else if (!inputs.getFirst().connections.isEmpty()) inputs.getFirst().connections.getFirst().cleanup();
+            if (this.type == SignalType.INSTANCE && !outputs.isEmpty() && !outputs.getFirst().connections.isEmpty()) outputs.getFirst().connections.getFirst().cleanup();
+            else if (type != SignalType.INSTANCE && !inputs.isEmpty() && !inputs.getFirst().connections.isEmpty()) inputs.getFirst().connections.getFirst().cleanup();
             return true;
         } else if (i.type() == CodeInteraction.Type.SWAP_HANDS) {
             if (type != SignalType.INSTANCE) {

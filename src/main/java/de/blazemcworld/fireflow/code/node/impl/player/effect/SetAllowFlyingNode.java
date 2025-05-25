@@ -16,7 +16,9 @@ public class SetAllowFlyingNode extends Node {
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
         signal.onSignal((ctx) -> {
             player.getValue(ctx).tryUse(ctx, p -> {
-                p.getAbilities().allowFlying = allow.getValue(ctx);
+                boolean newValue = allow.getValue(ctx);
+                p.getAbilities().allowFlying = newValue;
+                if (!newValue) p.getAbilities().flying = false;
                 p.sendAbilitiesUpdate();
             });
             ctx.sendSignal(next);

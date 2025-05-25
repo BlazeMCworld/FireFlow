@@ -31,7 +31,10 @@ public class SetRegionNode extends Node {
             DataResult<Identifier> id = Identifier.validate(block.getValue(ctx));
             Optional<Block> placedBlock = id.isSuccess() ? Registries.BLOCK.getOptionalValue(id.getOrThrow()) : Optional.empty();
             if (placedBlock.isPresent()) {
-                int flags = sendUpdate.getValue(ctx) ? Block.NOTIFY_ALL : 0;
+                BlockState state = placedBlock.get().getDefaultState();
+                boolean updates = sendUpdate.getValue(ctx);
+                int updateLimit = updates ? 512 : 0;
+                int flags = updates ? Block.NOTIFY_ALL : Block.NOTIFY_LISTENERS;
 
                 Vec3d corner1Value = corner1.getValue(ctx);
                 Vec3d corner2Value = corner2.getValue(ctx);
@@ -53,9 +56,8 @@ public class SetRegionNode extends Node {
                 int maxY = MathHelper.floor(Math.min(ctx.evaluator.world.getTopYInclusive() - 1, Math.max(corner1Value.y, corner2Value.y)));
                 int maxZ = MathHelper.floor(Math.min(511, Math.max(corner1Value.z, corner2Value.z)));
 
-                BlockState state = placedBlock.get().getDefaultState();
                 for (BlockPos pos : BlockPos.iterate(minX, minY, minZ, maxX, maxY, maxZ)) {
-                    ctx.evaluator.world.setBlockState(pos, state, flags);
+                    ctx.evaluator.world.setBlockState(pos, state, flags, updateLimit);
                 }
             }
             ctx.sendSignal(next);

@@ -24,7 +24,7 @@ public class OnChunkLoadNode extends Node {
     }
 
     public void emit(CodeEvaluator evaluator, double x, double z) {
-        if (x < -8 || x >= 8 || z < -8 || z >= 8) return;
+        if (x < -32 || x >= 32 || z < -32 || z >= 32) return;
         CodeThread thread = evaluator.newCodeThread();
         thread.setScopeValue(this.x, x * 16);
         thread.setScopeValue(this.z, z * 16);

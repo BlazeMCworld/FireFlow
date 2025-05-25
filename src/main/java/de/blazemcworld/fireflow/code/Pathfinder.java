@@ -22,8 +22,8 @@ public class Pathfinder {
 
         for (Widget w : editor.rootWidgets) {
             if (!(w instanceof NodeWidget n)) continue;
-            WidgetVec size = w.size();
-            WidgetVec pos = w.pos();
+            WidgetVec size = w.size().gridAligned();
+            WidgetVec pos = w.pos().gridAligned();
             obstacles.add(Pair.of(pos.sub(size), pos));
 
             xChanges.add(pos.x() + 0.25);
@@ -69,10 +69,11 @@ public class Pathfinder {
 
         HashMap<Point, Point> known = new HashMap<>();
         PriorityQueue<Point> todo = new PriorityQueue<>(Comparator.comparing(p -> p.penalty));
-        Point startP = new Point(start, 0.0, null);
+        Point startP = new Point(start.gridAligned(), 0.0, null);
         todo.add(startP);
         known.put(startP, startP);
 
+        end = end.gridAligned();
         int computeLimit = 1024;
         while (!todo.isEmpty()) {
             if (--computeLimit < 0) break;

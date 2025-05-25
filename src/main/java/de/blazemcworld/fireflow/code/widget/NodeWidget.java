@@ -150,8 +150,8 @@ public class NodeWidget extends Widget {
                 List<NodeIOWidget> inputs = wire.getInputs();
                 List<NodeIOWidget> outputs = wire.getOutputs();
                 wire.removeConnection();
-                if (wire.type() == SignalType.INSTANCE && !outputs.getFirst().connections.isEmpty()) outputs.getFirst().connections.getFirst().cleanup();
-                else if (!inputs.getFirst().connections.isEmpty()) inputs.getFirst().connections.getFirst().cleanup();
+                if (wire.type() == SignalType.INSTANCE && !outputs.isEmpty() && !outputs.getFirst().connections.isEmpty()) outputs.getFirst().connections.getFirst().cleanup();
+                else if (wire.type() != SignalType.INSTANCE && !inputs.isEmpty() && !inputs.getFirst().connections.isEmpty()) inputs.getFirst().connections.getFirst().cleanup();
             }
         }
         root.remove();

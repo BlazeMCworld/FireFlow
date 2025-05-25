@@ -436,4 +436,28 @@ public class CodeEvaluator {
 
         old.evalRevision = revision;
     }
+
+    public boolean onLoseFood(ServerPlayerEntity player, int oldValue, int newValue) {
+        CodeThread.EventContext ctx = new CodeThread.EventContext(CodeThread.EventType.UNSPECIFIED);
+
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerLoseFoodNode onLoseFoodNode) {
+                onLoseFoodNode.emit(this, player, oldValue, newValue, ctx);
+            }
+        }
+
+        return ctx.cancelled;
+    }
+
+    public boolean onLoseSaturation(ServerPlayerEntity player, float oldValue, float newValue) {
+        CodeThread.EventContext ctx = new CodeThread.EventContext(CodeThread.EventType.UNSPECIFIED);
+
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerLoseSaturationNode onLoseSaturationNode) {
+                onLoseSaturationNode.emit(this, player, oldValue, newValue, ctx);
+            }
+        }
+
+        return ctx.cancelled;
+    }
 }

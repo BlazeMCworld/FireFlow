@@ -57,12 +57,12 @@ public class PlayWorld extends ServerWorld {
         this.space = space;
 
         Thread tickWorker = new Thread(this::tickLoop);
-        tickWorker.setName("FireFlow-Tick" + id);
+        tickWorker.setName("FireFlow-Tick-" + id);
         tickWorker.setPriority(Thread.MIN_PRIORITY);
         tickWorker.setDaemon(true);
         tickWorker.start();
         Thread todoWorker = new Thread(this::todoLoop);
-        todoWorker.setName("FireFlow-Todo" + id);
+        todoWorker.setName("FireFlow-Todo-" + id);
         todoWorker.setPriority(Thread.MIN_PRIORITY);
         todoWorker.setDaemon(true);
         todoWorker.start();
@@ -163,6 +163,7 @@ public class PlayWorld extends ServerWorld {
             p.networkHandler.chunkDataSender.sendChunkBatches(p);
             p.networkHandler.enableFlush();
         }
+        space.evaluator.tick();
         irregularTick();
     }
 

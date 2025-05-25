@@ -101,7 +101,6 @@ public class Space {
         } else {
             emptyTimer = 0;
         }
-        evaluator.tick();
     }
 
     public void enterPlay(ServerPlayerEntity player) {

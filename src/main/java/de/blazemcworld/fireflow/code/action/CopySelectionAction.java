@@ -38,11 +38,18 @@ public class CopySelectionAction implements CodeAction {
         }
 
         HashSet<Widget> widgetsHashset = new HashSet<>(widgets);
+
+        createWires:
         for (Widget w : widgets) {
             if (w instanceof WireWidget wireWidget) {
-                List<NodeWidget> inputs = wireWidget.getInputs().stream().map(widget -> widget.parent).toList();
-                List<NodeWidget> outputs = wireWidget.getOutputs().stream().map(widget -> widget.parent).toList();
-                if (!widgetsHashset.containsAll(inputs) || !widgetsHashset.containsAll(outputs)) continue;
+                for (WireWidget full : wireWidget.getFullWire()) {
+                    for (NodeIOWidget io : full.getInputs()) {
+                        if (!widgetsHashset.contains(io.parent)) continue createWires;
+                    }
+                    for (NodeIOWidget io : full.getOutputs()) {
+                        if (!widgetsHashset.contains(io.parent)) continue createWires;
+                    }
+                }
                 WireWidget wireWidgetCopy = new WireWidget(wireWidget.line.from, wireWidget.type(), wireWidget.line.to);
                 offset.editor().rootWidgets.add(wireWidgetCopy);
                 wireWidgetCopy.update();
@@ -81,7 +88,7 @@ public class CopySelectionAction implements CodeAction {
                     if (io.input.inset != null) match.insetValue(io.input.inset);
                     else {
                         for (WireWidget wire : io.connections) {
-                            if (oldToNewWires.get(wire) == null) return;
+                            if (oldToNewWires.get(wire) == null) continue;
                             match.connections.add(oldToNewWires.get(wire));
                             oldToNewWires.get(wire).setNextInput(match);
                         }
@@ -95,7 +102,7 @@ public class CopySelectionAction implements CodeAction {
                     NodeIOWidget io = nodeWidget.getOutputs().get(i);
                     NodeIOWidget ioCopy = nodeWidgetCopy.getOutputs().get(i);
                     for (WireWidget wire : io.connections) {
-                        if (oldToNewWires.get(wire) == null) return;
+                        if (oldToNewWires.get(wire) == null) continue;
                         ioCopy.connections.add(oldToNewWires.get(wire));
                         oldToNewWires.get(wire).setPreviousOutput(ioCopy);
                     }

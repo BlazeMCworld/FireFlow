@@ -161,7 +161,6 @@ public class WebEditor extends Handler.Abstract {
                                             .formatted(Formatting.RED)))
                                     .withFormatting(Formatting.GOLD)
                     ));
-                    break;
                 }
                 return;
             }

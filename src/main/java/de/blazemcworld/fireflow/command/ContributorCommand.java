@@ -1,7 +1,6 @@
 package de.blazemcworld.fireflow.command;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -11,6 +10,7 @@ import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.ModeManager;
+import de.blazemcworld.fireflow.util.ProfileApi;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -149,29 +149,24 @@ public class ContributorCommand {
 
     private static void resolveName(ServerWorld world, UUID uuid, Consumer<String> callback) {
         Thread.startVirtualThread(() -> {
-            ProfileResult profile = FireFlow.server.getSessionService().fetchProfile(uuid, false);
-            if (profile == null) {
-                callback.accept("<" + uuid + ">");
-                return;
-            }
-
+            String name = ProfileApi.fromUUID(uuid).map(GameProfile::getName).orElse("<" + uuid + ">");
             if (world instanceof PlayWorld play) {
-                play.submit(() -> callback.accept(profile.profile().getName()));
+                play.submit(() -> callback.accept(name));
                 return;
             }
-            FireFlow.server.execute(() -> callback.accept(profile.profile().getName()));
+            FireFlow.server.execute(() -> callback.accept(name));
         });
     }
 
     private static void resolveUUID(ServerWorld world, String name, Consumer<UUID> callback) {
         Thread.startVirtualThread(() -> {
-            UUID profile = FireFlow.server.getGameProfileRepo().findProfileByName(name).map(GameProfile::getId).orElse(null);
+            UUID uuid = ProfileApi.fromName(name).map(GameProfile::getId).orElse(null);
 
             if (world instanceof PlayWorld play) {
-                play.submit(() -> callback.accept(profile));
+                play.submit(() -> callback.accept(uuid));
                 return;
             }
-            FireFlow.server.execute(() -> callback.accept(profile));
+            FireFlow.server.execute(() -> callback.accept(uuid));
         });
     }
 }

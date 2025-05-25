@@ -17,24 +17,28 @@ public class FunctionCallNode extends Node {
             Input<?> input = new Input<>(matching.id, matching.name, matching.type);
             if (input.type == SignalType.INSTANCE) {
                 input.onSignal((ctx) -> {
-
-                    FunctionScope prev = ctx.functionScope;
-                    ctx.functionScope = new FunctionScope(prev, this);
-                    ctx.submit(() -> ctx.functionScope = prev);
+                    FunctionScope s = ctx.functionScope;
+                    ctx.submit(() -> ctx.functionScope = s);
                     ctx.sendSignal((Output<Void>) matching);
+                    ctx.submit(() -> {
+                        FunctionScope next = new FunctionScope(s, this);
+                        for (Input<?> myInput : inputs) {
+                            if (myInput.type == SignalType.INSTANCE) continue;
+                            Object v = myInput.getValue(ctx);
+                            for (Output<?> out : function.inputsNode.outputs) {
+                                if (!out.id.equals(myInput.id)) continue;
+                                next.scopeStore.put(out.getNode().evalUUID + "_" + out.id, v);
+                            }
+                        }
+                        ctx.functionScope = next;
+                    });
                 });
             }
         }
         for (Input<?> matching : function.outputsNode.inputs) {
             Output<?> output = new Output<>(matching.id, matching.name, matching.type);
             if (output.type != SignalType.INSTANCE) {
-                ((Output<Object>) output).valueFrom((ctx) -> {
-                    FunctionScope prev = ctx.functionScope;
-                    ctx.functionScope = new FunctionScope(prev, this);
-                    Object out = matching.getValue(ctx);
-                    ctx.functionScope = prev;
-                    return out;
-                });
+                output.valueFromScope();
             }
         }
         function.callNodes.add(this);
@@ -45,18 +49,9 @@ public class FunctionCallNode extends Node {
         return new FunctionCallNode(function);
     }
 
-    public Input<?> getInput(String name) {
-        for (Input<?> input : inputs) {
-            if (input.id.equals(name)) {
-                return input;
-            }
-        }
-        return null;
-    }
-
-    public Output<?> getOutput(String name) {
+    public Output<?> getOutput(String id) {
         for (Output<?> output : outputs) {
-            if (output.id.equals(name)) {
+            if (output.id.equals(id)) {
                 return output;
             }
         }

@@ -30,7 +30,10 @@ public class SetBlockNode extends Node {
             if (b.isPresent()) {
                 Vec3d pos = position.getValue(ctx);
                 if (pos.x < -512 || pos.x > 511 || pos.z < -512 || pos.z > 511 || pos.y < ctx.evaluator.world.getBottomY() || pos.y > ctx.evaluator.world.getTopYInclusive()) return;
-                ctx.evaluator.world.setBlockState(BlockPos.ofFloored(pos), b.get().getDefaultState(), sendUpdate.getValue(ctx) ? Block.NOTIFY_ALL : 0);
+                boolean updates = sendUpdate.getValue(ctx);
+                int updateLimit = updates ? 512 : 0;
+                int flags = updates ? Block.NOTIFY_ALL : Block.NOTIFY_LISTENERS;
+                ctx.evaluator.world.setBlockState(BlockPos.ofFloored(pos), b.get().getDefaultState(), flags, updateLimit);
             }
             ctx.sendSignal(next);
         });

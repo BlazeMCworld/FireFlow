@@ -70,12 +70,12 @@ public class NodeIOWidget extends Widget {
     }
 
     public void connect(WireWidget wire) {
-        if (wire.type() == SignalType.INSTANCE) {
+        if (wire.type() == SignalType.INSTANCE && !wire.getOutputs().isEmpty()) {
             NodeIOWidget input = wire.getOutputs().getFirst();
             for (NodeIOWidget output : wire.getInputs()) {
                 output.output.connected = input.input;
             }
-        } else {
+        } else if (wire.type() != SignalType.INSTANCE && !wire.getInputs().isEmpty()) {
             NodeIOWidget output = wire.getInputs().getFirst();
             for (NodeIOWidget input : wire.getOutputs()) {
                 input.input.connect(output.output);
@@ -107,9 +107,9 @@ public class NodeIOWidget extends Widget {
             List<NodeIOWidget> inputs = w.getInputs();
             List<NodeIOWidget> outputs = w.getOutputs();
             w.removeConnection();
-            if (w.type() == SignalType.INSTANCE && !outputs.getFirst().connections.isEmpty())
+            if (w.type() == SignalType.INSTANCE && !outputs.isEmpty() && !outputs.getFirst().connections.isEmpty())
                 outputs.getFirst().connections.getFirst().cleanup();
-            else if (!inputs.getFirst().connections.isEmpty()) inputs.getFirst().connections.getFirst().cleanup();
+            else if (w.type() != SignalType.INSTANCE && !inputs.isEmpty() && !inputs.getFirst().connections.isEmpty()) inputs.getFirst().connections.getFirst().cleanup();
         }
 
         text.setText(displayText());

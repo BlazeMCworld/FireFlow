@@ -11,6 +11,7 @@
         "CommandManagerMixin",
         "EntityMixin",
         "ExplosionImplMixin",
+        "HungerManagerMixin",
         "LivingEntityMixin",
         "MinecraftServerMixin",
         "NetworkThreadUtilsMixin",

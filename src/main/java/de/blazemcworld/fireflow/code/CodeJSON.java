@@ -375,14 +375,14 @@ public class CodeJSON {
                 if (wireObj.has("previousWires")) {
                     for (JsonElement previousWireElem : wireObj.getAsJsonArray("previousWires")) {
                         int index = previousWireElem.getAsInt();
-                        if (wireWidgets.get(index) == null) continue;
+                        if (index < 0 || index >= wireWidgets.size() || wireWidgets.get(index) == null) continue;
                         wire.previousWires.add(wireWidgets.get(index));
                     }
                 }
                 if (wireObj.has("nextWires")) {
                     for (JsonElement nextWireElem : wireObj.getAsJsonArray("nextWires")) {
                         int index = nextWireElem.getAsInt();
-                        if (wireWidgets.get(index) == null) continue;
+                        if (index < 0 || index >= wireWidgets.size() || wireWidgets.get(index) == null) continue;
                         wire.nextWires.add(wireWidgets.get(index));
                     }
                 }

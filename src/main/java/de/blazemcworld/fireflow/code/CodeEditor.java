@@ -226,7 +226,7 @@ public class CodeEditor {
         FunctionDefinition function = new FunctionDefinition(name, Items.COMMAND_BLOCK);
         functions.put(name, function);
 
-        Optional<WidgetVec> pos = getCodeCursor(player);
+        Optional<WidgetVec> pos = getCodeCursor(player).map(WidgetVec::gridAligned);
         if (pos.isEmpty()) {
             player.sendError("You must be looking at the code area!");
             return;

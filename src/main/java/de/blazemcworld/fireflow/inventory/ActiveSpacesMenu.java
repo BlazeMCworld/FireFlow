@@ -5,6 +5,7 @@ import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.ModeManager;
+import de.blazemcworld.fireflow.util.ProfileApi;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
 import net.minecraft.entity.player.PlayerEntity;
@@ -41,9 +42,11 @@ public class ActiveSpacesMenu extends InventoryMenu {
 
             ItemStack item = new ItemStack(info.icon);
             item.set(DataComponentTypes.ITEM_NAME, TextType.INSTANCE.parseInset(info.name));
+            Style loreStyle = Style.EMPTY.withItalic(false).withColor(Formatting.GRAY);
             item.set(DataComponentTypes.LORE, new LoreComponent(List.of(
-                    Text.literal("Players: " + players).setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY)),
-                    Text.literal("ID: " + info.id).setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY))
+                    Text.literal("by " + ProfileApi.displayName(info.owner)).setStyle(loreStyle),
+                    Text.literal("Players: " + players).setStyle(loreStyle),
+                    Text.literal("ID: " + info.id).setStyle(loreStyle)
             )));
 
             setStack(i, item);
