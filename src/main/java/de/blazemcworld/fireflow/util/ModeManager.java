@@ -2,7 +2,7 @@ package de.blazemcworld.fireflow.util;
 
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.EditOrigin;
-import de.blazemcworld.fireflow.code.node.impl.player.effect.SetPlayerSkinNode;
+import de.blazemcworld.fireflow.code.node.impl.player.visual.SetPlayerSkinNode;
 import de.blazemcworld.fireflow.space.Lobby;
 import de.blazemcworld.fireflow.space.PlayWorld;
 import de.blazemcworld.fireflow.space.Space;

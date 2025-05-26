@@ -15,7 +15,7 @@ public class OnPlayerStartFlyingNode extends Node {
     private final Output<PlayerValue> player;
 
     public OnPlayerStartFlyingNode() {
-        super("on_player_fly", "On Player Fly", "Emits a signal when a player starts or stops flying (not gliding with an elytra).", Items.FEATHER);
+        super("on_player_start_fly", "On Player Start Fly", "Emits a signal when a player starts flying (not gliding with an elytra).", Items.FEATHER);
 
         signal = new Output<>("signal", "Signal", SignalType.INSTANCE);
         player = new Output<>("player", "Player", PlayerType.INSTANCE);

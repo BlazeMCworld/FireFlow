@@ -15,7 +15,7 @@ public class OnPlayerStopFlyingNode extends Node {
     private final Output<PlayerValue> player;
 
     public OnPlayerStopFlyingNode() {
-        super("on_player_fly", "On Player Fly", "Emits a signal when a player stops or stops flying (not gliding with an elytra).", Items.ANDESITE);
+        super("on_player_stop_fly", "On Player Stop Fly", "Emits a signal when a player stops flying (not gliding with an elytra).", Items.ANDESITE);
 
         signal = new Output<>("signal", "Signal", SignalType.INSTANCE);
         player = new Output<>("player", "Player", PlayerType.INSTANCE);
