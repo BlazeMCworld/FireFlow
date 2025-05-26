@@ -85,6 +85,7 @@ public class NodeList {
                         .add(new OnPlayerDeathNode())
                         .add(new OnPlayerDropItemNode())
                         .add(new OnPlayerHurtNode())
+                        .add(new OnPlayerInteractBlockNode())
                         .add(new OnPlayerJoinNode())
                         .add(new OnPlayerKillEntityNode())
                         .add(new OnPlayerKillPlayerNode())

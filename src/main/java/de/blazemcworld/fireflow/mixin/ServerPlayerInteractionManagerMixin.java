@@ -11,6 +11,7 @@ import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -40,6 +41,16 @@ public class ServerPlayerInteractionManagerMixin {
         }
         if (player.hasPermissionLevel(4) && player.getGameMode() == GameMode.CREATIVE && world == Lobby.world) return;
         cir.setReturnValue(false);
+    }
+
+    @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)
+    private void interactBlock(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
+        if (world instanceof PlayWorld play && ModeManager.getFor(player) == ModeManager.Mode.PLAY) {
+            if (play.space.evaluator.onInteractBlock(player, hitResult.getBlockPos(), hitResult.getSide(), hand)) {
+                cir.setReturnValue(ActionResult.FAIL);
+                return;
+            }
+        }
     }
 
     @Inject(method = "interactItem", at = @At("HEAD"), cancellable = true)
