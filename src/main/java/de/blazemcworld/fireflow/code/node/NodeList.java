@@ -239,6 +239,8 @@ public class NodeList {
                         .add(new StringLayoutNode())
                         .add(new StringLengthNode())
                         .add(new SubstringNode())
+                        .add(new UppercaseNode())
+                        .add(new LowercaseNode())
                 )
                 .add(new Category("Text", Items.WRITABLE_BOOK)
                         .add(new CombineTextsNode())
