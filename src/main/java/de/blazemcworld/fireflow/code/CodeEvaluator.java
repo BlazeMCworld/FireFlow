@@ -23,6 +23,7 @@ import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -177,6 +178,16 @@ public class CodeEvaluator {
             tickTasks.clear();
         }
         for (Runnable task : tasks) task.run();
+    }
+
+    public boolean onInteractBlock(ServerPlayerEntity player, BlockPos pos, Direction side, Hand hand) {
+        boolean cancel = false;
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerInteractBlockNode n) {
+                cancel = n.onInteractBlock(this, player, pos, side, hand, cancel);
+            }
+        }
+        return cancel;
     }
 
     public boolean onUseItem(ServerPlayerEntity player, ItemStack stack, Hand hand) {
