@@ -11,10 +11,7 @@ import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.ModeManager;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.message.SignedMessage;
-import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
-import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdatePlayerAbilitiesC2SPacket;
+import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -122,6 +119,31 @@ public class ServerPlayNetworkHandlerMixin {
         if (space.evaluator.shouldCancelFlight(player, packet.isFlying())) {
             ci.cancel();
             player.sendAbilitiesUpdate();
+        }
+    }
+
+    @Inject(method = "onClientCommand", at = @At("HEAD"))
+    private void onClientCommand(ClientCommandC2SPacket packet, CallbackInfo ci) {
+        NetworkThreadUtils.forceMainThread(packet, (ServerPlayNetworkHandler) (Object) this, player.getServerWorld());
+
+        Space space = SpaceManager.getSpaceForPlayer(player);
+        if (space == null || ModeManager.getFor(player) != ModeManager.Mode.PLAY) return;
+
+        if (packet.getMode() == ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY) {
+            if (player.isSneaking()) return;
+            space.evaluator.onStartSneaking(player);
+        }
+        if (packet.getMode() == ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY) {
+            if (!player.isSneaking()) return;
+            space.evaluator.onStopSneaking(player);
+        }
+        if (packet.getMode() == ClientCommandC2SPacket.Mode.START_SPRINTING) {
+            if (player.isSprinting()) return;
+            space.evaluator.onStartSprinting(player);
+        }
+        if (packet.getMode() == ClientCommandC2SPacket.Mode.STOP_SPRINTING) {
+            if (!player.isSprinting()) return;
+            space.evaluator.onStopSprinting(player);
         }
     }
 

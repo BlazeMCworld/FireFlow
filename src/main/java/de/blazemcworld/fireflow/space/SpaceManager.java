@@ -178,6 +178,8 @@ public class SpaceManager {
 
                 FileUtils.deleteDirectory(FireFlow.server.session.getWorldDirectory(space.playWorld.getRegistryKey()).toFile());
                 FileUtils.deleteDirectory(FireFlow.server.session.getWorldDirectory(space.codeWorld.getRegistryKey()).toFile());
+
+                info.remove(space.info.id);
             } catch (IOException e) {
                 FireFlow.LOGGER.error("Failed to delete space {}!", space.info.id, e);
             }

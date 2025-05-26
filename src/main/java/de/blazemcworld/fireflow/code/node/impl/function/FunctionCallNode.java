@@ -1,5 +1,6 @@
 package de.blazemcworld.fireflow.code.node.impl.function;
 
+import de.blazemcworld.fireflow.code.CodeEvaluator;
 import de.blazemcworld.fireflow.code.FunctionScope;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.SignalType;
@@ -17,28 +18,23 @@ public class FunctionCallNode extends Node {
             Input<?> input = new Input<>(matching.id, matching.name, matching.type);
             if (input.type == SignalType.INSTANCE) {
                 input.onSignal((ctx) -> {
-                    FunctionScope s = ctx.functionScope;
-                    ctx.submit(() -> ctx.functionScope = s);
+                    FunctionScope prev = ctx.functionScope;
+                    ctx.submit(() -> ctx.functionScope = prev);
                     ctx.sendSignal((Output<Void>) matching);
-                    ctx.submit(() -> {
-                        FunctionScope next = new FunctionScope(s, this);
-                        for (Input<?> myInput : inputs) {
-                            if (myInput.type == SignalType.INSTANCE) continue;
-                            Object v = myInput.getValue(ctx);
-                            for (Output<?> out : function.inputsNode.outputs) {
-                                if (!out.id.equals(myInput.id)) continue;
-                                next.scopeStore.put(out.getNode().evalUUID + "_" + out.id, v);
-                            }
-                        }
-                        ctx.functionScope = next;
-                    });
+                    ctx.submit(() -> ctx.functionScope = ctx.functionScope.child(this));
                 });
             }
         }
         for (Input<?> matching : function.outputsNode.inputs) {
             Output<?> output = new Output<>(matching.id, matching.name, matching.type);
             if (output.type != SignalType.INSTANCE) {
-                output.valueFromScope();
+                ((Output<Object>) output).valueFrom((ctx) -> {
+                    FunctionScope prev = ctx.functionScope;
+                    ctx.functionScope = ctx.functionScope.child(this);
+                    Object out = matching.getValue(ctx);
+                    ctx.functionScope = prev;
+                    return out;
+                });
             }
         }
         function.callNodes.add(this);
@@ -49,9 +45,20 @@ public class FunctionCallNode extends Node {
         return new FunctionCallNode(function);
     }
 
-    public Output<?> getOutput(String id) {
+    public Input<?> getInput(String name, CodeEvaluator evaluator) {
+        evaluator.syncRevision(this);
+        for (Input<?> input : inputs) {
+            if (input.id.equals(name)) {
+                return input;
+            }
+        }
+        return null;
+    }
+
+    public Output<?> getOutput(String name, CodeEvaluator evaluator) {
+        evaluator.syncRevision(this);
         for (Output<?> output : outputs) {
-            if (output.id.equals(id)) {
+            if (output.id.equals(name)) {
                 return output;
             }
         }

@@ -48,7 +48,7 @@ public class WikiGenerator {
         sb.append("# ");
         if (category.icon != null) sb.append(" ").append(icon(category.icon));
         sb.append(category.name);
-        sb.append(" (").append(category.collectNodes().size()).append(" nodes)");
+        sb.append(" (").append(category.collectNodes(null).size()).append(" nodes)");
         sb.append("\n\n");
 
         if (!category.categories.isEmpty()) {

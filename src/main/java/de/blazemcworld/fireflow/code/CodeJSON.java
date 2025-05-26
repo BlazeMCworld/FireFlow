@@ -191,7 +191,6 @@ public class CodeJSON {
         return out;
     }
 
-    @SuppressWarnings("unchecked")
     public static List<NodeWidget> nodeFromJson(JsonArray json, Function<String, FunctionDefinition> id2Fn, CodeEditor editor, Function<WidgetVec, WidgetVec> transformPos) {
         List<NodeWidget> out = new ArrayList<>();
         List<Runnable> todo = new ArrayList<>();
@@ -211,7 +210,7 @@ public class CodeJSON {
             }
 
             Node node = null;
-            for (Node n : NodeList.root.collectNodes()) {
+            for (Node n : NodeList.root.collectNodes(null)) {
                 if (n.id.equals(type)) {
                     if (nodeTypes.isEmpty()) {
                         node = n.copy();

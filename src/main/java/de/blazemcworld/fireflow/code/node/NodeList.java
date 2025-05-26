@@ -1,11 +1,21 @@
 package de.blazemcworld.fireflow.code.node;
 
 import de.blazemcworld.fireflow.FireFlow;
+import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.node.impl.condition.*;
 import de.blazemcworld.fireflow.code.node.impl.control.*;
 import de.blazemcworld.fireflow.code.node.impl.dictionary.*;
 import de.blazemcworld.fireflow.code.node.impl.entity.*;
-import de.blazemcworld.fireflow.code.node.impl.event.*;
+import de.blazemcworld.fireflow.code.node.impl.event.OnPlayerLoseFoodNode;
+import de.blazemcworld.fireflow.code.node.impl.event.OnPlayerLoseSaturationNode;
+import de.blazemcworld.fireflow.code.node.impl.event.action.*;
+import de.blazemcworld.fireflow.code.node.impl.event.combat.*;
+import de.blazemcworld.fireflow.code.node.impl.event.combat.entity.*;
+import de.blazemcworld.fireflow.code.node.impl.event.meta.*;
+import de.blazemcworld.fireflow.code.node.impl.event.world.*;
+import de.blazemcworld.fireflow.code.node.impl.function.FunctionCallNode;
+import de.blazemcworld.fireflow.code.node.impl.function.FunctionDefinition;
+import de.blazemcworld.fireflow.code.node.impl.event.action.OnPlayerStartSneakingNode;
 import de.blazemcworld.fireflow.code.node.impl.item.*;
 import de.blazemcworld.fireflow.code.node.impl.list.*;
 import de.blazemcworld.fireflow.code.node.impl.number.*;
@@ -68,37 +78,51 @@ public class NodeList {
                         .add(new TeleportEntityNode())
                 )
                 .add(new Category("Event", Items.OBSERVER)
-                        .add(new CancelEventNode())
-                        .add(new DebugEventNode())
-                        .add(new OnChunkLoadNode())
-                        .add(new OnEntityAttackEntityNode())
-                        .add(new OnEntityAttackPlayerNode())
-                        .add(new OnEntityDeathNode())
-                        .add(new OnEntityHurtNode())
-                        .add(new OnEntityKillEntityNode())
-                        .add(new OnEntityKillPlayerNode())
-                        .add(new OnInitializeNode())
-                        .add(new OnPlayerAttackEntityNode())
-                        .add(new OnPlayerAttackPlayerNode())
-                        .add(new OnPlayerBreakBlockNode())
-                        .add(new OnPlayerChatNode())
-                        .add(new OnPlayerDeathNode())
-                        .add(new OnPlayerDropItemNode())
-                        .add(new OnPlayerHurtNode())
-                        .add(new OnPlayerInteractBlockNode())
-                        .add(new OnPlayerJoinNode())
-                        .add(new OnPlayerKillEntityNode())
-                        .add(new OnPlayerKillPlayerNode())
-                        .add(new OnPlayerLeaveNode())
+                        .add(new Category("Action", Items.STICK)
+                                .add(new OnPlayerStartFlyingNode())
+                                .add(new OnPlayerStartSneakingNode())
+                                .add(new OnPlayerStartSprintingNode())
+                                .add(new OnPlayerStopFlyingNode())
+                                .add(new OnPlayerStopSneakingNode())
+                                .add(new OnPlayerStopSprintingNode())
+                                .add(new OnPlayerSwapHandsNode())
+                                .add(new OnPlayerSwingHandNode())
+                                .add(new OnPlayerUseItemNode())
+                        )
+                        .add(new Category("Combat", Items.IRON_SWORD)
+                                .add(new Category("Entity", Items.ZOMBIE_HEAD)
+                                        .add(new OnEntityAttackEntityNode())
+                                        .add(new OnEntityAttackPlayerNode())
+                                        .add(new OnEntityDeathNode())
+                                        .add(new OnEntityHurtNode())
+                                        .add(new OnEntityKillEntityNode())
+                                        .add(new OnEntityKillPlayerNode())
+                                        .add(new OnPlayerAttackEntityNode())
+                                        .add(new OnPlayerKillEntityNode())
+                                )
+                                .add(new OnPlayerAttackPlayerNode())
+                                .add(new OnPlayerKillPlayerNode())
+                                .add(new OnPlayerDeathNode())
+                                .add(new SetEventDamageNode())
+                                .add(new OnPlayerHurtNode())
+                        )
+                        .add(new Category("Meta", Items.COMMAND_BLOCK)
+                                .add(new CancelEventNode())
+                                .add(new DebugEventNode())
+                                .add(new OnInitializeNode())
+                                .add(new OnPlayerChatNode())
+                                .add(new OnPlayerJoinNode())
+                                .add(new OnPlayerLeaveNode())
+                        )
+                        .add(new Category("World", Items.GRASS_BLOCK)
+                                .add(new OnChunkLoadNode())
+                                .add(new OnPlayerBreakBlockNode())
+                                .add(new OnPlayerDropItemNode())
+                                .add(new OnPlayerInteractBlockNode())
+                                .add(new OnPlayerPlaceBlockNode())
+                        )
                         .add(new OnPlayerLoseFoodNode())
                         .add(new OnPlayerLoseSaturationNode())
-                        .add(new OnPlayerPlaceBlockNode())
-                        .add(new OnPlayerStartFlyingNode())
-                        .add(new OnPlayerStopFlyingNode())
-                        .add(new OnPlayerSwapHandsNode())
-                        .add(new OnPlayerSwingHandNode())
-                        .add(new OnPlayerUseItemNode())
-                        .add(new SetEventDamageNode())
                 )
                 .add(new Category("Control", Items.REPEATER)
                         .add(new DictionaryForEach<>(null, null))
@@ -167,74 +191,75 @@ public class NodeList {
                 )
                 .add(new Category("Player", Items.PLAYER_HEAD)
                         .add(new Category("Gameplay", Items.GRASS_BLOCK)
-                            .add(new ClearPlayerEffectsNode())
-                            .add(new DamagePlayerNode())
-                            .add(new GivePlayerEffectNode())
-                            .add(new IsPlayerInvulnerableNode())
-                            .add(new KillPlayerNode())
-                            .add(new PlaySoundNode())
-                            .add(new PlayerAnimationNode())
-                            .add(new SetGamemodeNode())
-                            .add(new SetPlayerInvulnerableNode())
-                            .add(new TakePlayerEffectNode())
+                                .add(new ClearPlayerEffectsNode())
+                                .add(new DamagePlayerNode())
+                                .add(new GivePlayerEffectNode())
+                                .add(new IsPlayerInvulnerableNode())
+                                .add(new KillPlayerNode())
+                                .add(new PlaySoundNode())
+                                .add(new PlayerAnimationNode())
+                                .add(new SetGamemodeNode())
+                                .add(new SetPlayerInvulnerableNode())
+                                .add(new TakePlayerEffectNode())
                         )
                         .add(new Category("Inventory", Items.ITEM_FRAME)
-                            .add(new ClearInventoryNode())
-                            .add(new GetHeldSlotNode())
-                            .add(new GetPlayerEquipmentNode())
-                            .add(new GetPlayerInventoryNode())
-                            .add(new GetPlayerItemCooldownNode())
-                            .add(new GivePlayerItemNode())
-                            .add(new PlayerHandItemsNode())
-                            .add(new PlayerHasItemNode())
-                            .add(new PlayerItemHasCooldownNode())
-                            .add(new SetHeldSlotNode())
-                            .add(new SetPlayerInventoryNode())
-                            .add(new SetPlayerInventorySlotNode())
-                            .add(new SetPlayerItemCooldownNode())
-                            .add(new SetPlayerSlotItemNode())
-                            .add(new TakePlayerItemNode())
+                                .add(new ClearInventoryNode())
+                                .add(new GetHeldSlotNode())
+                                .add(new GetPlayerEquipmentNode())
+                                .add(new GetPlayerInventoryNode())
+                                .add(new GetPlayerItemCooldownNode())
+                                .add(new GivePlayerItemNode())
+                                .add(new PlayerHandItemsNode())
+                                .add(new PlayerHasItemNode())
+                                .add(new PlayerItemHasCooldownNode())
+                                .add(new SetHeldSlotNode())
+                                .add(new SetPlayerInventoryNode())
+                                .add(new SetPlayerInventorySlotNode())
+                                .add(new SetPlayerItemCooldownNode())
+                                .add(new SetPlayerSlotItemNode())
+                                .add(new TakePlayerItemNode())
                         )
                         .add(new Category("Meta", Items.COMMAND_BLOCK)
-                            .add(new GetPlayerNameNode())
-                            .add(new GetPlayerUUIDNode())
-                            .add(new IsPlayingNode())
-                            .add(new KickPlayerNode())
-                            .add(new PlayerFromNameNode())
-                            .add(new PlayerFromUUIDNode())
-                            .add(new PlayerHasPermissionNode())
-                            .add(new PlayerListNode())
+                                .add(new GetPlayerNameNode())
+                                .add(new GetPlayerUUIDNode())
+                                .add(new IsPlayingNode())
+                                .add(new KickPlayerNode())
+                                .add(new PlayerFromNameNode())
+                                .add(new PlayerFromUUIDNode())
+                                .add(new PlayerHasPermissionNode())
+                                .add(new PlayerListNode())
                         )
                         .add(new Category("Movement", Items.FEATHER)
-                            .add(new IsPlayerSneakingNode())
-                            .add(new PlayerCanFlyNode())
-                            .add(new PlayerCrosshairTargetNode())
-                            .add(new PlayerIsFlyingNode())
-                            .add(new PlayerPositionNode())
-                            .add(new PlayerStandingBlockNode())
-                            .add(new SetAllowFlyingNode())
-                            .add(new SetPlayerFlyingNode())
-                            .add(new SetPlayerVelocityNode())
-                            .add(new TeleportPlayerNode())
+                                .add(new IsPlayerSneakingNode())
+                                .add(new IsPlayerSprintingNode())
+                                .add(new PlayerCanFlyNode())
+                                .add(new PlayerCrosshairTargetNode())
+                                .add(new PlayerIsFlyingNode())
+                                .add(new PlayerPositionNode())
+                                .add(new PlayerStandingBlockNode())
+                                .add(new SetAllowFlyingNode())
+                                .add(new SetPlayerFlyingNode())
+                                .add(new SetPlayerVelocityNode())
+                                .add(new TeleportPlayerNode())
                         )
                         .add(new Category("Statistic", Items.EXPERIENCE_BOTTLE)
-                            .add(new GetExperienceLevelNode())
-                            .add(new GetExperiencePercentageNode())
-                            .add(new GetPlayerFoodNode())
-                            .add(new GetPlayerHealthNode())
-                            .add(new GetPlayerSaturationNode())
-                            .add(new SetExperienceLevelNode())
-                            .add(new SetPlayerFoodNode())
-                            .add(new SetPlayerHealthNode())
-                            .add(new SetPlayerSaturationNode())
+                                .add(new GetExperienceLevelNode())
+                                .add(new GetExperiencePercentageNode())
+                                .add(new GetPlayerFoodNode())
+                                .add(new GetPlayerHealthNode())
+                                .add(new GetPlayerSaturationNode())
+                                .add(new SetExperienceLevelNode())
+                                .add(new SetPlayerFoodNode())
+                                .add(new SetPlayerHealthNode())
+                                .add(new SetPlayerSaturationNode())
                         )
                         .add(new Category("Visual", Items.ENDER_PEARL)
-                            .add(new BroadcastNode())
-                            .add(new SendActionbarNode())
-                            .add(new SendBlockChangeNode())
-                            .add(new SendMessageNode())
-                            .add(new SendTitleNode())
-                            .add(new SetPlayerSkinNode())
+                                .add(new BroadcastNode())
+                                .add(new SendActionbarNode())
+                                .add(new SendBlockChangeNode())
+                                .add(new SendMessageNode())
+                                .add(new SendTitleNode())
+                                .add(new SetPlayerSkinNode())
                         )
                 )
                 .add(new Category("Position", Items.COMPASS)
@@ -293,7 +318,7 @@ public class NodeList {
                 .add(new Category("Function", Items.COMMAND_BLOCK).markFunctions())
                 .finish();
 
-        FireFlow.LOGGER.info("Loaded {} node types", root.collectNodes().size());
+        FireFlow.LOGGER.info("Loaded {} node types", root.collectNodes(null).size());
     }
 
     public static class Category {
@@ -335,10 +360,17 @@ public class NodeList {
             return this;
         }
 
-        public List<Node> collectNodes() {
+        public List<Node> collectNodes(CodeEditor editor) {
             List<Node> list = new ArrayList<>(nodes);
             for (Category category : categories) {
-                list.addAll(category.collectNodes());
+                list.addAll(category.collectNodes(editor));
+            }
+            if (editor != null && isFunctions) {
+                for (FunctionDefinition fn : editor.functions.values()) {
+                    FunctionCallNode fnNode = new FunctionCallNode(fn);
+                    fn.callNodes.remove(fnNode); // Remove since it's not actually a real node
+                    if (filter == null || filter.test(fnNode)) nodes.add(fnNode);
+                }
             }
             return list;
         }

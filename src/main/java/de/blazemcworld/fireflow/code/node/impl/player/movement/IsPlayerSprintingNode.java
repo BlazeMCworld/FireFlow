@@ -7,17 +7,17 @@ import de.blazemcworld.fireflow.code.value.PlayerValue;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Items;
 
-public class IsPlayerSneakingNode extends Node {
-    public IsPlayerSneakingNode() {
-        super("is_player_sneaking", "Is Player Sneaking", "Checks if the player is sneaking", Items.LEATHER_BOOTS);
+public class IsPlayerSprintingNode extends Node {
+    public IsPlayerSprintingNode() {
+        super("is_player_sprinting", "Is Player Sprinting", "Checks if the player is sprinting", Items.LEATHER_LEGGINGS);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
-        Output<Boolean> sneaking = new Output<>("sneaking", "Sneaking", ConditionType.INSTANCE);
+        Output<Boolean> sprinting = new Output<>("sprinting", "Sprinting", ConditionType.INSTANCE);
 
-        sneaking.valueFrom(ctx -> player.getValue(ctx).tryGet(ctx, Entity::isSneaking, false));
+        sprinting.valueFrom(ctx -> player.getValue(ctx).tryGet(ctx, Entity::isSprinting, false));
     }
 
     @Override
     public Node copy() {
-        return new IsPlayerSneakingNode();
+        return new IsPlayerSprintingNode();
     }
 }

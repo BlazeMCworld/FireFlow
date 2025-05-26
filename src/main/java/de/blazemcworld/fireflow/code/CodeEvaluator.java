@@ -4,6 +4,11 @@ import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.Node.Varargs;
 import de.blazemcworld.fireflow.code.node.impl.event.*;
+import de.blazemcworld.fireflow.code.node.impl.event.action.*;
+import de.blazemcworld.fireflow.code.node.impl.event.combat.*;
+import de.blazemcworld.fireflow.code.node.impl.event.combat.entity.*;
+import de.blazemcworld.fireflow.code.node.impl.event.meta.*;
+import de.blazemcworld.fireflow.code.node.impl.event.world.*;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionCallNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionDefinition;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionInputsNode;
@@ -470,5 +475,37 @@ public class CodeEvaluator {
         }
 
         return ctx.cancelled;
+    }
+
+    public void onStartSneaking(ServerPlayerEntity player) {
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerStartSneakingNode sneak) {
+                sneak.emit(this, player);
+            }
+        }
+    }
+
+    public void onStopSneaking(ServerPlayerEntity player) {
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerStopSneakingNode sneak) {
+                sneak.emit(this, player);
+            }
+        }
+    }
+
+    public void onStartSprinting(ServerPlayerEntity player) {
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerStartSprintingNode sprint) {
+                sprint.emit(this, player);
+            }
+        }
+    }
+
+    public void onStopSprinting(ServerPlayerEntity player) {
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerStopSprintingNode sprint) {
+                sprint.emit(this, player);
+            }
+        }
     }
 }

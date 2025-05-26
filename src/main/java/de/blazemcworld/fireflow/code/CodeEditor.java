@@ -159,7 +159,7 @@ public class CodeEditor {
             n.update();
             rootWidgets.add(n);
         } else {
-            Node node = FuzzySearch.extractOne(query, NodeList.root.collectNodes(), n -> n.name.toLowerCase()).getReferent();
+            Node node = FuzzySearch.extractOne(query, NodeList.root.collectNodes(this), n -> n.name.toLowerCase()).getReferent();
             NodeMenuWidget.createNode(cursor.get(), node, new ArrayList<>(), ioOrigin);
         }
     }

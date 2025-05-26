@@ -62,7 +62,7 @@ public class CodeThread {
 
     public CodeThread subThread() {
         CodeThread thread = new CodeThread(evaluator);
-        thread.functionScope = functionScope.copy();
+        thread.functionScope = functionScope.simpleCopy();
         thread.isDebug = isDebug;
         return thread;
     }

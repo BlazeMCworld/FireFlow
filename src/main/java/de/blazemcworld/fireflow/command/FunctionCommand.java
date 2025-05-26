@@ -79,17 +79,17 @@ public class FunctionCommand {
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
-                                .then(CommandManager.literal("output")
-                                        .then(CommandManager.argument("output", StringArgumentType.greedyString())
-                                                .executes(ctx -> {
-                                                    ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
-                                                    Space space = CommandHelper.getSpace(player);
-                                                    if (!CommandHelper.isInCode(player, space))
-                                                        return Command.SINGLE_SUCCESS;
-                                                    space.editor.removeFunctionOutput(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "output"));
-                                                    return Command.SINGLE_SUCCESS;
-                                                })
-                                        )
+                        )
+                        .then(CommandManager.literal("output")
+                                .then(CommandManager.argument("output", StringArgumentType.greedyString())
+                                        .executes(ctx -> {
+                                            ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
+                                            Space space = CommandHelper.getSpace(player);
+                                            if (!CommandHelper.isInCode(player, space))
+                                                return Command.SINGLE_SUCCESS;
+                                            space.editor.removeFunctionOutput(EditOrigin.ofPlayer(player), StringArgumentType.getString(ctx, "output"));
+                                            return Command.SINGLE_SUCCESS;
+                                        })
                                 )
                         )
                 )
