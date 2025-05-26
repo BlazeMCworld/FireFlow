@@ -68,13 +68,13 @@ public class Pathfinder {
         yChanges.sort(Double::compareTo);
 
         HashMap<Point, Point> known = new HashMap<>();
-        PriorityQueue<Point> todo = new PriorityQueue<>(Comparator.comparing(p -> p.penalty));
-        Point startP = new Point(start.gridAligned(), 0.0, null);
+        PriorityQueue<Point> todo = new PriorityQueue<>(Comparator.comparing(p -> p.order));
+        Point startP = new Point(start.gridAligned(), 0.0, null, start.distance(end) * 5);
         todo.add(startP);
         known.put(startP, startP);
 
         end = end.gridAligned();
-        int computeLimit = 1024;
+        int computeLimit = 256;
         while (!todo.isEmpty()) {
             if (--computeLimit < 0) break;
             Point current = todo.poll();
@@ -104,8 +104,8 @@ public class Pathfinder {
                     p += 5;
                 }
 
-                p += current.pos.distanceSquared(v);
-                Point next = new Point(v, p, current);
+                p += current.pos.distance(v);
+                Point next = new Point(v, p, current, p + v.distance(end) * 5);
                 Point old = known.get(next);
                 if (old != null && old.penalty <= p) continue;
                 known.put(next, next);
@@ -127,8 +127,8 @@ public class Pathfinder {
                     p += 5;
                 }
 
-                p += current.pos.distanceSquared(v);
-                Point next = new Point(v, p, current);
+                p += current.pos.distance(v);
+                Point next = new Point(v, p, current, p + v.distance(end) * 10);
                 Point old = known.get(next);
                 if (old != null && old.penalty <= p) continue;
                 known.put(next, next);
@@ -178,11 +178,13 @@ public class Pathfinder {
         WidgetVec pos;
         double penalty;
         Point origin;
+        double order;
 
-        public Point(WidgetVec pos, double penalty, Point origin) {
+        public Point(WidgetVec pos, double penalty, Point origin, double order) {
             this.pos = pos;
             this.penalty = penalty;
             this.origin = origin;
+            this.order = order;
         }
 
         @Override

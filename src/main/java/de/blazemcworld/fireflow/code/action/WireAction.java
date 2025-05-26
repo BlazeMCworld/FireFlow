@@ -25,8 +25,8 @@ public class WireAction implements CodeAction {
     public WireAction(NodeIOWidget io, CodeEditor editor, EditOrigin player) {
         if (!io.isInput()) {
             output = io;
-            startPos = io.pos().sub(output.size().sub(-1 / 4f, 1 / 8f));
-            startWire = new WireWidget(io.pos().sub(output.size().sub(0, 1 / 8f)), output.type(), startPos);
+            startPos = io.pos().sub(output.size().sub(-1 / 4f, 1 / 8f)).gridAligned();
+            startWire = new WireWidget(io.pos().sub(output.size().sub(0, 1 / 8f)).gridAligned(), output.type(), startPos);
             editor.lockWidget(io.parent, player);
         }
 //        else {

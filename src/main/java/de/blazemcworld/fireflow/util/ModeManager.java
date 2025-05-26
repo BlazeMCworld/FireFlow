@@ -102,9 +102,13 @@ public class ModeManager {
             space.editor.exitCode(EditOrigin.ofPlayer(player));
         }
         if (mode == Mode.PLAY && space != null) {
-            space.playWorld.submit(() -> {
+            if (space.playWorld.thread == Thread.currentThread()) {
                 space.evaluator.exitPlay(player);
-            });
+            } else {
+                space.playWorld.submit(() -> {
+                    space.evaluator.exitPlay(player);
+                });
+            }
         }
     }
 
