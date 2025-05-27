@@ -24,13 +24,8 @@ public class LocateCommand {
     private static void register(CommandDispatcher<ServerCommandSource> cd, String alias) {
         cd.register(CommandManager.literal(alias)
                 .executes(ctx -> {
-                    ServerPlayerEntity target = ctx.getSource().getPlayer();
-                    if (target == null) {
-                        ctx.getSource().sendMessage(Text.literal("You must be a player to locate yourself.").formatted(Formatting.RED));
-                        return Command.SINGLE_SUCCESS;
-                    }
-
-                    return locateAndRespond(target, ctx);
+                    ServerPlayerEntity target = CommandHelper.getPlayer(ctx.getSource());
+                    return target == null ? Command.SINGLE_SUCCESS : locateAndRespond(target, ctx);
                 })
                 .then(CommandManager.argument("player", StringArgumentType.word())
                         .suggests((ctx, builder) -> {
