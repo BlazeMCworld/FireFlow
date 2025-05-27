@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import de.blazemcworld.fireflow.code.EditOrigin;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.util.ModeManager;
 import net.minecraft.server.command.CommandManager;
@@ -28,7 +29,7 @@ public class AddNodeCommand {
                             if (space == null) return Command.SINGLE_SUCCESS;
 
                             if (ModeManager.getFor(player) != ModeManager.Mode.CODE) {
-                                player.sendMessage(Text.literal("You must be in code mode to do that!").formatted(Formatting.RED));
+                                Messages.sendMessage("You must be in code mode to do that!", Messages.ERROR, player);
                                 return Command.SINGLE_SUCCESS;
                             }
 

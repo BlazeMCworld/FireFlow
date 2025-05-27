@@ -3,6 +3,7 @@ package de.blazemcworld.fireflow.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
 import de.blazemcworld.fireflow.space.SpaceManager;
@@ -23,7 +24,7 @@ public class BuildCommand {
                     if (space == null) return Command.SINGLE_SUCCESS;
 
                     if (!space.info.isOwnerOrBuilder(player.getUuid())) {
-                        player.sendMessage(Text.literal("You are not allowed to do that!").formatted(Formatting.RED));
+                        Messages.sendMessage("You are not allowed to do that!", Messages.ERROR, player);
                         return Command.SINGLE_SUCCESS;
                     }
 
@@ -38,12 +39,12 @@ public class BuildCommand {
                             int id = IntegerArgumentType.getInteger(ctx, "id");
                             SpaceInfo info = SpaceManager.getInfo(id);
                             if (info == null) {
-                                player.sendMessage(Text.literal("Could not find space with id " + id + "!").formatted(Formatting.RED));
+                                Messages.sendMessage("Could not find space with id " + id + "!", Messages.ERROR, player);
                                 return Command.SINGLE_SUCCESS;
                             }
 
                             if (!info.isOwnerOrBuilder(player.getUuid())) {
-                                player.sendMessage(Text.literal("You are not allowed to do that!").formatted(Formatting.RED));
+                                Messages.sendMessage("You are not allowed to do that!", Messages.ERROR, player);
                                 return Command.SINGLE_SUCCESS;
                             }
 

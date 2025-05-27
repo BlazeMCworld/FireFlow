@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.serialization.DataResult;
 import de.blazemcworld.fireflow.inventory.ConfirmationMenu;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import net.minecraft.registry.Registries;
@@ -36,11 +37,16 @@ public class SpaceCommand {
                                     DataResult<Identifier> result = Identifier.validate(StringArgumentType.getString(ctx, "icon"));
                                     if (result.isSuccess() && Registries.ITEM.containsId(result.getOrThrow())) {
                                         space.info.icon = Registries.ITEM.get(result.getOrThrow());
-                                        player.sendMessage(Text.literal("Changed space icon!").formatted(Formatting.AQUA));
+                                        Messages.sendMessage(
+                                                "Changed space icon to <white><lang:"
+                                                        + space.info.icon.getTranslationKey()
+                                                        + "><default>!",
+                                                Messages.SUCCESS, player
+                                        );
                                         return Command.SINGLE_SUCCESS;
                                     }
 
-                                    player.sendMessage(Text.literal("Invalid icon!").formatted(Formatting.RED));
+                                    Messages.sendMessage("Invalid icon!", Messages.INFO, player);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -54,12 +60,15 @@ public class SpaceCommand {
 
                                     String name = StringArgumentType.getString(ctx, "name");
                                     if (name.length() > 256) {
-                                        player.sendMessage(Text.literal("Name too long!").formatted(Formatting.RED));
+                                        Messages.sendMessage("Name too long!", Messages.ERROR, player);
                                         return Command.SINGLE_SUCCESS;
                                     }
                                     space.info.name = name;
 
-                                    player.sendMessage(Text.literal("Changed space name!").formatted(Formatting.AQUA));
+                                    Messages.sendMessage(
+                                            "Changed space name to " + Messages.escapeMiniMessage(name, Messages.SUCCESS) + "!",
+                                            Messages.SUCCESS, player
+                                    );
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -72,7 +81,7 @@ public class SpaceCommand {
 
                             ConfirmationMenu.open(player, "Delete this space?", () -> {
                                 SpaceManager.delete(space);
-                                player.sendMessage(Text.literal("Deleted space!").formatted(Formatting.AQUA));
+                                Messages.sendMessage("Deleted space!", Messages.SUCCESS, player);
                             }, null);
 
                             return Command.SINGLE_SUCCESS;
