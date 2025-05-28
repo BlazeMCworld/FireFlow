@@ -16,6 +16,7 @@ import de.blazemcworld.fireflow.code.node.impl.function.FunctionInputsNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionOutputsNode;
 import de.blazemcworld.fireflow.code.type.AllTypes;
 import de.blazemcworld.fireflow.code.widget.*;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.minecraft.entity.Entity;
@@ -727,17 +728,20 @@ public class CodeEditor {
     public void authorizeWeb(String webId, ServerPlayerEntity approver) {
         for (EditOrigin origin : webUsers) {
             if (origin.tryAuth(webId)) {
-                approver.sendMessage(Text.literal("Authorized web to edit code!").formatted(Formatting.GREEN), false);
+                Messages.sendMessage("Authorized the web editor to edit code!", Messages.SUCCESS, approver);
                 for (ServerPlayerEntity player : space.getPlayers()) {
                     if (!space.info.isOwnerOrDeveloper(player.getUuid())) continue;
                     if (player == approver) continue;
-                    player.sendMessage(Text.literal(approver.getGameProfile().getName() + " authorized a web editor request!").formatted(Formatting.YELLOW), false);
+                    Messages.sendMessage(
+                            "<white>" + approver.getGameProfile().getName() + "<default> authorized a web editor request!",
+                            Messages.INFO, player
+                    );
                 }
                 return;
             }
         }
 
-        approver.sendMessage(Text.literal("Could not find web editor with matching id!").formatted(Formatting.RED), false);
+        Messages.sendMessage("Could not find the web editor with the matching id!", Messages.ERROR, approver);
     }
 
     public void close() {

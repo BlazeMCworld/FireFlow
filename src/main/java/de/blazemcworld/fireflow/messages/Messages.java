@@ -14,6 +14,8 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 public class Messages {
 
     private Messages() {
@@ -45,11 +47,13 @@ public class Messages {
             ColourPalette.ROSE_PASTEL_2.rgb24,
             ColourPalette.ROSE_DARK.rgb24,
             "❌",
-            Sound.sound()
-                    .type(Key.key("item.mace.smash_air"))
-                    .volume(0.25f)
-                    .source(Sound.Source.MASTER)
-                    .build()
+            Set.of(
+                    Sound.sound()
+                            .type(Key.key("item.mace.smash_air"))
+                            .volume(0.25f)
+                            .source(Sound.Source.MASTER)
+                            .build()
+            )
     );
 
     /**
@@ -59,6 +63,29 @@ public class Messages {
             ColourPalette.LIGHT_GREY_2.rgb24,
             ColourPalette.LIME_PASTEL.rgb24,
             "→"
+    );
+
+    /**
+     * Used to notify the user of an action that may require their intervention.
+     */
+    public static final Type NOTIFY = new SoundingMessageType(
+            ColourPalette.LIGHT_GREY_2.rgb24,
+            ColourPalette.MUSTARD_PASTEL.rgb24,
+            "\uD83D\uDD14",
+            Set.of(
+                    Sound.sound()
+                            .type(Key.key("entity.experience_orb.pickup"))
+                            .volume(1.0f)
+                            .pitch(2.0f)
+                            .source(Sound.Source.MASTER)
+                            .build(),
+                    Sound.sound()
+                            .type(Key.key("minecraft:block.bell.use"))
+                            .volume(0.5f)
+                            .pitch(2.0f)
+                            .source(Sound.Source.MASTER)
+                            .build()
+            )
     );
 
 
@@ -149,17 +176,18 @@ public class Messages {
 
     private static class SoundingMessageType extends SimpleMessageType {
 
-        private final Sound sound;
+        private final Set<Sound> sounds;
 
-        public SoundingMessageType(int defaultColour, int iconColour, String icon, Sound sound) {
+        public SoundingMessageType(int defaultColour, int iconColour, String icon, Set<Sound> sounds) {
             super(defaultColour, iconColour, icon);
-            this.sound = sound;
+            this.sounds = sounds;
         }
 
         @Override
         public void audienceEffects(Audience audience) {
             super.audienceEffects(audience);
-            audience.playSound(sound);
+            for (Sound sound : sounds)
+                audience.playSound(sound);
         }
     }
 
