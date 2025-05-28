@@ -13,7 +13,8 @@ import java.util.Optional;
 
 public class SetBlockTagNode<T> extends SingleGenericNode<T> {
 
-    public SetBlockTagNode(WireType<T> type) {
+    @SuppressWarnings("unchecked")
+    public <S extends Comparable<S>> SetBlockTagNode(WireType<T> type) {
         super("set_block_tag", type == null ? "Set Block Tag" : "Set " + type.getName() + " Block Tag", "Sets the value of a block's tag", Items.STONECUTTER, type);
 
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
@@ -45,9 +46,8 @@ public class SetBlockTagNode<T> extends SingleGenericNode<T> {
                         }
                         case EnumProperty<?> enumProperty when type == StringType.INSTANCE -> {
                             String stringValue = (String) propertyValue;
-                            if (enumProperty.parse(stringValue).isPresent()) {
-                                ctx.evaluator.world.setBlockState(blockPos, withStringValue(blockState, property, stringValue));
-                            }
+                            Optional<S> parsedValue = ((Property<S>) property).parse(stringValue);
+                            parsedValue.ifPresent(s -> ctx.evaluator.world.setBlockState(blockPos, blockState.with((Property<S>) property, s)));
                         }
                         default -> {}
                     }
@@ -56,14 +56,6 @@ public class SetBlockTagNode<T> extends SingleGenericNode<T> {
             }
             ctx.sendSignal(next);
         });
-    }
-
-    private <S extends Comparable<S>> BlockState withStringValue(BlockState blockState, Property<S> property, String value) {
-        Optional<S> parsedValue = property.parse(value);
-        if (parsedValue.isPresent()) {
-            return blockState.with(property, parsedValue.get());
-        }
-        return blockState;
     }
 
     @Override
