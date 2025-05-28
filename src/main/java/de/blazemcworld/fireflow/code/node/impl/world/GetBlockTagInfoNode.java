@@ -37,14 +37,14 @@ public class GetBlockTagInfoNode<T> extends SingleGenericNode<T> {
                     switch (prop) {
                         case IntProperty intProperty -> {
                             Double doubleValue = Double.valueOf((Integer) propertyValue);
-                            return type.checkType(doubleValue);
+                            return type.convert(NumberType.INSTANCE, doubleValue);
                         }
                         case EnumProperty<?> enumProperty -> {
                             String stringValue = ((StringIdentifiable) propertyValue).asString();
-                            return type.checkType(stringValue);
+                            return type.convert(StringType.INSTANCE, stringValue);
                         }
                         case BooleanProperty booleanProperty -> {
-                            return type.checkType(propertyValue);
+                            return type.convert(ConditionType.INSTANCE, propertyValue);
                         }
                         default -> {}
                     }
@@ -64,21 +64,21 @@ public class GetBlockTagInfoNode<T> extends SingleGenericNode<T> {
                         case IntProperty intProperty -> {
                             List<T> list = new ArrayList<>();
                             for (Integer intValue : intProperty.getValues()) {
-                                list.add(type.checkType(Double.valueOf(intValue)));
+                                list.add(type.convert(NumberType.INSTANCE, Double.valueOf(intValue)));
                             }
                             return new ListValue<>(type, list);
                         }
                         case EnumProperty<?> enumProperty -> {
                             List<T> list = new ArrayList<>();
                             for (StringIdentifiable stringIdentifiable : enumProperty.getValues()) {
-                                list.add(type.checkType(stringIdentifiable.asString()));
+                                list.add(type.convert(StringType.INSTANCE, stringIdentifiable.asString()));
                             }
                             return new ListValue<>(type, list);
                         }
                         case BooleanProperty booleanProperty -> {
                             List<T> list = new ArrayList<>();
                             for (boolean boolValue : booleanProperty.getValues()) {
-                                list.add(type.checkType(boolValue));
+                                list.add(type.convert(ConditionType.INSTANCE, boolValue));
                             }
                             return new ListValue<>(type, list);
                         }
