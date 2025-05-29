@@ -27,7 +27,10 @@ public class SetBlockTagNode<T> extends SingleGenericNode<T> {
 
         signal.onSignal((ctx) -> {
             Vec3d pos = position.getValue(ctx);
-            if (pos.x < -512 || pos.x > 511 || pos.z < -512 || pos.z > 511 || pos.y < ctx.evaluator.world.getBottomY() || pos.y > ctx.evaluator.world.getTopYInclusive()) return;
+            if (pos.x < -512 || pos.x > 511 || pos.z < -512 || pos.z > 511 || pos.y < ctx.evaluator.world.getBottomY() || pos.y > ctx.evaluator.world.getTopYInclusive()) {
+                ctx.sendSignal(next);
+                return;
+            }
 
             String propertyName = tag.getValue(ctx);
             T propertyValue = value.getValue(ctx);
