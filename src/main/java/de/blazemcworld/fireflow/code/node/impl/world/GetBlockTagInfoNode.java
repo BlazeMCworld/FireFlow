@@ -34,17 +34,16 @@ public class GetBlockTagInfoNode<T> extends SingleGenericNode<T> {
             for (Property<?> prop : blockState.getProperties()) {
                 if (prop.getName().equals(propertyName)) {
                     Comparable<?> propertyValue = blockState.get(prop);
-                    switch (prop) {
-                        case IntProperty intProperty -> {
-                            Double doubleValue = Double.valueOf((Integer) propertyValue);
-                            return type.convert(NumberType.INSTANCE, doubleValue);
+                    switch (propertyValue) {
+                        case Integer intValue -> {
+                            return type.convert(NumberType.INSTANCE, intValue.doubleValue());
                         }
-                        case EnumProperty<?> enumProperty -> {
-                            String stringValue = ((StringIdentifiable) propertyValue).asString();
+                        case StringIdentifiable enumValue -> {
+                            String stringValue = enumValue.asString();
                             return type.convert(StringType.INSTANCE, stringValue);
                         }
-                        case BooleanProperty booleanProperty -> {
-                            return type.convert(ConditionType.INSTANCE, propertyValue);
+                        case Boolean boolValue -> {
+                            return type.convert(ConditionType.INSTANCE, boolValue);
                         }
                         default -> {}
                     }

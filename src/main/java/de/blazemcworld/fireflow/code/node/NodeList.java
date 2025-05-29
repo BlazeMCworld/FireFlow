@@ -313,6 +313,7 @@ public class NodeList {
                         .add(new GetBlockLightNode())
                         .add(new GetBlockNode())
                         .add(new GetBlockTagInfoNode<>(null))
+                        .add(new GetBlockTagListNode())
                         .add(new RaycastNode())
                         .add(new SetBlockNode())
                         .add(new SetBlockTagNode<>(null))
