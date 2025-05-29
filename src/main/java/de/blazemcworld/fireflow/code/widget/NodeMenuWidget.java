@@ -145,7 +145,7 @@ public class NodeMenuWidget extends Widget {
 
             TypeSelectorWidget selector = new TypeSelectorWidget(pos, filtered, type -> {
                 types.add(type);
-                createNode(pos, node.copyWithTypes(types), types, ioOrigin);
+                createNode(pos, node, types, ioOrigin);
             });
             selector.pos(pos.add(selector.size().div(2)).gridAligned());
             selector.update();

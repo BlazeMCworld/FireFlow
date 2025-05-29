@@ -38,7 +38,6 @@ public class CommandManagerMixin {
         KickCommand.register(this.dispatcher);
         KillCommand.register(this.dispatcher);
         ListCommand.register(this.dispatcher);
-        LocateCommand.register(this.dispatcher, commandRegistryAccess);
         LootCommand.register(this.dispatcher, commandRegistryAccess);
         MessageCommand.register(this.dispatcher);
         ParticleCommand.register(this.dispatcher, commandRegistryAccess);

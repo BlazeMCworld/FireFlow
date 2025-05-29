@@ -275,6 +275,7 @@ public class NodeList {
                         .add(new LowercaseNode())
                         .add(new ReplaceStringNode())
                         .add(new SplitStringNode())
+                        .add(new StringContainsNode())
                         .add(new StringLayoutNode())
                         .add(new StringLengthNode())
                         .add(new SubstringNode())

@@ -429,6 +429,20 @@ public class CodeEvaluator {
             if (current.originWidget.get() != old.originWidget.get()) continue;
             if (old.originWidget.get() == null) continue;
 
+            for (Node.Varargs<?> oldVarargs : old.varargs) {
+                oldVarargs.ignoreUpdates = true;
+
+                for (Node.Varargs<?> currentVarargs : current.varargs) {
+                    if (!oldVarargs.id.equals(currentVarargs.id)) continue;
+                    old.inputs.removeAll(oldVarargs.children);
+                    oldVarargs.children.clear();
+
+                    for (Node.Input<?> input : currentVarargs.children) {
+                        oldVarargs.addInput(input.id);
+                    }
+                }
+            }
+
             for (Node.Input<?> oldInput : old.inputs) {
                 for (Node.Input<?> currentInput : current.inputs) {
                     if (!oldInput.id.equals(currentInput.id)) continue;
@@ -446,6 +460,10 @@ public class CodeEvaluator {
                     oldOutput.connected = currentOutput.connected;
                     break;
                 }
+            }
+
+            for (Node.Varargs<?> oldVarargs : old.varargs) {
+                oldVarargs.ignoreUpdates = false;
             }
             break;
         }

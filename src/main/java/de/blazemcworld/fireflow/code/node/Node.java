@@ -199,6 +199,7 @@ public abstract class Node {
 
         @SuppressWarnings("unchecked")
         public List<T> getVarargs(CodeThread ctx) {
+            ctx.evaluator.syncRevision(Node.this);
             List<T> list = new ArrayList<>();
             for (Input<T> input : children) {
                 if (input.inset == null && input.connected == null) continue;

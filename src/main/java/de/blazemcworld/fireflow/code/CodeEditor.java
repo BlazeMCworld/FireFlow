@@ -20,6 +20,7 @@ import de.blazemcworld.fireflow.space.Space;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.decoration.InteractionEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -72,6 +73,12 @@ public class CodeEditor {
             world.spawnEntity(helper);
             helper.vehicle = player;
             player.addPassenger(helper);
+
+            DisplayEntity.TextDisplayEntity name = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
+            name.setText(player.getDisplayName());
+            world.spawnEntity(name);
+            name.vehicle = player;
+            player.addPassenger(name);
         }
 
         if (origin.isWeb()) {
@@ -84,7 +91,10 @@ public class CodeEditor {
         ServerPlayerEntity player = origin.getPlayer();
         if (player != null) {
             for (Entity helper : new ArrayList<>(player.getPassengerList())) {
-                if (helper instanceof InteractionEntity) helper.remove(Entity.RemovalReason.DISCARDED);
+                if (helper instanceof InteractionEntity
+                        || helper instanceof DisplayEntity.TextDisplayEntity) {
+                    helper.remove(Entity.RemovalReason.DISCARDED);
+                }
             }
         }
 
