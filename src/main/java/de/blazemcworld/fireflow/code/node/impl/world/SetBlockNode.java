@@ -29,7 +29,10 @@ public class SetBlockNode extends Node {
             Optional<Block> b = id.isSuccess() ? Registries.BLOCK.getOptionalValue(id.getOrThrow()) : Optional.empty();
             if (b.isPresent()) {
                 Vec3d pos = position.getValue(ctx);
-                if (pos.x < -512 || pos.x > 511 || pos.z < -512 || pos.z > 511 || pos.y < ctx.evaluator.world.getBottomY() || pos.y > ctx.evaluator.world.getTopYInclusive()) return;
+                if (pos.x < -512 || pos.x > 511 || pos.z < -512 || pos.z > 511 || pos.y < ctx.evaluator.world.getBottomY() || pos.y > ctx.evaluator.world.getTopYInclusive()) {
+                    ctx.sendSignal(next);
+                    return;
+                }
                 boolean updates = sendUpdate.getValue(ctx);
                 int updateLimit = updates ? 512 : 0;
                 int flags = updates ? Block.NOTIFY_ALL : Block.NOTIFY_LISTENERS;
