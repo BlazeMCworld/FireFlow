@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Lobby;
 import de.blazemcworld.fireflow.util.ModeManager;
 import net.minecraft.server.command.CommandManager;
@@ -24,7 +25,7 @@ public class LobbyCommand {
                     if (player == null) return Command.SINGLE_SUCCESS;
 
                     if (player.getServerWorld() == Lobby.world) {
-                        player.sendMessage(Text.literal("You are already in the lobby!").formatted(Formatting.RED));
+                        Messages.sendMessage("You are already in the lobby!", Messages.ERROR, player);
                         return Command.SINGLE_SUCCESS;
                     }
 

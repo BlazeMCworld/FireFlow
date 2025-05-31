@@ -9,6 +9,7 @@ import de.blazemcworld.fireflow.code.CodeInteraction;
 import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.widget.Widget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
 import de.blazemcworld.fireflow.space.SpaceManager;
@@ -154,13 +155,16 @@ public class WebEditor extends Handler.Abstract {
                 editor.enterCode(origin);
                 for (ServerPlayerEntity player : space.getPlayers()) {
                     if (!space.info.isOwnerOrDeveloper(player.getUuid())) continue;
-                    player.sendMessage(Text.literal("Someone opened the web editor for this space.").formatted(Formatting.YELLOW));
-                    player.sendMessage(Text.literal("Click this to allow access, otherwise ignore it.").setStyle(
-                            Style.EMPTY.withClickEvent(new ClickEvent.RunCommand("/authorize-web " + id))
-                                    .withHoverEvent(new HoverEvent.ShowText(Text.literal("Warning: Only do this if you know and trust the person who opened the web editor!")
-                                            .formatted(Formatting.RED)))
-                                    .withFormatting(Formatting.GOLD)
-                    ));
+                    Messages.sendMessage(
+                            "Someone opened the web editor for this space.",
+                            Messages.NOTIFY, player
+                    );
+                    Messages.sendMessage(
+                            "<click:run_command:\"/authorize-web "+id+"\">" +
+                                    "<hover:show_text:\"<default>Warning: Only do this if you know and trust the person who opened the web editor!\">" +
+                                    "Click this message to allow access, otherwise ignore it.",
+                            Messages.FOLLOWUP, player
+                    );
                 }
                 return;
             }
