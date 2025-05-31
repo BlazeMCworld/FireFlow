@@ -8,6 +8,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.minecraft.item.Items;
+import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
@@ -51,8 +52,22 @@ public class TextType extends WireType<Text> {
     }
 
     @Override
-    protected String stringifyInternal(Text value) {
-        return MM.serialize(MinecraftServerAudiences.of(FireFlow.server).asAdventure(value));
+    protected String stringifyInternal(Text value, String mode) {
+        return switch (mode) {
+            case "plain" -> getPlainContent(value);
+            default -> MM.serialize(MinecraftServerAudiences.of(FireFlow.server).asAdventure(value));
+        };
+    }
+
+    private static String getPlainContent(Text text) {
+        StringBuilder out = new StringBuilder();
+        if (text.getContent() instanceof PlainTextContent.Literal(String literal)) {
+            out.append(literal);
+        }
+        for (Text child : text.getSiblings()) {
+            out.append(getPlainContent(child));
+        }
+        return out.toString();
     }
 
     @Override
@@ -73,7 +88,7 @@ public class TextType extends WireType<Text> {
 
     @Override
     public boolean valuesEqual(Text a, Text b) {
-        return stringifyInternal(a).equals(stringifyInternal(b));
+        return stringifyInternal(a, "display").equals(stringifyInternal(b, "display"));
     }
 
     @Override
@@ -83,6 +98,6 @@ public class TextType extends WireType<Text> {
 
     @Override
     protected Text convertInternal(WireType<?> other, Object v) {
-        return Text.literal(other.stringify(v));
+        return Text.literal(other.stringify(v, "display"));
     }
 }

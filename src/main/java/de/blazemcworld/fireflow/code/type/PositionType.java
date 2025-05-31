@@ -57,14 +57,21 @@ public class PositionType extends WireType<Position> {
     }
 
     @Override
-    protected String stringifyInternal(Position value) {
-        return "(%.2f, %.2f, %.2f, %.2f, %.2f)".formatted(
-                value.xyz().x,
-                value.xyz().y,
-                value.xyz().z,
-                value.pitch(),
-                value.yaw()
-        );
+    protected String stringifyInternal(Position value, String mode) {
+        return switch (mode) {
+            case "x" -> "%.2f".formatted(value.xyz().x);
+            case "y" -> "%.2f".formatted(value.xyz().y);
+            case "z" -> "%.2f".formatted(value.xyz().z);
+            case "pitch" -> "%.2f".formatted(value.pitch());
+            case "yaw" -> "%.2f".formatted(value.yaw());
+            default -> "(%.2f, %.2f, %.2f, %.2f, %.2f)".formatted(
+                    value.xyz().x,
+                    value.xyz().y,
+                    value.xyz().z,
+                    value.pitch(),
+                    value.yaw()
+            );
+        };
     }
 
     @Override

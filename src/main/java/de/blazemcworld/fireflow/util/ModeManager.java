@@ -41,6 +41,7 @@ public class ModeManager {
     public static void move(ServerPlayerEntity player, Mode mode, Space space) {
         runOnWorld(player.getServerWorld(), () -> handleExit(player));
         if (player instanceof DummyPlayer) return;
+        if (!FireFlow.server.isRunning()) return;
 
         space = space != null ? space : SpaceManager.getSpaceForPlayer(player);
         if (space == null) mode = Mode.LOBBY;

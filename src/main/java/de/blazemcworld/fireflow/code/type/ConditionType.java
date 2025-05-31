@@ -32,7 +32,7 @@ public class ConditionType extends WireType<Boolean> {
     }
 
     @Override
-    protected String stringifyInternal(Boolean value) {
+    protected String stringifyInternal(Boolean value, String mode) {
         return String.valueOf(value);
     }
 

@@ -49,7 +49,7 @@ public class PlayerType extends WireType<PlayerValue> {
     }
 
     @Override
-    protected String stringifyInternal(PlayerValue value) {
+    protected String stringifyInternal(PlayerValue value, String mode) {
         return value.uuid.toString();
     }
 }

@@ -100,8 +100,12 @@ public class ItemType extends WireType<ItemStack> {
     }
 
     @Override
-    protected String stringifyInternal(ItemStack value) {
-        return Registries.ITEM.getId(value.getItem()).getNamespace() + " x" + value.getCount();
+    protected String stringifyInternal(ItemStack value, String mode) {
+        return switch (mode) {
+            case "id", "type", "material" -> Registries.ITEM.getId(value.getItem()).getPath();
+            case "count" -> String.valueOf(value.getCount());
+            default -> Registries.ITEM.getId(value.getItem()).getPath() + " x" + value.getCount();
+        };
     }
 
     @Override

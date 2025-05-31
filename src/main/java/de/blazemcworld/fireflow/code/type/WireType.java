@@ -51,11 +51,13 @@ public abstract class WireType<T> {
 
     public abstract String getName();
 
-    public String stringify(Object value) {
-        return stringifyInternal(checkType(value));
+    public String stringify(Object value, String mode) {
+        T checked = checkType(value);
+        if (checked == null) checked = defaultValue();
+        return stringifyInternal(checked, mode);
     }
 
-    protected abstract String stringifyInternal(T value);
+    protected abstract String stringifyInternal(T value, String mode);
 
     public T convert(WireType<?> other, Object v) {
         if (other == AnyType.INSTANCE) {

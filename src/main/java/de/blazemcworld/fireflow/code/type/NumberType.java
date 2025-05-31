@@ -34,8 +34,12 @@ public class NumberType extends WireType<Double> {
     }
 
     @Override
-    protected String stringifyInternal(Double value) {
-        return String.valueOf(value);
+    protected String stringifyInternal(Double value, String mode) {
+        return switch (mode) {
+            case "hex", "hexadecimal" -> String.format("%02x", value.intValue());
+            case "dec", "decimal", "int", "integer" -> String.valueOf(value.intValue());
+            default -> String.valueOf(value);
+        };
     }
 
     @Override

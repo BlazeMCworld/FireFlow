@@ -4,6 +4,7 @@ import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.CodeThread;
 import de.blazemcworld.fireflow.code.node.option.InputOptions;
 import de.blazemcworld.fireflow.code.type.ListType;
+import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.value.ListValue;
 import de.blazemcworld.fireflow.code.widget.NodeWidget;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class Node {
 
@@ -65,6 +68,8 @@ public abstract class Node {
         private Consumer<CodeThread> logic;
         public InputOptions options;
 
+        private static final Pattern inlineFormat = Pattern.compile("\\{\\w*(:\\w+)*}");
+
         public Input(String id, String name, WireType<T> type, Varargs<T> varargsParent) {
             this.id = id;
             this.name = name;
@@ -83,6 +88,19 @@ public abstract class Node {
             if (connected != null) {
                 ctx.notifyDebug(connected);
                 Object out = connected.computeNow(ctx);
+
+                if (inset != null && type.canConvert(StringType.INSTANCE)) {
+                    Matcher m = inlineFormat.matcher(inset);
+                    StringBuilder builder = new StringBuilder();
+                    while (m.find()) {
+                        m.appendReplacement(builder, connected.type.stringify(out, m.group().substring(1, m.group().length() - 1)));
+                    }
+                    m.appendTail(builder);
+                    T value = type.parseInset(builder.toString());
+                    if (value != null) return value;
+                    return type.defaultValue();
+                }
+
                 if (connected.type == type) return (T) out;
                 return type.convert(connected.type, out);
             }
@@ -118,7 +136,7 @@ public abstract class Node {
 
         public void setInset(String value) {
             inset = value;
-            connected = null;
+            if (!type.canConvert(StringType.INSTANCE) || !inlineFormat.matcher(inset).find()) connected = null;
             if (varargsParent != null) varargsParent.update();
             if (inset == null && options != null) inset = options.fallback();
         }
@@ -131,7 +149,7 @@ public abstract class Node {
             } else {
                 FireFlow.LOGGER.warn("Called input.connect() with invalid wire type!");
             }
-            if (output != null) inset = null;
+            if (connected != null && inset != null && (!type.canConvert(StringType.INSTANCE) || !inlineFormat.matcher(inset).find())) inset = null;
             if (varargsParent != null) varargsParent.update();
             if (connected == null && options != null) inset = options.fallback();
         }

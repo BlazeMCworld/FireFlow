@@ -45,7 +45,7 @@ public class SignalType extends WireType<Void> {
     }
 
     @Override
-    protected String stringifyInternal(Void value) {
+    protected String stringifyInternal(Void value, String mode) {
         return "SIGNAL";
     }
 

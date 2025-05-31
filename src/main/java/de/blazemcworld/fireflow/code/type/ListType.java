@@ -75,8 +75,19 @@ public class ListType<T> extends WireType<ListValue<T>> {
     }
 
     @Override
-    protected String stringifyInternal(ListValue<T> value) {
-        return value.type.getName() + " x" + value.size();
+    protected String stringifyInternal(ListValue<T> value, String mode) {
+        if (mode.contains(":")) {
+            try {
+                int pos = mode.indexOf(':');
+                return value.type.stringify(value.get(Integer.parseInt(mode.substring(0, pos))), mode.substring(pos + 1));
+            } catch (NumberFormatException ignore) {
+            }
+        }
+
+        return switch (mode) {
+            case "length", "size" -> String.valueOf(value.size());
+            default -> value.type.getName() + " x" + value.size();
+        };
     }
 
     @Override

@@ -57,12 +57,17 @@ public class VectorType extends WireType<Vec3d> {
     }
 
     @Override
-    protected String stringifyInternal(Vec3d value) {
-        return "<%.2f, %.2f, %.2f>".formatted(
-                value.x,
-                value.y,
-                value.z
-        );
+    protected String stringifyInternal(Vec3d value, String mode) {
+        return switch (mode) {
+            case "x" -> "%.2f".formatted(value.x);
+            case "y" -> "%.2f".formatted(value.y);
+            case "z" -> "%.2f".formatted(value.z);
+            default -> "<%.2f, %.2f, %.2f>".formatted(
+                    value.x,
+                    value.y,
+                    value.z
+            );
+        };
     }
 
     @Override

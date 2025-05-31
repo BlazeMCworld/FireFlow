@@ -51,8 +51,8 @@ public class AnyType extends WireType<AnyValue<?>> {
     }
 
     @Override
-    protected String stringifyInternal(AnyValue<?> value) {
-        return value.type().stringify(value.value());
+    protected String stringifyInternal(AnyValue<?> value, String mode) {
+        return value.type().stringify(value.value(), mode);
     }
 
     @Override

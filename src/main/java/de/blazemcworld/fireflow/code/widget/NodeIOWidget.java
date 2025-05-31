@@ -103,13 +103,16 @@ public class NodeIOWidget extends Widget {
     public void insetValue(String value) {
         input.setInset(value);
 
-        for (WireWidget w : new ArrayList<>(connections)) {
-            List<NodeIOWidget> inputs = w.getInputs();
-            List<NodeIOWidget> outputs = w.getOutputs();
-            w.removeConnection();
-            if (w.type() == SignalType.INSTANCE && !outputs.isEmpty() && !outputs.getFirst().connections.isEmpty())
-                outputs.getFirst().connections.getFirst().cleanup();
-            else if (w.type() != SignalType.INSTANCE && !inputs.isEmpty() && !inputs.getFirst().connections.isEmpty()) inputs.getFirst().connections.getFirst().cleanup();
+        if (input.connected == null) {
+            for (WireWidget w : new ArrayList<>(connections)) {
+                List<NodeIOWidget> inputs = w.getInputs();
+                List<NodeIOWidget> outputs = w.getOutputs();
+                w.removeConnection();
+                if (w.type() == SignalType.INSTANCE && !outputs.isEmpty() && !outputs.getFirst().connections.isEmpty())
+                    outputs.getFirst().connections.getFirst().cleanup();
+                else if (w.type() != SignalType.INSTANCE && !inputs.isEmpty() && !inputs.getFirst().connections.isEmpty())
+                    inputs.getFirst().connections.getFirst().cleanup();
+            }
         }
 
         text.setText(displayText());

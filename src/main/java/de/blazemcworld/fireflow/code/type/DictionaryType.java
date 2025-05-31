@@ -78,8 +78,13 @@ public class DictionaryType<K, V> extends WireType<DictionaryValue<K, V>> {
     }
 
     @Override
-    protected String stringifyInternal(DictionaryValue<K, V> value) {
-        return value.keyType.getName() + " -> " + value.valueType.getName() + " x" + value.size();
+    protected String stringifyInternal(DictionaryValue<K, V> value, String mode) {
+        return switch (mode) {
+            case "length", "size" -> String.valueOf(value.size());
+            case "key", "keyType" -> value.keyType.getName();
+            case "value", "valueType" -> value.valueType.getName();
+            default -> value.keyType.getName() + " -> " + value.valueType.getName() + " x" + value.size();
+        };
     }
 
     @Override

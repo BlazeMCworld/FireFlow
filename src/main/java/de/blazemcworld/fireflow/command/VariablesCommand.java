@@ -49,7 +49,7 @@ public class VariablesCommand {
         for (VariableStore.VarEntry v : vars) {
             player.sendMessage(Text.literal(v.name()).setStyle(Style.EMPTY.withColor(v.type().color))
                     .append(Text.literal(": ").formatted(Formatting.GRAY))
-                    .append(Text.literal(v.type().stringify(v.value())).formatted(Formatting.WHITE)));
+                    .append(Text.literal(v.type().stringify(v.value(), "display")).formatted(Formatting.WHITE)));
         }
 
         if (vars.size() >= 50) return;
@@ -57,7 +57,7 @@ public class VariablesCommand {
         for (VariableStore.VarEntry v : space.evaluator.sessionVariables.iterator(filter, 50 - vars.size())) {
             player.sendMessage(Text.literal(v.name()).setStyle(Style.EMPTY.withColor(v.type().color))
                     .append(Text.literal(": ").formatted(Formatting.GRAY))
-                    .append(Text.literal(v.type().stringify(v.value())).formatted(Formatting.WHITE)));
+                    .append(Text.literal(v.type().stringify(v.value(), "display")).formatted(Formatting.WHITE)));
         }
     }
 

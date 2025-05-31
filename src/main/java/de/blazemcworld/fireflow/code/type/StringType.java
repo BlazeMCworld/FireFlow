@@ -30,7 +30,7 @@ public class StringType extends WireType<String> {
     }
 
     @Override
-    protected String stringifyInternal(String value) {
+    protected String stringifyInternal(String value, String mode) {
         return value;
     }
 
@@ -62,6 +62,6 @@ public class StringType extends WireType<String> {
 
     @Override
     protected String convertInternal(WireType<?> other, Object v) {
-        return other.stringify(v);
+        return other.stringify(v, "display");
     }
 }

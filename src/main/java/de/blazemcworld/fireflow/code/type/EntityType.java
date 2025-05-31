@@ -48,7 +48,7 @@ public class EntityType extends WireType<EntityValue> {
     }
 
     @Override
-    protected String stringifyInternal(EntityValue value) {
-        return "Entity " + value.uuid.toString();
+    protected String stringifyInternal(EntityValue value, String mode) {
+        return value.uuid.toString();
     }
 }
