@@ -273,6 +273,7 @@ public class NodeList {
                         .add(new CharacterAtNode())
                         .add(new CombineStringsNode())
                         .add(new LowercaseNode())
+                        .add(new MatchRegExpNode())
                         .add(new ReplaceStringNode())
                         .add(new SplitStringNode())
                         .add(new StringContainsNode())
