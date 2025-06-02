@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -19,7 +20,7 @@ public class ReloadCommand {
                     if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
 
                     space.reload();
-                    player.sendMessage(Text.literal("Reloaded space!").formatted(Formatting.AQUA));
+                    Messages.sendMessage("Reloaded space!", Messages.SUCCESS, player);
                     return Command.SINGLE_SUCCESS;
                 })
                 .then(CommandManager.literal("live")
@@ -29,7 +30,7 @@ public class ReloadCommand {
                             if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
 
                             space.evaluator.liveReload();
-                            player.sendMessage(Text.literal("Live reloaded space!").formatted(Formatting.AQUA));
+                            Messages.sendMessage("Live reloaded space!", Messages.SUCCESS, player);
                             return Command.SINGLE_SUCCESS;
                         })
                 )

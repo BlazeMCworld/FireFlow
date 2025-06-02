@@ -3,6 +3,7 @@ package de.blazemcworld.fireflow.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.util.DummyPlayer;
 import net.minecraft.server.command.CommandManager;
@@ -24,7 +25,7 @@ public class DummyCommand {
                                     if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
 
                                     if (space.dummyManager.getDummy(id) != null) {
-                                        player.sendMessage(Text.literal("That dummy has already been spawned!").formatted(Formatting.RED));
+                                        Messages.sendMessage("That dummy has already been spawned!", Messages.ERROR, player);
                                         return Command.SINGLE_SUCCESS;
                                     }
 
@@ -43,7 +44,7 @@ public class DummyCommand {
 
                                     DummyPlayer dummy = space.dummyManager.getDummy(id);
                                     if (dummy == null) {
-                                        player.sendMessage(Text.literal("That dummy has not been spawned!").formatted(Formatting.RED));
+                                        Messages.sendMessage("That dummy has not been spawned!", Messages.ERROR, player);
                                         return Command.SINGLE_SUCCESS;
                                     }
 

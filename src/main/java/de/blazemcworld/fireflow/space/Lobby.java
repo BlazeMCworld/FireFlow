@@ -3,6 +3,7 @@ package de.blazemcworld.fireflow.space;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.inventory.ActiveSpacesMenu;
 import de.blazemcworld.fireflow.inventory.MySpacesMenu;
+import de.blazemcworld.fireflow.messages.ColourPalette;
 import de.blazemcworld.fireflow.util.WorldUtil;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
@@ -45,7 +46,7 @@ public class Lobby {
 
     private static ItemStack mySpacesItem() {
         ItemStack item = new ItemStack(Items.ENCHANTED_BOOK);
-        item.set(DataComponentTypes.ITEM_NAME, Text.literal("My Spaces").formatted(Formatting.LIGHT_PURPLE));
+        item.set(DataComponentTypes.ITEM_NAME, Text.literal("My Spaces").withColor(ColourPalette.ROSE_LIGHT_2.rgb24));
         item.set(DataComponentTypes.LORE, new LoreComponent(List.of(
                 Text.literal("Manage your spaces").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY)),
                 Text.literal("using this item.").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY))
@@ -55,7 +56,7 @@ public class Lobby {
 
     private static ItemStack activeSpacesItem() {
         ItemStack item = new ItemStack(Items.BLAZE_POWDER);
-        item.set(DataComponentTypes.ITEM_NAME, Text.literal("Active Spaces").formatted(Formatting.GREEN));
+        item.set(DataComponentTypes.ITEM_NAME, Text.literal("Active Spaces").withColor(ColourPalette.LIME_LIGHT_2.rgb24));
         item.set(DataComponentTypes.LORE, new LoreComponent(List.of(
                 Text.literal("View currently played on").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY)),
                 Text.literal("spaces using this item.").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY))
