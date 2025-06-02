@@ -14,7 +14,7 @@ import net.minecraft.util.math.Vec3d;
 public class PlayerStandingBlockNode extends Node {
 
     public PlayerStandingBlockNode() {
-        super("player_standing_block", "Player Standing Block", "Checks if the player is standing on something or floating, and which block it is.", Items.RECOVERY_COMPASS);
+        super("player_standing_block", "Player Standing Block", "Checks if the player is standing on something or floating, and which block it is.", Items.BAMBOO_PRESSURE_PLATE);
 
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Output<Vec3d> position = new Output<>("position", "Position", VectorType.INSTANCE);

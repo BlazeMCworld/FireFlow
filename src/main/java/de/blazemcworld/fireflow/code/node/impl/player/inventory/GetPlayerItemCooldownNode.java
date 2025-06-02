@@ -12,7 +12,7 @@ public class GetPlayerItemCooldownNode extends Node {
 
     public GetPlayerItemCooldownNode() {
         super("get_player_item_cooldown", "Get Player Item Cooldown", 
-            "Gets the remaining cooldown percentage (0-1) for a specific item for a player", Items.CLOCK);
+            "Gets the remaining cooldown percentage (0-1) for a specific item for a player", Items.POPPED_CHORUS_FRUIT);
 
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Input<ItemStack> item = new Input<>("item", "Item", ItemType.INSTANCE);

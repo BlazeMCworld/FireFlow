@@ -9,7 +9,7 @@ import net.minecraft.item.Items;
 
 public class SetPlayerSaturationNode extends Node {
     public SetPlayerSaturationNode() {
-        super("set_player_saturation", "Set Player Saturation", "Sets the saturation of the player", Items.GOLDEN_CARROT);
+        super("set_player_saturation", "Set Player Saturation", "Sets the saturation of the player", Items.GLISTERING_MELON_SLICE);
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Input<Double> saturation = new Input<>("saturation", "Saturation", NumberType.INSTANCE);

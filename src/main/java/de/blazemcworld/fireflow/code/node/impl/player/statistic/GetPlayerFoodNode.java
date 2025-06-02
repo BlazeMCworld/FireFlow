@@ -8,7 +8,7 @@ import net.minecraft.item.Items;
 
 public class GetPlayerFoodNode extends Node {
     public GetPlayerFoodNode() {
-        super("get_player_food", "Get Player Food", "Gets the food level of the player", Items.COOKED_BEEF);
+        super("get_player_food", "Get Player Food", "Gets the food level of the player", Items.ROTTEN_FLESH);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Output<Double> food = new Output<>("food", "Food", NumberType.INSTANCE);
 

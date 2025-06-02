@@ -8,7 +8,7 @@ import net.minecraft.item.Items;
 
 public class GetPlayerHealthNode extends Node {
     public GetPlayerHealthNode() {
-        super("get_player_health", "Get Player Health", "Gets the health of the player", Items.RED_DYE);
+        super("get_player_health", "Get Player Health", "Gets the health of the player", Items.RED_WOOL);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Output<Double> health = new Output<>("health", "Health", NumberType.INSTANCE);
 

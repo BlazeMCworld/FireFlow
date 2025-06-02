@@ -17,7 +17,7 @@ import java.util.List;
 public class GetBlockTagListNode extends Node {
 
     public GetBlockTagListNode() {
-        super("get_block_tag_list", "Get Block Tag List", "Gets the list of all tag names of a block.", Items.OAK_STAIRS);
+        super("get_block_tag_list", "Get Block Tag List", "Gets the list of all tag names of a block.", Items.ACACIA_STAIRS);
 
         Input<Vec3d> position = new Input<>("position", "Position", VectorType.INSTANCE);
         Output<ListValue<String>> list = new Output<>("list", "List", ListType.of(StringType.INSTANCE));

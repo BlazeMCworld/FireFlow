@@ -9,7 +9,7 @@ import net.minecraft.item.Items;
 
 public class SetAllowFlyingNode extends Node {
     public SetAllowFlyingNode() {
-        super("set_allow_flying", "Set Allow Flying", "Allows or disallows the player to fly", Items.WHITE_WOOL);
+        super("set_allow_flying", "Set Allow Flying", "Allows or disallows the player to fly", Items.FEATHER);
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Input<Boolean> allow = new Input<>("allow", "Allow", ConditionType.INSTANCE);

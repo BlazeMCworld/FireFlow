@@ -8,7 +8,7 @@ import net.minecraft.item.Items;
 
 public class GetExperienceLevelNode extends Node {
     public GetExperienceLevelNode() {
-        super("get_experience_level", "Get Experience Level", "Gets the experience level of the player", Items.ENCHANTING_TABLE);
+        super("get_experience_level", "Get Experience Level", "Gets the experience level of the player", Items.LAPIS_LAZULI);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Output<Double> level = new Output<>("level", "Level", NumberType.INSTANCE);
 

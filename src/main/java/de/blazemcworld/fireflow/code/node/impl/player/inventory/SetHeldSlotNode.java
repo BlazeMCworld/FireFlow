@@ -9,7 +9,7 @@ import net.minecraft.item.Items;
 
 public class SetHeldSlotNode extends Node {
     public SetHeldSlotNode() {
-        super("set_held_slot", "Set Held Slot", "Sets the held slot of the player", Items.SMOOTH_STONE);
+        super("set_held_slot", "Set Held Slot", "Sets the held slot of the player", Items.GOLD_INGOT);
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Input<Double> slot = new Input<>("slot", "Slot", NumberType.INSTANCE);
