@@ -7,8 +7,8 @@ import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
 import net.minecraft.item.Items;
 
-public class SetPlayerGliding extends Node {
-    public SetPlayerGliding() {
+public class SetPlayerGlidingNode extends Node {
+    public SetPlayerGlidingNode() {
         super("set_player_gliding", "Set Player Gliding", "", Items.ELYTRA);
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
@@ -25,6 +25,6 @@ public class SetPlayerGliding extends Node {
 
     @Override
     public Node copy() {
-        return new SetPlayerGliding();
+        return new SetPlayerGlidingNode();
     }
 }

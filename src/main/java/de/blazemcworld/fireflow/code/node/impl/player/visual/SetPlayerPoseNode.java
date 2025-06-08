@@ -10,8 +10,8 @@ import de.blazemcworld.fireflow.code.value.PlayerValue;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.item.Items;
 
-public class SetPlayerPose extends Node {
-    public SetPlayerPose() {
+public class SetPlayerPoseNode extends Node {
+    public SetPlayerPoseNode() {
         super("send_message", "Send Message", "Sends a message to the player", Items.ARMOR_STAND);
 
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
@@ -27,6 +27,6 @@ public class SetPlayerPose extends Node {
 
     @Override
     public Node copy() {
-        return new SetPlayerPose();
+        return new SetPlayerPoseNode();
     }
 }
