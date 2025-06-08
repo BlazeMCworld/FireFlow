@@ -12,7 +12,7 @@ import net.minecraft.item.Items;
 public class DictionaryKeysNode<K, V> extends DualGenericNode<K, V> {
 
     public DictionaryKeysNode(WireType<K> type1, WireType<V> type2) {
-        super("dictionary_keys", type1 == null || type2 == null ? "Dictionary Keys" : type1.getName() + " " + type2.getName() + " Dictionary Keys", "Gets the keys of a dictionary.", Items.HOPPER, type1, type2);
+        super("dictionary_keys", type1 == null || type2 == null ? "Dictionary Keys" : type1.getName() + " " + type2.getName() + " Dictionary Keys", "Gets the keys of a dictionary.", Items.TRIAL_KEY, type1, type2);
 
         Input<DictionaryValue<K, V>> dict = new Input<>("dictionary", "Dictionary", DictionaryType.of(type1, type2));
         Output<ListValue<K>> keys = new Output<>("keys", "Keys", ListType.of(type1));

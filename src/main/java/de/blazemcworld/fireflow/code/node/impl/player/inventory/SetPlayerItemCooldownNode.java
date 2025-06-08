@@ -12,7 +12,7 @@ import net.minecraft.item.Items;
 public class SetPlayerItemCooldownNode extends Node {
 
     public SetPlayerItemCooldownNode() {
-        super("set_player_item_cooldown", "Set Player Item Cooldown", "Sets a cooldown for a specific item for a player", Items.CLOCK);
+        super("set_player_item_cooldown", "Set Player Item Cooldown", "Sets a cooldown for a specific item for a player", Items.CHORUS_FRUIT);
 
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);

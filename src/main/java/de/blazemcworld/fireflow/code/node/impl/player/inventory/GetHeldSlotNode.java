@@ -8,7 +8,7 @@ import net.minecraft.item.Items;
 
 public class GetHeldSlotNode extends Node {
     public GetHeldSlotNode() {
-        super("get_held_slot", "Get Held Slot", "Gets the held slot of the player", Items.SMOOTH_STONE);
+        super("get_held_slot", "Get Held Slot", "Gets the held slot of the player", Items.GOLD_NUGGET);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Output<Double> slot = new Output<>("slot", "Slot", NumberType.INSTANCE);
 

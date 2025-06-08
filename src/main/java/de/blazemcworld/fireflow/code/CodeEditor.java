@@ -76,6 +76,7 @@ public class CodeEditor {
 
             DisplayEntity.TextDisplayEntity name = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
             name.setText(player.getDisplayName());
+            name.setBillboardMode(DisplayEntity.BillboardMode.CENTER);
             world.spawnEntity(name);
             name.vehicle = player;
             player.addPassenger(name);

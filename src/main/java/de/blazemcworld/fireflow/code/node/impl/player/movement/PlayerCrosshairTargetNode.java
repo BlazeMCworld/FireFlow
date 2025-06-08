@@ -16,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 public class PlayerCrosshairTargetNode extends Node {
 
     public PlayerCrosshairTargetNode() {
-        super("player_crosshair_target", "Player Crosshair Target", "Checks the block the player is currently looking at. Ignores fluids unless set to true.", Items.RECOVERY_COMPASS);
+        super("player_crosshair_target", "Player Crosshair Target", "Checks the block the player is currently looking at. Ignores fluids unless set to true.", Items.TIPPED_ARROW);
 
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Input<Boolean> checkFluids = new Input<>("fluids", "Fluids", ConditionType.INSTANCE);
