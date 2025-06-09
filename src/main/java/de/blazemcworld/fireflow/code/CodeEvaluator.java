@@ -290,6 +290,14 @@ public class CodeEvaluator {
         return !cancel;
     }
 
+    public void onRespawn(ServerPlayerEntity player) {
+        for (Node node : nodes) {
+            if (node instanceof OnPlayerRespawnNode n) {
+                n.onRespawn(this, player);
+            }
+        }
+    }
+
     public void nextTick(Runnable r) {
         synchronized (tickTasks) {
             tickTasks.add(r);
