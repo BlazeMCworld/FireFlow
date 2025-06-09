@@ -262,7 +262,6 @@ public class NodeList {
                                 .add(new SendBlockChangeNode())
                                 .add(new SendMessageNode())
                                 .add(new SendTitleNode())
-                                .add(new SetPlayerPoseNode())
                                 .add(new SetPlayerSkinNode())
                         )
                 )
