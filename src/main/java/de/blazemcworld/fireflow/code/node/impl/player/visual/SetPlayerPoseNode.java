@@ -12,7 +12,7 @@ import net.minecraft.item.Items;
 
 public class SetPlayerPoseNode extends Node {
     public SetPlayerPoseNode() {
-        super("send_message", "Send Message", "Sends a message to the player", Items.ARMOR_STAND);
+        super("set_player_pose", "Set Player Pose", "Updates the player's pose to the specified pose", Items.ARMOR_STAND);
 
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);

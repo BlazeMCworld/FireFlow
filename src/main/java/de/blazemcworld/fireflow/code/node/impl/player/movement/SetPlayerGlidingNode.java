@@ -9,7 +9,7 @@ import net.minecraft.item.Items;
 
 public class SetPlayerGlidingNode extends Node {
     public SetPlayerGlidingNode() {
-        super("set_player_gliding", "Set Player Gliding", "", Items.ELYTRA);
+        super("set_player_gliding", "Set Player Gliding", "Sets the gliding state of the player", Items.ELYTRA);
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Input<Boolean> allow = new Input<>("allow", "Allow", ConditionType.INSTANCE);
