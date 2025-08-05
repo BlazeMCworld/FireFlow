@@ -1,8 +1,12 @@
 package de.blazemcworld.fireflow.util;
 
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
+
+import java.util.Objects;
 
 public class Statistics {
 
@@ -25,6 +29,8 @@ public class Statistics {
         player.setLastDeathLocation(null);
         player.setInvulnerable(false);
         player.setInvisible(false);
+        player.sendPlayerListHeader(Component.empty());
+        player.sendPlayerListFooter(Component.empty());
     }
 
 }
