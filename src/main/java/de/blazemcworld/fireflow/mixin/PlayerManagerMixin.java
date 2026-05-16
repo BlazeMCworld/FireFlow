@@ -1,5 +1,7 @@
 package de.blazemcworld.fireflow.mixin;
 
+import de.blazemcworld.fireflow.space.PlayWorld;
+import net.minecraft.entity.Entity.RemovalReason;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -22,6 +24,11 @@ public class PlayerManagerMixin {
     @Inject(method = "loadPlayerData", at = @At("HEAD"), cancellable = true)
     private void dontLoad(ServerPlayerEntity player, CallbackInfoReturnable<Optional<NbtCompound>> cir) {
         cir.setReturnValue(Optional.empty());
+    }
+
+    @Inject(method = "respawnPlayer", at = @At("HEAD"))
+    private void onRespawn(ServerPlayerEntity player, boolean alive, RemovalReason reason, CallbackInfoReturnable<ServerPlayerEntity> cir) {
+        if (player.getWorld() instanceof PlayWorld playWorld) playWorld.space.evaluator.onRespawn(player);
     }
 
 }

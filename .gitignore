@@ -1,5 +1,7 @@
 run
 .idea
+.vscode
+.idx
 .gradle
 build
 bin
