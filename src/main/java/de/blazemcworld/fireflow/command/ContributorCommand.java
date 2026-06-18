@@ -5,6 +5,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.blazemcworld.fireflow.FireFlow;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.PlayWorld;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
@@ -42,13 +43,14 @@ public class ContributorCommand {
                             Set<UUID> contributors = getMap.apply(space.info);
 
                             if (contributors.isEmpty()) {
-                                player.sendMessage(Text.literal("There are no " + id + "s!").formatted(Formatting.RED));
+                                Messages.sendMessage("There are no "+ id + "s!", Messages.INFO, player);
                                 return Command.SINGLE_SUCCESS;
                             }
 
-                            player.sendMessage(Text.literal("Space " + id + (contributors.size() == 1 ? "" : "s") + " (" + contributors.size() + "):").formatted(Formatting.AQUA));
+                            Messages.sendMessage("Space " + id + (contributors.size() == 1 ? "" : "s") + " (" + contributors.size() + "):", Messages.INFO, player);
                             for (UUID uuid : contributors) {
-                                resolveName(player.getServerWorld(), uuid, name -> player.sendMessage(Text.literal("- " + name).formatted(Formatting.DARK_AQUA)));
+                                resolveName(player.getServerWorld(), uuid, name -> Messages.sendMessage(
+                                        "<hover:show_text:\"<default>" + uuid.toString() + "\">" + name, Messages.FOLLOWUP, player));
                             }
 
                             return Command.SINGLE_SUCCESS;
@@ -70,23 +72,23 @@ public class ContributorCommand {
                                     String name = ctx.getArgument("name", String.class);
 
                                     if (player.getGameProfile().getName().equalsIgnoreCase(name)) {
-                                        player.sendMessage(Text.literal("You are always a " + id + "!").formatted(Formatting.RED));
+                                        Messages.sendMessage("You are always a " + id + "!", Messages.ERROR, player);
                                         return Command.SINGLE_SUCCESS;
                                     }
 
                                     resolveUUID(player.getServerWorld(), name, uuid -> {
                                         if (uuid == null) {
-                                            player.sendMessage(Text.literal("Could not find player with name " + name).formatted(Formatting.RED));
+                                            Messages.sendMessage("Could not find player with name "+ name, Messages.ERROR, player);
                                             return;
                                         }
 
                                         Set<UUID> contributors = getMap.apply(space.info);
                                         if (contributors.contains(uuid)) {
-                                            player.sendMessage(Text.literal("Player " + name + " is already a " + id).formatted(Formatting.RED));
+                                            Messages.sendMessage("Player " + name + " is already a " + id, Messages.ERROR, player);
                                             return;
                                         }
                                         contributors.add(uuid);
-                                        player.sendMessage(Text.literal("Added " + name + " as " + id).formatted(Formatting.AQUA));
+                                        Messages.sendMessage("Added " + name + " as " + id, Messages.SUCCESS, player);
                                     });
 
                                     return Command.SINGLE_SUCCESS;
@@ -109,19 +111,19 @@ public class ContributorCommand {
                                     String name = ctx.getArgument("name", String.class);
 
                                     if (player.getGameProfile().getName().equalsIgnoreCase(name)) {
-                                        player.sendMessage(Text.literal("You cannot remove yourself!").formatted(Formatting.RED));
+                                        Messages.sendMessage("You cannot remove yourself!", Messages.ERROR, player);
                                         return Command.SINGLE_SUCCESS;
                                     }
 
                                     resolveUUID(player.getServerWorld(), name, uuid -> {
                                         if (uuid == null) {
-                                            player.sendMessage(Text.literal("Could not find player with name " + name).formatted(Formatting.RED));
+                                            Messages.sendMessage("Could not find player with name " + name, Messages.ERROR, player);
                                             return;
                                         }
 
                                         Set<UUID> contributors = getMap.apply(space.info);
                                         if (!contributors.contains(uuid)) {
-                                            player.sendMessage(Text.literal("Player " + name + " is not a " + id).formatted(Formatting.RED));
+                                            Messages.sendMessage("Player " + name + " is not a " + id, Messages.ERROR, player);
                                             return;
                                         }
                                         contributors.remove(uuid);
@@ -137,7 +139,7 @@ public class ContributorCommand {
                                             }
                                         }
 
-                                        player.sendMessage(Text.literal("Removed " + name + " as " + id).formatted(Formatting.AQUA));
+                                        Messages.sendMessage("Removed " + name + " as " + id, Messages.SUCCESS, player);
                                     });
 
                                     return Command.SINGLE_SUCCESS;

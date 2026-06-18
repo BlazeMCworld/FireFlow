@@ -5,6 +5,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import de.blazemcworld.fireflow.FireFlow;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.ModeManager;
@@ -37,7 +38,7 @@ public class LocateCommand {
                         .executes(ctx -> {
                             ServerPlayerEntity target = FireFlow.server.getPlayerManager().getPlayer(StringArgumentType.getString(ctx, "player"));
                             if (target == null) {
-                                ctx.getSource().sendMessage(Text.literal("Player not found!").formatted(Formatting.RED));
+                                Messages.sendMessage("Player not found!", Messages.ERROR, ctx.getSource());
                                 return Command.SINGLE_SUCCESS;
                             }
 
@@ -58,27 +59,31 @@ public class LocateCommand {
 
         switch (mode) {
             case LOBBY: {
-                ctx.getSource().sendMessage(Text.literal(
-                        target.getGameProfile().getName() + " is currently in the lobby."
-                ).formatted(Formatting.GREEN));
+                Messages.sendMessage(
+                        target.getGameProfile().getName() + " is currently in the lobby.",
+                        Messages.INFO, ctx.getSource()
+                );
                 break;
             }
             case PLAY: {
-                ctx.getSource().sendMessage(Text.literal(
-                        target.getGameProfile().getName() + " is currently playing on space #" + space.info.id
-                ).formatted(Formatting.GREEN));
+                Messages.sendMessage(
+                        target.getGameProfile().getName() + " is currently <white>playing<default> on space <white>#" + space.info.id,
+                        Messages.INFO, ctx.getSource()
+                );
                 break;
             }
             case CODE: {
-                ctx.getSource().sendMessage(Text.literal(
-                        target.getGameProfile().getName() + " is currently coding on space #" + space.info.id
-                ).formatted(Formatting.GREEN));
+                Messages.sendMessage(
+                        target.getGameProfile().getName() + " is currently <white>coding<default> on space <white>#" + space.info.id,
+                        Messages.INFO, ctx.getSource()
+                );
                 break;
             }
             case BUILD: {
-                ctx.getSource().sendMessage(Text.literal(
-                        target.getGameProfile().getName() + " is currently building on space #" + space.info.id
-                ).formatted(Formatting.GREEN));
+                Messages.sendMessage(
+                        target.getGameProfile().getName() + " is currently <white>building<default> on space <white>#" + space.info.id,
+                        Messages.INFO, ctx.getSource()
+                );
                 break;
             }
         }

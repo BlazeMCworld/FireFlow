@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -25,7 +26,7 @@ public class MonitorCommand {
 
                     if (player != null && monitors.containsKey(player)) {
                         monitors.remove(player);
-                        player.sendMessage(Text.literal("Stopped monitoring!").formatted(Formatting.AQUA));
+                        Messages.sendMessage("Stopped monitoring!", Messages.INFO, player);
                         return Command.SINGLE_SUCCESS;
                     }
 
@@ -33,7 +34,7 @@ public class MonitorCommand {
                     if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
 
                     monitors.put(player, space);
-                    player.sendMessage(Text.literal("Now monitoring space #" + space.info.id).formatted(Formatting.AQUA));
+                    Messages.sendMessage("Now monitoring space #" + space.info.id, Messages.INFO, player);
                     return Command.SINGLE_SUCCESS;
                 })
         );

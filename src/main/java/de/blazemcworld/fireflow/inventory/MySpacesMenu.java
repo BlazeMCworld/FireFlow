@@ -1,6 +1,7 @@
 package de.blazemcworld.fireflow.inventory;
 
 import de.blazemcworld.fireflow.code.type.TextType;
+import de.blazemcworld.fireflow.messages.ColourPalette;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
 import de.blazemcworld.fireflow.space.SpaceManager;
@@ -98,7 +99,7 @@ public class MySpacesMenu extends InventoryMenu {
 
     private static ItemStack createSpaceItem() {
         ItemStack item = new ItemStack(Items.GREEN_STAINED_GLASS);
-        item.set(DataComponentTypes.ITEM_NAME, Text.literal("Create Space").formatted(Formatting.GREEN));
+        item.set(DataComponentTypes.ITEM_NAME, Text.literal("Create Space").withColor(ColourPalette.MINT_LIGHT_2.rgb24));
         item.set(DataComponentTypes.LORE, new LoreComponent(List.of(
                 Text.literal("Click to create").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY)),
                 Text.literal("a new space.").setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GRAY))

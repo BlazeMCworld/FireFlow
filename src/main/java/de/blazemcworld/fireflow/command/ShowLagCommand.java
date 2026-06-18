@@ -2,6 +2,7 @@ package de.blazemcworld.fireflow.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import de.blazemcworld.fireflow.messages.Messages;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
 import de.blazemcworld.fireflow.space.SpaceManager;
@@ -30,20 +31,18 @@ public class ShowLagCommand {
                     }
 
                     if (cpuUsages.isEmpty()) {
-                        ctx.getSource().sendFeedback(() -> Text.literal("All should be good!").formatted(Formatting.GREEN), false);
+                        Messages.sendMessage("All should be good!", Messages.INFO, ctx.getSource());
                         return Command.SINGLE_SUCCESS;
                     }
 
-                    ctx.getSource().sendFeedback(() -> Text.literal("Found " + cpuUsages.size() + " spaces which might be affecting server performance.").formatted(Formatting.DARK_AQUA), false);
-
-                    Style style = Style.EMPTY
-                            .withFormatting(Formatting.DARK_AQUA)
-                            .withHoverEvent(new HoverEvent.ShowText(Text.literal("CPU usage shown in allowance per space.")
-                                    .setStyle(Style.EMPTY.withFormatting(Formatting.GRAY).withItalic(false))));
+                    Messages.sendMessage("Found " + cpuUsages.size() + " spaces which might be affecting server performance.", Messages.INFO, ctx.getSource());
 
                     cpuUsages.sort(Comparator.comparingInt(p -> -p.getRight()));
                     for (Pair<SpaceInfo, Integer> entry : cpuUsages) {
-                        ctx.getSource().sendFeedback(() -> Text.literal("Space #" + entry.getLeft().id + ": " + entry.getRight() + "%").setStyle(style), false);
+                        Messages.sendMessage(
+                                "<hover:show_text:\"<default>CPU usage shown in allowance per space\">Space #" + entry.getLeft().id + ": " + entry.getRight() + "%",
+                                Messages.FOLLOWUP, ctx.getSource()
+                        );
                     }
                     return Command.SINGLE_SUCCESS;
                 }));
