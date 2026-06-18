@@ -3,6 +3,10 @@ package de.blazemcworld.fireflow.code.node;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.node.impl.condition.*;
+import de.blazemcworld.fireflow.code.node.impl.number.constants.EulersNode;
+import de.blazemcworld.fireflow.code.node.impl.number.constants.GoldenRatioNode;
+import de.blazemcworld.fireflow.code.node.impl.number.constants.PiNode;
+import de.blazemcworld.fireflow.code.node.impl.number.constants.TauNode;
 import de.blazemcworld.fireflow.code.node.impl.control.*;
 import de.blazemcworld.fireflow.code.node.impl.dictionary.*;
 import de.blazemcworld.fireflow.code.node.impl.entity.*;
@@ -25,6 +29,9 @@ import de.blazemcworld.fireflow.code.node.impl.player.meta.*;
 import de.blazemcworld.fireflow.code.node.impl.player.movement.*;
 import de.blazemcworld.fireflow.code.node.impl.player.statistic.*;
 import de.blazemcworld.fireflow.code.node.impl.player.visual.*;
+import de.blazemcworld.fireflow.code.node.impl.player.visual.bossbar.ClearBossbarsNode;
+import de.blazemcworld.fireflow.code.node.impl.player.visual.bossbar.RemoveBossbarNode;
+import de.blazemcworld.fireflow.code.node.impl.player.visual.bossbar.SetBossbarNode;
 import de.blazemcworld.fireflow.code.node.impl.position.*;
 import de.blazemcworld.fireflow.code.node.impl.string.*;
 import de.blazemcworld.fireflow.code.node.impl.text.CombineTextsNode;
@@ -170,15 +177,27 @@ public class NodeList {
                         .add(new TrimListNode<>(null))
                 )
                 .add(new Category("Number", Items.CLOCK)
+                        .add(new Category("Math Constants", Items.TARGET)
+                                .add(new EulersNode())
+                                .add(new GoldenRatioNode())
+                                .add(new PiNode())
+                                .add(new TauNode())
+                        )
                         .add(new AbsoluteNumberNode())
                         .add(new AddNumbersNode())
+                        .add(new AverageNumberNode())
                         .add(new BasicNoiseNode())
                         .add(new ClampNumberNode())
+                        .add(new CosineNode())
                         .add(new DivideNumbersNode())
+                        .add(new GaussianDistributionNode())
                         .add(new GreaterEqualNode())
                         .add(new GreaterThanNode())
+                        .add(new LerpNumbersNode())
                         .add(new LessEqualNode())
                         .add(new LessThanNode())
+                        .add(new MaxNumberNode())
+                        .add(new MinNumberNode())
                         .add(new ModuloNode())
                         .add(new MultiplyNumbersNode())
                         .add(new ParseNumberNode())
@@ -186,8 +205,10 @@ public class NodeList {
                         .add(new RemainderNode())
                         .add(new RoundNumberNode())
                         .add(new SetToExponentialNode())
+                        .add(new SineNode())
                         .add(new SquareRootNode())
                         .add(new SubtractNumbersNode())
+                        .add(new TangentNode())
                 )
                 .add(new Category("Player", Items.PLAYER_HEAD)
                         .add(new Category("Gameplay", Items.GRASS_BLOCK)
@@ -213,6 +234,7 @@ public class NodeList {
                                 .add(new PlayerHasItemNode())
                                 .add(new PlayerItemHasCooldownNode())
                                 .add(new SetHeldSlotNode())
+                                .add(new SetPlayerArmorNode())
                                 .add(new SetPlayerInventoryNode())
                                 .add(new SetPlayerInventorySlotNode())
                                 .add(new SetPlayerItemCooldownNode())
@@ -221,6 +243,7 @@ public class NodeList {
                         )
                         .add(new Category("Meta", Items.COMMAND_BLOCK)
                                 .add(new GetPlayerNameNode())
+                                .add(new GetPlayerPingNode())
                                 .add(new GetPlayerUUIDNode())
                                 .add(new IsPlayingNode())
                                 .add(new KickPlayerNode())
@@ -254,6 +277,11 @@ public class NodeList {
                                 .add(new SetPlayerSaturationNode())
                         )
                         .add(new Category("Visual", Items.ENDER_PEARL)
+                                .add(new Category("Bossbar", Items.ENDER_DRAGON_SPAWN_EGG)
+                                        .add(new SetBossbarNode())
+                                        .add(new RemoveBossbarNode())
+                                        .add(new ClearBossbarsNode())
+                                )
                                 .add(new BroadcastNode())
                                 .add(new SendActionbarNode())
                                 .add(new SendBlockChangeNode())
@@ -297,7 +325,9 @@ public class NodeList {
                 )
                 .add(new Category("Vector", Items.ARROW)
                         .add(new AddVectorsNode())
+                        .add(new DotProductNode())
                         .add(new GetVectorComponentNode())
+                        .add(new GetVectorLengthNode())
                         .add(new PackVectorNode())
                         .add(new ReflectVectorNode())
                         .add(new RoundVectorAxesNode())
@@ -318,6 +348,7 @@ public class NodeList {
                         .add(new SetBlockNode())
                         .add(new SetBlockTagNode<>(null))
                         .add(new SetRegionNode())
+                        .add(new TimestampNode())
                 )
                 .add(new Category("Function", Items.COMMAND_BLOCK).markFunctions())
                 .finish();

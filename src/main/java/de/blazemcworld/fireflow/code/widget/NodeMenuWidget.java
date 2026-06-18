@@ -61,7 +61,7 @@ public class NodeMenuWidget extends Widget {
                 if (!hasEntry) continue;
             }
 
-            ButtonWidget button = new ButtonWidget(new IconWidget(pos, new ItemStack(subCategory.icon), subCategory.name, 0.652));
+            ButtonWidget button = new ButtonWidget(new IconWidget(pos, new ItemStack(subCategory.icon), subCategory.name + "...", 0.652));
 
             button.handler = interaction -> {
                 if (interaction.type() != CodeInteraction.Type.RIGHT_CLICK) return false;

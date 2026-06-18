@@ -18,6 +18,7 @@ import de.blazemcworld.fireflow.code.widget.Widget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
 import de.blazemcworld.fireflow.space.PlayWorld;
 import de.blazemcworld.fireflow.space.Space;
+import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.DummyPlayer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -206,6 +207,7 @@ public class CodeEvaluator {
     }
 
     public void exitPlay(ServerPlayerEntity player) {
+        SpaceManager.getSpaceForPlayer(player).bossBarManager.clearBossBars(player);
         for (Node node : nodes) {
             if (node instanceof OnPlayerLeaveNode n) {
                 n.onLeave(this, player);

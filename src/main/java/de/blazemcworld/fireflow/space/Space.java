@@ -28,6 +28,7 @@ public class Space {
     private int emptyTimer = 0;
     public CodeEvaluator evaluator;
     public final DummyManager dummyManager;
+    public final BossBarManager bossBarManager;
 
     public Space(SpaceInfo info) {
         this.info = info;
@@ -51,6 +52,7 @@ public class Space {
         editor.load();
         evaluator = new CodeEvaluator(this);
         dummyManager = new DummyManager(this);
+        bossBarManager = new BossBarManager();
     }
 
     public void save() {
@@ -69,6 +71,7 @@ public class Space {
 
     protected void unload(Runnable callback) {
         dummyManager.reset();
+        bossBarManager.reset();
         for (ServerPlayerEntity player : new ArrayList<>(playWorld.getPlayers())) {
             ModeManager.move(player, ModeManager.Mode.LOBBY, this);
         }
@@ -118,12 +121,14 @@ public class Space {
     public void reload() {
         dummyManager.reset();
         for (ServerPlayerEntity player : new ArrayList<>(playWorld.getPlayers())) {
+            bossBarManager.clearBossBars(player);
             if (info.isOwnerOrDeveloper(player.getUuid())) {
                 ModeManager.move(player, ModeManager.Mode.CODE, this);
             } else {
                 ModeManager.move(player, ModeManager.Mode.LOBBY, this);
             }
         }
+        bossBarManager.reset();
         evaluator.stop();
         playWorld.getChunkManager().chunkLoadingManager.unloadChunks(() -> true);
         evaluator = new CodeEvaluator(this);
