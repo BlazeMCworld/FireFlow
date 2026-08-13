@@ -18,6 +18,7 @@
         "PlayerListMixin",
         "PlayerListS2CPacketEntryMixin",
         "PlayerMixin",
+        "ReloadCommandMixin",
         "ServerCrashSavePacketListenerMixin",
         "ServerExplosionMixin",
         "ServerGamePacketListenerImplMixin",
