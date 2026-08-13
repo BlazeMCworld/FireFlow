@@ -30,9 +30,9 @@ jobs:
       - name: Generate Wiki
         id: build
         run: |
-          wget -O fabric.jar https://meta.fabricmc.net/v2/versions/loader/1.21.5/0.16.14/1.0.3/server/jar
+          wget -O fabric.jar https://meta.fabricmc.net/v2/versions/loader/26.2/0.19.3/1.1.2/server/jar
           mkdir mods
-          wget -O mods/fabric-api.jar https://github.com/FabricMC/fabric/releases/download/0.124.2%2B1.21.5/fabric-api-0.124.2+1.21.5.jar
+          wget -O mods/fabric-api.jar https://github.com/FabricMC/fabric-api/releases/download/0.157.0%2B26.2/fabric-api-0.157.0+26.2.jar
           cp build/libs/fireflow-${{ github.run_number }}.jar mods/
           echo "eula=true" > eula.txt
           FIREFLOW_GENERATE_WIKI=true java -jar fabric.jar
