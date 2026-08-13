@@ -5,11 +5,11 @@ import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
 import de.blazemcworld.fireflow.code.value.ListValue;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.Items;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +19,12 @@ public class GetBlockTagListNode extends Node {
     public GetBlockTagListNode() {
         super("get_block_tag_list", "Get Block Tag List", "Gets the list of all tag names of a block.", Items.ACACIA_STAIRS);
 
-        Input<Vec3d> position = new Input<>("position", "Position", VectorType.INSTANCE);
+        Input<Vec3> position = new Input<>("position", "Position", VectorType.INSTANCE);
         Output<ListValue<String>> list = new Output<>("list", "List", ListType.of(StringType.INSTANCE));
 
         list.valueFrom((ctx) -> {
-            Vec3d pos = position.getValue(ctx);
-            BlockState blockState = ctx.evaluator.world.getBlockState(BlockPos.ofFloored(pos));
+            Vec3 pos = position.getValue(ctx);
+            BlockState blockState = ctx.evaluator.level.getBlockState(BlockPos.containing(pos));
             List<String> contents = new ArrayList<>();
             for (Property<?> property : blockState.getProperties()) {
                 contents.add(property.getName());

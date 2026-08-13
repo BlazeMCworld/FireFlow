@@ -3,8 +3,8 @@ package de.blazemcworld.fireflow.space;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.util.DummyPlayer;
 import de.blazemcworld.fireflow.util.Statistics;
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -23,9 +23,9 @@ public class DummyManager {
     public void spawnDummy(int id) {
         if (dummies[id - 1] != null) return;
         DummyPlayer dummy = new DummyPlayer(space, id);
-        dummy.setPosition(new Vec3d(0, 1, 0));
-        FireFlow.server.getPlayerManager().sendToAll(PlayerListS2CPacket.entryFromPlayer(List.of(dummy)));
-        space.playWorld.spawnEntity(dummy);
+        dummy.setPos(new Vec3(0, 1, 0));
+        FireFlow.server.getPlayerList().broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(dummy)));
+        space.playLevel.addFreshEntity(dummy);
         dummies[id - 1] = dummy;
         Statistics.reset(dummy);
 

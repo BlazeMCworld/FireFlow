@@ -3,22 +3,21 @@ package de.blazemcworld.fireflow.code.type;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.code.value.Position;
-import net.minecraft.item.Items;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 public class PositionType extends WireType<Position> {
 
     public static final PositionType INSTANCE = new PositionType();
 
     private PositionType() {
-        super("position", TextColor.fromFormatting(Formatting.DARK_PURPLE), Items.COMPASS);
+        super("position", TextColor.DARK_PURPLE, Items.COMPASS);
     }
 
     @Override
     public Position defaultValue() {
-        return new Position(Vec3d.ZERO, 0, 0);
+        return new Position(Vec3.ZERO, 0, 0);
     }
 
     @Override
@@ -41,7 +40,7 @@ public class PositionType extends WireType<Position> {
     @Override
     public Position fromJson(JsonElement json) {
         JsonObject obj = json.getAsJsonObject();
-        return new Position(new Vec3d(
+        return new Position(new Vec3(
                 obj.get("x").getAsDouble(),
                 obj.get("y").getAsDouble(),
                 obj.get("z").getAsDouble()
@@ -86,7 +85,7 @@ public class PositionType extends WireType<Position> {
 
     @Override
     protected Position convertInternal(WireType<?> other, Object v) {
-        if (other == VectorType.INSTANCE && v instanceof Vec3d vec) {
+        if (other == VectorType.INSTANCE && v instanceof Vec3 vec) {
             return new Position(vec, 0, 0);
         }
         return super.convertInternal(other, v);

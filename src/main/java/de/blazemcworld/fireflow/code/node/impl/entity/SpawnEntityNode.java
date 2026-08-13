@@ -8,11 +8,12 @@ import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
 import de.blazemcworld.fireflow.code.value.Position;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.item.Items;
 
 import java.util.Optional;
 
@@ -30,22 +31,22 @@ public class SpawnEntityNode extends Node {
         entity.valueFromScope();
 
         signal.onSignal((ctx) -> {
-            DataResult<Identifier> id = Identifier.validate(type.getValue(ctx));
+            DataResult<Identifier> id = Identifier.read(type.getValue(ctx));
             if (id.isError()) {
                 ctx.sendSignal(next);
                 return;
             }
-            Optional<net.minecraft.entity.EntityType<?>> entityValue = Registries.ENTITY_TYPE.getOptionalValue(id.getOrThrow());
+            Optional<Holder.Reference<net.minecraft.world.entity.EntityType<?>>> entityValue = BuiltInRegistries.ENTITY_TYPE.get(id.getOrThrow());
 
             if (entityValue.isPresent()) {
-                Entity spawned = entityValue.get().create(ctx.evaluator.world, SpawnReason.COMMAND);
+                Entity spawned = entityValue.get().value().create(ctx.evaluator.level, EntitySpawnReason.COMMAND);
                 ctx.setScopeValue(entity, new EntityValue(spawned));
                 Position pos = position.getValue(ctx);
                 if (spawned != null) {
-                    spawned.setPosition(pos.xyz());
-                    spawned.setPitch(pos.pitch());
-                    spawned.setYaw(pos.yaw());
-                    ctx.evaluator.world.spawnEntity(spawned);
+                    spawned.setPos(pos.xyz());
+                    spawned.setXRot(pos.pitch());
+                    spawned.setYRot(pos.yaw());
+                    ctx.evaluator.level.addFreshEntity(spawned);
                 }
             }
 

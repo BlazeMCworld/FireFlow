@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class PlayerItemHasCooldownNode extends Node {
 
@@ -22,7 +22,7 @@ public class PlayerItemHasCooldownNode extends Node {
         hasCooldown.valueFrom((ctx) -> {
             return player.getValue(ctx).tryGet(ctx, p -> {
                 ItemStack stack = item.getValue(ctx);
-                return p.getItemCooldownManager().isCoolingDown(stack);
+                return p.getCooldowns().isOnCooldown(stack);
             }, false);
         });
     }

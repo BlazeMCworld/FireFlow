@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class GetPlayerItemCooldownNode extends Node {
 
@@ -22,7 +22,7 @@ public class GetPlayerItemCooldownNode extends Node {
         cooldown.valueFrom((ctx) -> {
             return player.getValue(ctx).tryGet(ctx, p -> {
                 ItemStack stack = item.getValue(ctx);
-                return (double) p.getItemCooldownManager().getCooldownProgress(stack, 0);
+                return (double) p.getCooldowns().getCooldownPercent(stack, 0);
             }, 0.0);
         });
     }

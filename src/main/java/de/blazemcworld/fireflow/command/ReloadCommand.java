@@ -3,33 +3,33 @@ package de.blazemcworld.fireflow.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import de.blazemcworld.fireflow.space.Space;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.server.level.ServerPlayer;
 
 public class ReloadCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> cd) {
-        cd.register(CommandManager.literal("reload")
+    public static void register(CommandDispatcher<CommandSourceStack> cd) {
+        cd.register(Commands.literal("reload")
                 .executes(ctx -> {
-                    ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
+                    ServerPlayer player = CommandHelper.getPlayer(ctx.getSource());
                     Space space = CommandHelper.getSpace(player);
                     if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
 
                     space.reload();
-                    player.sendMessage(Text.literal("Reloaded space!").formatted(Formatting.AQUA));
+                    player.sendSystemMessage(Component.literal("Reloaded space!").withColor(TextColor.AQUA));
                     return Command.SINGLE_SUCCESS;
                 })
-                .then(CommandManager.literal("live")
+                .then(Commands.literal("live")
                         .executes(ctx -> {
-                            ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
+                            ServerPlayer player = CommandHelper.getPlayer(ctx.getSource());
                             Space space = CommandHelper.getSpace(player);
                             if (!CommandHelper.isDeveloperOrOwner(player, space)) return Command.SINGLE_SUCCESS;
 
                             space.evaluator.liveReload();
-                            player.sendMessage(Text.literal("Live reloaded space!").formatted(Formatting.AQUA));
+                            player.sendSystemMessage(Component.literal("Live reloaded space!").withColor(TextColor.AQUA));
                             return Command.SINGLE_SUCCESS;
                         })
                 )

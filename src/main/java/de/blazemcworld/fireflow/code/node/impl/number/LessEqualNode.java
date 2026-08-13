@@ -3,7 +3,7 @@ package de.blazemcworld.fireflow.code.node.impl.number;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.NumberType;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class LessEqualNode extends Node {
 

@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class GivePlayerItemNode extends Node {
 
@@ -19,7 +19,7 @@ public class GivePlayerItemNode extends Node {
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         signal.onSignal((ctx) -> {
-            player.getValue(ctx).tryUse(ctx, p -> p.giveItemStack(item.getValue(ctx)));
+            player.getValue(ctx).tryUse(ctx, p -> p.addItem(item.getValue(ctx)));
             ctx.sendSignal(next);
         });
     }

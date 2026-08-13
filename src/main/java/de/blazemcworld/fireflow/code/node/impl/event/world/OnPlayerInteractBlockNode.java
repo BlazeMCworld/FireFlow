@@ -3,21 +3,24 @@ package de.blazemcworld.fireflow.code.node.impl.event.world;
 import de.blazemcworld.fireflow.code.CodeEvaluator;
 import de.blazemcworld.fireflow.code.CodeThread;
 import de.blazemcworld.fireflow.code.node.Node;
-import de.blazemcworld.fireflow.code.type.*;
+import de.blazemcworld.fireflow.code.type.ConditionType;
+import de.blazemcworld.fireflow.code.type.PlayerType;
+import de.blazemcworld.fireflow.code.type.SignalType;
+import de.blazemcworld.fireflow.code.type.VectorType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 public class OnPlayerInteractBlockNode extends Node {
 
     private final Output<Void> signal;
     private final Output<PlayerValue> player;
-    private final Output<Vec3d> position;
-    private final Output<Vec3d> side;
+    private final Output<Vec3> position;
+    private final Output<Vec3> side;
     private final Output<Boolean> isMainHand;
 
     public OnPlayerInteractBlockNode() {
@@ -40,13 +43,13 @@ public class OnPlayerInteractBlockNode extends Node {
         return new OnPlayerInteractBlockNode();
     }
 
-    public boolean onInteractBlock(CodeEvaluator codeEvaluator, ServerPlayerEntity player, BlockPos pos, Direction side, Hand hand, boolean cancel) {
+    public boolean onInteractBlock(CodeEvaluator codeEvaluator, ServerPlayer player, BlockPos pos, Direction side, InteractionHand hand, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
-        thread.setScopeValue(this.position, Vec3d.of(pos));
-        thread.setScopeValue(this.side, side.getDoubleVector());
-        thread.setScopeValue(this.isMainHand, hand == Hand.MAIN_HAND);
+        thread.setScopeValue(this.position, Vec3.atCenterOf(pos));
+        thread.setScopeValue(this.side, side.getUnitVec3());
+        thread.setScopeValue(this.isMainHand, hand == InteractionHand.MAIN_HAND);
         thread.sendSignal(signal);
         thread.clearQueue();
         return thread.context.cancelled;

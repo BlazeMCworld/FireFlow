@@ -4,8 +4,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Items;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
 
 public class IsPlayerSprintingNode extends Node {
     public IsPlayerSprintingNode() {

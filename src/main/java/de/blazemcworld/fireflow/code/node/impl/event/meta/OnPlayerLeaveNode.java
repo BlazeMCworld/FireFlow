@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerLeaveNode extends Node {
 
@@ -27,7 +27,7 @@ public class OnPlayerLeaveNode extends Node {
         return new OnPlayerLeaveNode();
     }
 
-    public void onLeave(CodeEvaluator codeEvaluator, ServerPlayerEntity player) {
+    public void onLeave(CodeEvaluator codeEvaluator, ServerPlayer player) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.sendSignal(signal);

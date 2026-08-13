@@ -4,7 +4,7 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class ClearInventoryNode extends Node {
     public ClearInventoryNode() {
@@ -14,7 +14,7 @@ public class ClearInventoryNode extends Node {
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         signal.onSignal((ctx) -> {
-            player.getValue(ctx).tryUse(ctx, p -> p.getInventory().clear());
+            player.getValue(ctx).tryUse(ctx, p -> p.getInventory().clearContent());
             ctx.sendSignal(next);
         });
     }

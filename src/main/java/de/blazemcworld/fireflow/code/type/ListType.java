@@ -3,9 +3,8 @@ package de.blazemcworld.fireflow.code.type;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import de.blazemcworld.fireflow.code.value.ListValue;
-import net.minecraft.item.Items;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,8 @@ public class ListType<T> extends WireType<ListValue<T>> {
     }
 
     private static TextColor computeColor(WireType<?> type) {
-        if (type == null) return TextColor.fromFormatting(Formatting.WHITE);
-        int rgb = type.color.getRgb();
+        if (type == null) return TextColor.WHITE;
+        int rgb = type.color.getValue();
         int r = (rgb >> 16) & 0xFF / 2;
         int g = (rgb >> 8) & 0xFF / 2 + 127;
         int b = rgb & 0xFF / 2;
@@ -60,7 +59,7 @@ public class ListType<T> extends WireType<ListValue<T>> {
 
     @Override
     public WireType<?> withTypes(List<WireType<?>> types) {
-        return ListType.of(types.get(0));
+        return ListType.of(types.getFirst());
     }
 
     @Override

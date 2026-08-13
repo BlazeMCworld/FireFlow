@@ -6,7 +6,7 @@ import de.blazemcworld.fireflow.code.type.DictionaryType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.value.DictionaryValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 

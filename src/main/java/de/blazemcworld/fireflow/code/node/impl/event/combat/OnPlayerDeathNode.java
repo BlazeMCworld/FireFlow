@@ -8,8 +8,8 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerDeathNode extends Node {
 
@@ -30,7 +30,7 @@ public class OnPlayerDeathNode extends Node {
         type.valueFromScope();
     }
 
-    public boolean onPlayerDeath(CodeEvaluator codeEvaluator, ServerPlayerEntity player, float damage, String type, boolean cancel) {
+    public boolean onPlayerDeath(CodeEvaluator codeEvaluator, ServerPlayer player, float damage, String type, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));

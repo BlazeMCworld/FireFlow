@@ -2,16 +2,15 @@ package de.blazemcworld.fireflow.code.type;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import net.minecraft.item.Items;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Items;
 
 public class SignalType extends WireType<Void> {
 
     public static final SignalType INSTANCE = new SignalType();
 
     private SignalType() {
-        super("signal", TextColor.fromFormatting(Formatting.AQUA), Items.REDSTONE);
+        super("signal", TextColor.AQUA, Items.REDSTONE);
     }
 
     @Override

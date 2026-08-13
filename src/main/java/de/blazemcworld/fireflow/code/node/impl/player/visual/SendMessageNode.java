@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.TextType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Items;
 
 public class SendMessageNode extends Node {
 
@@ -15,12 +15,12 @@ public class SendMessageNode extends Node {
 
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
-        Input<Text> message = new Input<>("message", "Message", TextType.INSTANCE);
+        Input<Component> message = new Input<>("message", "Message", TextType.INSTANCE);
 
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         signal.onSignal((ctx) -> {
-            player.getValue(ctx).tryUse(ctx, p -> p.sendMessage(message.getValue(ctx)));
+            player.getValue(ctx).tryUse(ctx, p -> p.sendSystemMessage(message.getValue(ctx)));
             ctx.sendSignal(next);
         });
     }

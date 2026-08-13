@@ -4,7 +4,7 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.ListValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 

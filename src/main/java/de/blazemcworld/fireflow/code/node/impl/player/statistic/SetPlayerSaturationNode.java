@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class SetPlayerSaturationNode extends Node {
     public SetPlayerSaturationNode() {
@@ -15,7 +15,7 @@ public class SetPlayerSaturationNode extends Node {
         Input<Double> saturation = new Input<>("saturation", "Saturation", NumberType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
         signal.onSignal((ctx) -> {
-            player.getValue(ctx).tryUse(ctx, p -> p.getHungerManager().setSaturationLevel(saturation.getValue(ctx).floatValue()));
+            player.getValue(ctx).tryUse(ctx, p -> p.getFoodData().setSaturation(saturation.getValue(ctx).floatValue()));
             ctx.sendSignal(next);
         });
     }

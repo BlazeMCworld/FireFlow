@@ -4,8 +4,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.EntityType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Items;
 
 public class EntityTypeNode extends Node {
 
@@ -15,7 +15,7 @@ public class EntityTypeNode extends Node {
         Input<EntityValue> entity = new Input<>("entity", "Entity", EntityType.INSTANCE);
         Output<String> type = new Output<>("type", "Type", StringType.INSTANCE);
 
-        type.valueFrom((ctx) -> entity.getValue(ctx).apply(ctx, e -> Registries.ENTITY_TYPE.getId(e.getType()).getPath(), "invalid"));
+        type.valueFrom((ctx) -> entity.getValue(ctx).apply(ctx, e -> BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).getPath(), "invalid"));
     }
 
     @Override

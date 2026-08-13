@@ -3,8 +3,9 @@ package de.blazemcworld.fireflow.code.type;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import de.blazemcworld.fireflow.code.value.EntityValue;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Items;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
 
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ public class EntityType extends WireType<EntityValue> {
     public static final EntityType INSTANCE = new EntityType();
 
     private EntityType() {
-        super("entity", net.minecraft.text.TextColor.fromRgb(0x2ba181), Items.ZOMBIE_HEAD);
+        super("entity", TextColor.fromRgb(0x2ba181), Items.ZOMBIE_HEAD);
     }
 
     @Override

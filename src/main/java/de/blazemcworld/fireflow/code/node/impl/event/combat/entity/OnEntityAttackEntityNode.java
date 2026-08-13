@@ -7,8 +7,8 @@ import de.blazemcworld.fireflow.code.type.EntityType;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Items;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
 
 public class OnEntityAttackEntityNode extends Node {
 

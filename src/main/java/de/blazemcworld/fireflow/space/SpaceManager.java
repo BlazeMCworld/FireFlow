@@ -5,13 +5,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.blazemcworld.fireflow.FireFlow;
-import de.blazemcworld.fireflow.code.CodeWorld;
+import de.blazemcworld.fireflow.code.CodeLevel;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class SpaceManager {
             for (SpaceInfo spaceInfo : info.values()) {
                 JsonObject space = new JsonObject();
                 space.addProperty("name", spaceInfo.name);
-                space.addProperty("icon", Registries.ITEM.getId(spaceInfo.icon).toString());
+                space.addProperty("icon", BuiltInRegistries.ITEM.getKey(spaceInfo.icon).toString());
                 space.addProperty("owner", spaceInfo.owner.toString());
                 JsonArray developers = new JsonArray();
                 for (UUID contributor : spaceInfo.developers) {
@@ -93,7 +93,7 @@ public class SpaceManager {
                 JsonObject space = raw.getValue().getAsJsonObject();
                 SpaceInfo spaceInfo = new SpaceInfo(Integer.parseInt(raw.getKey()));
                 spaceInfo.name = space.get("name").getAsString();
-                spaceInfo.icon = Registries.ITEM.get(Identifier.of(space.get("icon").getAsString()));
+                spaceInfo.icon = BuiltInRegistries.ITEM.getValue(Identifier.read(space.get("icon").getAsString()).result().orElse(Identifier.parse("paper")));
                 spaceInfo.owner = UUID.fromString(space.get("owner").getAsString());
                 spaceInfo.developers = new HashSet<>();
                 spaceInfo.builders = new HashSet<>();
@@ -127,13 +127,13 @@ public class SpaceManager {
         return space;
     }
 
-    public static Space getSpaceForPlayer(ServerPlayerEntity player) {
-        return getSpaceForWorld(player.getServerWorld());
+    public static Space getSpaceForPlayer(ServerPlayer player) {
+        return getSpaceForLevel(player.level());
     }
 
-    public static Space getSpaceForWorld(ServerWorld world) {
-        if (world instanceof PlayWorld p) return p.space;
-        if (world instanceof CodeWorld c) return c.space;
+    public static Space getSpaceForLevel(ServerLevel level) {
+        if (level instanceof PlayLevel p) return p.space;
+        if (level instanceof CodeLevel c) return c.space;
         return null;
     }
 
@@ -141,16 +141,16 @@ public class SpaceManager {
         List<Space> out = new ArrayList<>();
         synchronized (spaces) {
             for (Space s : spaces.values()) {
-                if (!s.getPlayers().isEmpty()) out.add(s);
+                if (!s.playersAnyMode().isEmpty()) out.add(s);
             }
         }
         return out;
     }
 
-    public static List<SpaceInfo> getOwnedSpaces(ServerPlayerEntity player) {
+    public static List<SpaceInfo> getOwnedSpaces(ServerPlayer player) {
         List<SpaceInfo> out = new ArrayList<>();
         for (SpaceInfo i : info.values()) {
-            if (i.owner.equals(player.getUuid())) out.add(i);
+            if (i.owner.equals(player.getUUID())) out.add(i);
         }
         return out;
     }
@@ -176,8 +176,8 @@ public class SpaceManager {
             try {
                 FileUtils.deleteDirectory(space.path().toFile());
 
-                FileUtils.deleteDirectory(FireFlow.server.session.getWorldDirectory(space.playWorld.getRegistryKey()).toFile());
-                FileUtils.deleteDirectory(FireFlow.server.session.getWorldDirectory(space.codeWorld.getRegistryKey()).toFile());
+                FileUtils.deleteDirectory(FireFlow.server.storageSource.getDimensionPath(space.playLevel.dimension()).toFile());
+                FileUtils.deleteDirectory(FireFlow.server.storageSource.getDimensionPath(space.codeLevel.dimension()).toFile());
 
                 info.remove(space.info.id);
             } catch (IOException e) {

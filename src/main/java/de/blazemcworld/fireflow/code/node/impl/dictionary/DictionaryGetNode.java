@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.DictionaryType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.value.DictionaryValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class DictionaryGetNode<K, V> extends DualGenericNode<K, V> {
 

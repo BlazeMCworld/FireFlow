@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.NodeList;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.WireType;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +119,7 @@ public class NodeIOWidget extends Widget {
         parent.refreshInputs();
     }
 
-    private Text displayText() {
+    private Component displayText() {
         String str = isInput ? ((connections.isEmpty() ? "○ " : "⏺ ") + input.name) :
                 (output.name + (connections.isEmpty() ? " ○" : " ⏺"));
 
@@ -129,7 +129,7 @@ public class NodeIOWidget extends Widget {
             str = "⏹ " + insetText;
         }
 
-        return Text.literal(str).setStyle(Style.EMPTY.withColor(type.color));
+        return Component.literal(str).setStyle(Style.EMPTY.withColor(type.color));
     }
 
     @Override

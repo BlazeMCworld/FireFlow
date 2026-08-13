@@ -4,23 +4,22 @@ import com.mojang.authlib.GameProfile;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.space.DummyManager;
 import de.blazemcworld.fireflow.space.Space;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkSide;
-import net.minecraft.network.PacketCallbacks;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.common.SyncedClientOptions;
-import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket;
-import net.minecraft.server.network.ConnectedClientData;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import org.jetbrains.annotations.Nullable;
+import io.netty.channel.ChannelFutureListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class DummyPlayer extends ServerPlayerEntity {
+public class DummyPlayer extends ServerPlayer {
 
     private static final GameProfile[] dummyProfiles = {
             new GameProfile(UUID.fromString("a1a17bc1-912d-42f6-81de-18cdb9a482eb"), "Dummy-1"),
@@ -37,14 +36,15 @@ public class DummyPlayer extends ServerPlayerEntity {
     public boolean exitCalled = false;
 
     public DummyPlayer(Space space, int id) {
-        super(FireFlow.server, space.playWorld, dummyProfiles[id - 1], SyncedClientOptions.createDefault());
-        networkHandler = new ServerPlayNetworkHandler(FireFlow.server, new ClientConnection(NetworkSide.CLIENTBOUND), this, ConnectedClientData.createDefault(dummyProfiles[id - 1], false)) {
+        super(FireFlow.server, space.playLevel, dummyProfiles[id - 1], ClientInformation.createDefault());
+        connection = new ServerGamePacketListenerImpl(FireFlow.server, new net.minecraft.network.Connection(PacketFlow.CLIENTBOUND), this, CommonListenerCookie.createInitial(dummyProfiles[id - 1], false)) {
+
             @Override
-            public void send(Packet<?> packet, @Nullable PacketCallbacks callbacks) {
-                if (packet instanceof EntityVelocityUpdateS2CPacket velPacket && velPacket.getEntityId() == getId()) {
-                    nextTick.add(() -> {
-                        setVelocity(velPacket.getVelocityX(), velPacket.getVelocityY(), velPacket.getVelocityZ());
-                    });
+            public void send(@NonNull Packet<?> packet, @org.jspecify.annotations.Nullable ChannelFutureListener listener) {
+                if (packet instanceof ClientboundSetEntityMotionPacket(
+                        int id1, net.minecraft.world.phys.Vec3 movement
+                ) && id1 == getId()) {
+                    nextTick.add(() -> setDeltaMovement(movement.x, movement.y, movement.z));
                 }
             }
         };
@@ -54,14 +54,14 @@ public class DummyPlayer extends ServerPlayerEntity {
     }
 
     @Override
-    public void remove(RemovalReason reason) {
+    public void remove(@NonNull RemovalReason reason) {
         if (!exitCalled) {
             exitCalled = true;
             space.evaluator.exitPlay(this);
         }
         super.remove(reason);
         manager.forgetDummy(dummyId);
-        FireFlow.server.getPlayerManager().sendToAll(new PlayerRemoveS2CPacket(List.of(uuid)));
+        FireFlow.server.getPlayerList().broadcastAll(new ClientboundPlayerInfoRemovePacket(List.of(uuid)));
     }
 
     @Override
@@ -69,19 +69,19 @@ public class DummyPlayer extends ServerPlayerEntity {
         List<Runnable> tasks = new ArrayList<>(nextTick);
         nextTick.clear();
         for (Runnable task : tasks) task.run();
-        updateSupportingBlockPos(true, null);
-        setOnGround(supportingBlockPos.isPresent());
+        checkSupportingBlock(true, null);
+        setOnGround(mainSupportingBlockPos.isPresent());
         super.tick();
-        super.playerTick();
+        super.doTick();
     }
 
     @Override
-    public void playerTick() {
+    public void doTick() {
         // Moved into regular tick
     }
 
     @Override
-    public boolean isControlledByPlayer() {
+    public boolean isClientAuthoritative() {
         return false;
     }
 }

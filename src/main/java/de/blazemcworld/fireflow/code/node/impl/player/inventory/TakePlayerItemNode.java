@@ -5,9 +5,9 @@ import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class TakePlayerItemNode extends Node {
 
@@ -23,8 +23,8 @@ public class TakePlayerItemNode extends Node {
             player.getValue(ctx).tryUse(ctx, p -> {
                 ItemStack stack = item.getValue(ctx);
                 if (stack.isEmpty()) return;
-                Inventory craftingInv = p.playerScreenHandler.getCraftingInput();
-                p.getInventory().remove((i) -> ItemStack.areEqual(i, stack), stack.getCount(), craftingInv);
+                Container craftingInv = p.inventoryMenu.getCraftSlots();
+                p.getInventory().clearOrCountMatchingItems((i) -> ItemStack.isSameItemSameComponents(i, stack), stack.getCount(), craftingInv);
             });
             ctx.sendSignal(next);
         });

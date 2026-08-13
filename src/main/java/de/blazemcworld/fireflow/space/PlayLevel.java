@@ -2,24 +2,23 @@ package de.blazemcworld.fireflow.space;
 
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.util.*;
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.WorldGenerationProgressLogger;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.random.RandomSequencesState;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionTypes;
-import net.minecraft.world.level.UnmodifiableLevelProperties;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.storage.DerivedLevelData;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 
-public class PlayWorld extends ServerWorld {
+public class PlayLevel extends ServerLevel {
 
     public final Space space;
     private int ticksBehind = 0;
@@ -33,26 +32,27 @@ public class PlayWorld extends ServerWorld {
     private Runnable closeCallback = null;
     public long lastTick = System.currentTimeMillis();
 
-    public static PlayWorld create(String id, Space space) {
-        return new PlayWorld(Identifier.of("fireflow", id), new TodoListExecutor(), space);
+    public static PlayLevel create(String id, Space space) {
+        return new PlayLevel(Identifier.fromNamespaceAndPath("fireflow", id), new TodoListExecutor(), space);
     }
 
-    private PlayWorld(Identifier id, TodoListExecutor exec, Space space) {
+    private PlayLevel(Identifier id, TodoListExecutor exec, Space space) {
         super(
-                FireFlow.server, exec, FireFlow.server.session,
-                new UnmodifiableLevelProperties(FireFlow.server.getSaveProperties(), FireFlow.server.getSaveProperties().getMainWorldProperties()), RegistryKey.of(RegistryKeys.WORLD, id),
-                new DimensionOptions(
-                        FireFlow.server.getCombinedDynamicRegistries().getCombinedRegistryManager()
-                                .getOrThrow(RegistryKeys.DIMENSION_TYPE).getOrThrow(DimensionTypes.OVERWORLD),
+                FireFlow.server, exec, FireFlow.server.storageSource,
+                new DerivedLevelData(FireFlow.server.getWorldData(), FireFlow.server.getWorldData().overworldData()),
+                ResourceKey.create(Registries.DIMENSION, id),
+                new LevelStem(
+                        FireFlow.server.reloadableRegistries().lookup()
+                                .lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
                         new FlatChunkGenerator()
                 ),
-                WorldGenerationProgressLogger.noSpawnChunks(), false, 42, Collections.emptyList(), false, new RandomSequencesState(42)
+                false, 42, Collections.emptyList(), false
         );
         this.exec = exec;
         this.id = id;
-        FireFlow.server.worlds.put(RegistryKey.of(RegistryKeys.WORLD, id), this);
+        FireFlow.server.levels.put(ResourceKey.create(Registries.DIMENSION, id), this);
 
-        WorldUtil.setGameRules(this);
+        LevelUtil.setGameRules(this);
 
         this.space = space;
 
@@ -74,7 +74,7 @@ public class PlayWorld extends ServerWorld {
 
     private void tickLoop() {
         thread = Thread.currentThread();
-        getChunkManager().serverThread = thread;
+        getChunkSource().mainThread = thread;
 
         while (active) {
             while (active) {
@@ -131,7 +131,7 @@ public class PlayWorld extends ServerWorld {
     }
 
     @Override
-    public void tick(BooleanSupplier shouldKeepTicking) {
+    public void tick(@NonNull BooleanSupplier shouldKeepTicking) {
         ticksBehind++;
         cpuMeasures.removeIf(m -> !m.isRecent());
 
@@ -155,22 +155,22 @@ public class PlayWorld extends ServerWorld {
     }
 
     private void fixedTick() {
-        if (FireFlow.server.isStopping()) return;
+        if (FireFlow.server.isShutdown()) return;
         lastTick = System.currentTimeMillis();
         super.tick(() -> ticksBehind == 0);
-        for (ServerPlayerEntity p : new ArrayList<>(getPlayers())) {
-            p.networkHandler.tick();
-            p.networkHandler.chunkDataSender.sendChunkBatches(p);
-            p.networkHandler.enableFlush();
+        for (ServerPlayer p : new ArrayList<>(players())) {
+            p.connection.tick();
+            p.connection.chunkSender.sendNextChunks(p);
+            p.connection.resumeFlushing();
         }
         space.evaluator.tick();
         irregularTick();
     }
 
     @Override
-    public void tickEntity(Entity entity) {
-        if (!active && !(entity instanceof ServerPlayerEntity) && !started) return;
-        super.tickEntity(entity);
+    public void tickNonPassenger(@NonNull Entity entity) {
+        if (!active && !started) return;
+        super.tickNonPassenger(entity);
     }
 
     private void irregularTick() {
@@ -181,7 +181,7 @@ public class PlayWorld extends ServerWorld {
             }
             task.run();
         }
-        while (getChunkManager().executeQueuedTasks() && active) {
+        while (getChunkSource().pollTask() && active) {
         }
     }
 
@@ -194,8 +194,8 @@ public class PlayWorld extends ServerWorld {
     @Override
     public void close() throws IOException {
         if (closed) return;
-        FireFlow.server.worlds.remove(RegistryKey.of(RegistryKeys.WORLD, id), this);
-        for (ServerPlayerEntity p : new ArrayList<>(getPlayers())) {
+        FireFlow.server.levels.remove(ResourceKey.create(Registries.DIMENSION, id), this);
+        for (ServerPlayer p : new ArrayList<>(players())) {
             ModeManager.move(p, ModeManager.Mode.LOBBY, null);
         }
         super.close();

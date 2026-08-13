@@ -5,12 +5,12 @@ import com.google.gson.JsonParser;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.CodeEvaluator;
-import de.blazemcworld.fireflow.code.CodeWorld;
+import de.blazemcworld.fireflow.code.CodeLevel;
 import de.blazemcworld.fireflow.code.VariableStore;
 import de.blazemcworld.fireflow.util.DummyPlayer;
 import de.blazemcworld.fireflow.util.ModeManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.GameMode;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,8 +21,8 @@ import java.util.Set;
 
 public class Space {
     public final SpaceInfo info;
-    public final PlayWorld playWorld;
-    public final CodeWorld codeWorld;
+    public final PlayLevel playLevel;
+    public final CodeLevel codeLevel;
     public final CodeEditor editor;
     public final VariableStore savedVariables;
     private int emptyTimer = 0;
@@ -31,9 +31,9 @@ public class Space {
 
     public Space(SpaceInfo info) {
         this.info = info;
-        playWorld = PlayWorld.create("play-" + info.id, this);
-        codeWorld = CodeWorld.create("code-" + info.id, this);
-        editor = new CodeEditor(this, codeWorld);
+        playLevel = PlayLevel.create("play-" + info.id, this);
+        codeLevel = CodeLevel.create("code-" + info.id, this);
+        editor = new CodeEditor(this, codeLevel);
         savedVariables = new VariableStore();
         try {
             if (!Files.exists(path())) Files.createDirectories(path());
@@ -69,46 +69,56 @@ public class Space {
 
     protected void unload(Runnable callback) {
         dummyManager.reset();
-        for (ServerPlayerEntity player : new ArrayList<>(playWorld.getPlayers())) {
+        for (ServerPlayer player : new ArrayList<>(playLevel.players())) {
             ModeManager.move(player, ModeManager.Mode.LOBBY, this);
         }
-        for (ServerPlayerEntity player : new ArrayList<>(codeWorld.getPlayers())) {
+        for (ServerPlayer player : new ArrayList<>(codeLevel.players())) {
             ModeManager.move(player, ModeManager.Mode.LOBBY, this);
         }
         editor.close();
 
         try {
-            codeWorld.close();
+            codeLevel.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         evaluator.stop();
-        playWorld.closeSoon(callback);
+        playLevel.closeSoon(callback);
     }
 
-    public Set<ServerPlayerEntity> getPlayers() {
-        HashSet<ServerPlayerEntity> out = new HashSet<>();
-        out.addAll(playWorld.getPlayers());
-        out.addAll(codeWorld.getPlayers());
+    public Set<ServerPlayer> playersAnyMode() {
+        HashSet<ServerPlayer> out = new HashSet<>();
+        out.addAll(playLevel.players());
+        out.addAll(codeLevel.players());
         out.removeIf(p -> p instanceof DummyPlayer);
         return out;
     }
 
+    public Set<ServerPlayer> playersPlayMode() {
+        HashSet<ServerPlayer> out = new HashSet<>();
+        for (ServerPlayer player : playersAnyMode()) {
+            if (ModeManager.getFor(player) == ModeManager.Mode.PLAY) {
+                out.add(player);
+            }
+        }
+        return out;
+    }
+
     public void tick() {
-        if (getPlayers().isEmpty()) {
+        if (playersAnyMode().isEmpty()) {
             emptyTimer++;
         } else {
             emptyTimer = 0;
         }
     }
 
-    public void enterPlay(ServerPlayerEntity player) {
+    public void enterPlay(ServerPlayer player) {
         evaluator.onJoin(player);
     }
 
-    public void enterBuild(ServerPlayerEntity player) {
-        player.changeGameMode(GameMode.CREATIVE);
+    public void enterBuild(ServerPlayer player) {
+        player.setGameMode(GameType.CREATIVE);
     }
 
     public Path path() {
@@ -117,15 +127,15 @@ public class Space {
 
     public void reload() {
         dummyManager.reset();
-        for (ServerPlayerEntity player : new ArrayList<>(playWorld.getPlayers())) {
-            if (info.isOwnerOrDeveloper(player.getUuid())) {
+        for (ServerPlayer player : new ArrayList<>(playLevel.players())) {
+            if (info.isOwnerOrDeveloper(player.getUUID())) {
                 ModeManager.move(player, ModeManager.Mode.CODE, this);
             } else {
                 ModeManager.move(player, ModeManager.Mode.LOBBY, this);
             }
         }
         evaluator.stop();
-        playWorld.getChunkManager().chunkLoadingManager.unloadChunks(() -> true);
+        playLevel.getChunkSource().chunkMap.processUnloads(() -> true);
         evaluator = new CodeEvaluator(this);
     }
 }

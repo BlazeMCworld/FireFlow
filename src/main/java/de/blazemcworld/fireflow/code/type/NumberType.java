@@ -2,16 +2,15 @@ package de.blazemcworld.fireflow.code.type;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.item.Items;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Items;
 
 public class NumberType extends WireType<Double> {
 
     public static final NumberType INSTANCE = new NumberType();
 
     private NumberType() {
-        super("number", TextColor.fromFormatting(Formatting.GREEN), Items.CLOCK);
+        super("number", TextColor.GREEN, Items.CLOCK);
     }
 
     @Override

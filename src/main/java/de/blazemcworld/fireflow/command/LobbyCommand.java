@@ -4,27 +4,27 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import de.blazemcworld.fireflow.space.Lobby;
 import de.blazemcworld.fireflow.util.ModeManager;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.server.level.ServerPlayer;
 
 public class LobbyCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> cd) {
+    public static void register(CommandDispatcher<CommandSourceStack> cd) {
         register(cd, "spawn");
         register(cd, "lobby");
     }
 
-    private static void register(CommandDispatcher<ServerCommandSource> cd, String alias) {
-        cd.register(CommandManager.literal(alias)
+    private static void register(CommandDispatcher<CommandSourceStack> cd, String alias) {
+        cd.register(Commands.literal(alias)
                 .executes(ctx -> {
-                    ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
+                    ServerPlayer player = CommandHelper.getPlayer(ctx.getSource());
                     if (player == null) return Command.SINGLE_SUCCESS;
 
-                    if (player.getServerWorld() == Lobby.world) {
-                        player.sendMessage(Text.literal("You are already in the lobby!").formatted(Formatting.RED));
+                    if (player.level() == Lobby.level) {
+                        player.sendSystemMessage(Component.literal("You are already in the lobby!").withColor(TextColor.RED));
                         return Command.SINGLE_SUCCESS;
                     }
 

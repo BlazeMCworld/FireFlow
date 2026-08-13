@@ -4,7 +4,7 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class GetPlayerFoodNode extends Node {
     public GetPlayerFoodNode() {
@@ -12,7 +12,7 @@ public class GetPlayerFoodNode extends Node {
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Output<Double> food = new Output<>("food", "Food", NumberType.INSTANCE);
 
-        food.valueFrom(ctx -> player.getValue(ctx).tryGet(ctx, p -> (double) p.getHungerManager().getFoodLevel(), 0.0));
+        food.valueFrom(ctx -> player.getValue(ctx).tryGet(ctx, p -> (double) p.getFoodData().getFoodLevel(), 0.0));
     }
 
     @Override

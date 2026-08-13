@@ -13,12 +13,9 @@ import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.*;
+import net.minecraft.server.level.ServerPlayer;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
@@ -152,14 +149,14 @@ public class WebEditor extends Handler.Abstract {
                 editor = space.editor;
 
                 editor.enterCode(origin);
-                for (ServerPlayerEntity player : space.getPlayers()) {
-                    if (!space.info.isOwnerOrDeveloper(player.getUuid())) continue;
-                    player.sendMessage(Text.literal("Someone opened the web editor for this space.").formatted(Formatting.YELLOW));
-                    player.sendMessage(Text.literal("Click this to allow access, otherwise ignore it.").setStyle(
+                for (ServerPlayer player : space.playersAnyMode()) {
+                    if (!space.info.isOwnerOrDeveloper(player.getUUID())) continue;
+                    player.sendSystemMessage(Component.literal("Someone opened the web editor for this space.").withColor(TextColor.YELLOW));
+                    player.sendSystemMessage(Component.literal("Click this to allow access, otherwise ignore it.").setStyle(
                             Style.EMPTY.withClickEvent(new ClickEvent.RunCommand("/authorize-web " + id))
-                                    .withHoverEvent(new HoverEvent.ShowText(Text.literal("Warning: Only do this if you know and trust the person who opened the web editor!")
-                                            .formatted(Formatting.RED)))
-                                    .withFormatting(Formatting.GOLD)
+                                    .withHoverEvent(new HoverEvent.ShowText(Component.literal("Warning: Only do this if you know and trust the person who opened the web editor!")
+                                            .withColor(TextColor.RED)))
+                                    .withColor(ChatFormatting.GOLD)
                     ));
                 }
                 return;
@@ -172,7 +169,7 @@ public class WebEditor extends Handler.Abstract {
                 case "move-cursor" -> {
                     float x = json.get("x").getAsFloat();
                     float y = json.get("y").getAsFloat();
-                    if (x > 512 || x < -512 || y > editor.world.getTopYInclusive() || y < editor.world.getBottomY()) {
+                    if (x > 512 || x < -512 || y > editor.level.getMaxY() || y < editor.level.getMinY()) {
                         cursor = null;
                         return;
                     }

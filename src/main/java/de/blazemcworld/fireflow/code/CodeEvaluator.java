@@ -3,9 +3,13 @@ package de.blazemcworld.fireflow.code;
 import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.Node.Varargs;
-import de.blazemcworld.fireflow.code.node.impl.event.*;
+import de.blazemcworld.fireflow.code.node.impl.event.OnPlayerLoseFoodNode;
+import de.blazemcworld.fireflow.code.node.impl.event.OnPlayerLoseSaturationNode;
 import de.blazemcworld.fireflow.code.node.impl.event.action.*;
-import de.blazemcworld.fireflow.code.node.impl.event.combat.*;
+import de.blazemcworld.fireflow.code.node.impl.event.combat.OnPlayerAttackPlayerNode;
+import de.blazemcworld.fireflow.code.node.impl.event.combat.OnPlayerDeathNode;
+import de.blazemcworld.fireflow.code.node.impl.event.combat.OnPlayerHurtNode;
+import de.blazemcworld.fireflow.code.node.impl.event.combat.OnPlayerKillPlayerNode;
 import de.blazemcworld.fireflow.code.node.impl.event.combat.entity.*;
 import de.blazemcworld.fireflow.code.node.impl.event.meta.*;
 import de.blazemcworld.fireflow.code.node.impl.event.world.*;
@@ -16,19 +20,19 @@ import de.blazemcworld.fireflow.code.node.impl.function.FunctionOutputsNode;
 import de.blazemcworld.fireflow.code.widget.NodeWidget;
 import de.blazemcworld.fireflow.code.widget.Widget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
-import de.blazemcworld.fireflow.space.PlayWorld;
+import de.blazemcworld.fireflow.space.PlayLevel;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.util.DummyPlayer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
-import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -41,14 +45,14 @@ public class CodeEvaluator {
     private boolean stopped = false;
     public final VariableStore sessionVariables = new VariableStore();
     public Set<Node> nodes;
-    public final PlayWorld world;
+    public final PlayLevel level;
     private final Set<Runnable> tickTasks = new HashSet<>();
     private boolean initCalled = false;
     private int revision = 0; // Incremented after each live reload
 
     public CodeEvaluator(Space space) {
         this.space = space;
-        world = space.playWorld;
+        level = space.playLevel;
 
         Set<NodeWidget> nodes = new HashSet<>();
         for (Widget widget : space.editor.rootWidgets) {
@@ -67,6 +71,11 @@ public class CodeEvaluator {
     public boolean isStopped() {
         return stopped;
     }
+
+    public Set<ServerPlayer> players() {
+        return space.playersPlayMode();
+    }
+
 
     private Set<Node> copyNodes(Set<NodeWidget> nodes) {
         HashMap<Node, Node> old2new = new HashMap<>();
@@ -155,7 +164,7 @@ public class CodeEvaluator {
         return new CodeThread(this);
     }
 
-    public boolean onSwingHand(ServerPlayerEntity player, boolean isMainHand) {
+    public boolean onSwingHand(ServerPlayer player, boolean isMainHand) {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerSwingHandNode n) {
@@ -165,7 +174,7 @@ public class CodeEvaluator {
         return cancel;
     }
 
-    public boolean onSwapHands(ServerPlayerEntity player) {
+    public boolean onSwapHands(ServerPlayer player) {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerSwapHandsNode n) {
@@ -185,7 +194,7 @@ public class CodeEvaluator {
         for (Runnable task : tasks) task.run();
     }
 
-    public boolean onInteractBlock(ServerPlayerEntity player, BlockPos pos, Direction side, Hand hand) {
+    public boolean onInteractBlock(ServerPlayer player, BlockPos pos, Direction side, InteractionHand hand) {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerInteractBlockNode n) {
@@ -195,7 +204,7 @@ public class CodeEvaluator {
         return cancel;
     }
 
-    public boolean onUseItem(ServerPlayerEntity player, ItemStack stack, Hand hand) {
+    public boolean onUseItem(ServerPlayer player, ItemStack stack, InteractionHand hand) {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerUseItemNode n) {
@@ -205,7 +214,7 @@ public class CodeEvaluator {
         return cancel;
     }
 
-    public void exitPlay(ServerPlayerEntity player) {
+    public void exitPlay(ServerPlayer player) {
         for (Node node : nodes) {
             if (node instanceof OnPlayerLeaveNode n) {
                 n.onLeave(this, player);
@@ -217,7 +226,7 @@ public class CodeEvaluator {
         }
     }
 
-    public boolean onPlaceBlock(ItemPlacementContext context) {
+    public boolean onPlaceBlock(BlockPlaceContext context) {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerPlaceBlockNode n) {
@@ -227,7 +236,7 @@ public class CodeEvaluator {
         return cancel;
     }
 
-    public boolean onChat(ServerPlayerEntity player, String message) {
+    public boolean onChat(ServerPlayer player, String message) {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerChatNode n) {
@@ -237,7 +246,7 @@ public class CodeEvaluator {
         return cancel;
     }
 
-    public boolean onBreakBlock(ServerPlayerEntity player, BlockPos pos) {
+    public boolean onBreakBlock(ServerPlayer player, BlockPos pos) {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerBreakBlockNode n) {
@@ -247,7 +256,7 @@ public class CodeEvaluator {
         return cancel;
     }
 
-    public boolean onDropItem(ServerPlayerEntity player) {
+    public boolean onDropItem(ServerPlayer player) {
         boolean cancel = false;
         for (Node node : nodes) {
             if (node instanceof OnPlayerDropItemNode n) {
@@ -260,31 +269,31 @@ public class CodeEvaluator {
     public boolean allowDeath(LivingEntity target, DamageSource source, float damage) {
         boolean cancel = false;
 
-        String type = source.getTypeRegistryEntry().getKey().map(k -> k.getValue().getPath()).orElse("unknown");
+        String type = source.typeHolder().unwrapKey().map(k -> k.identifier().getPath()).orElse("unknown");
 
         for (Node node : nodes) {
-            if (node instanceof OnPlayerDeathNode n && target instanceof ServerPlayerEntity pl) {
+            if (node instanceof OnPlayerDeathNode n && target instanceof ServerPlayer pl) {
                 cancel = n.onPlayerDeath(this, pl, damage, type, cancel);
             }
 
-            if (node instanceof OnEntityDeathNode n && !(target instanceof ServerPlayerEntity)) {
+            if (node instanceof OnEntityDeathNode n && !(target instanceof ServerPlayer)) {
                 cancel = n.onEntityDeath(this, target, damage, type, cancel);
             }
 
-            if (node instanceof OnPlayerKillPlayerNode n && target instanceof ServerPlayerEntity victim && source.getAttacker() instanceof ServerPlayerEntity attacker) {
+            if (node instanceof OnPlayerKillPlayerNode n && target instanceof ServerPlayer victim && source.getEntity() instanceof ServerPlayer attacker) {
                 cancel = n.onPlayerKillPlayer(this, attacker, victim, damage, cancel);
             }
 
-            if (node instanceof OnPlayerKillEntityNode n && !(target instanceof ServerPlayerEntity) && source.getAttacker() instanceof ServerPlayerEntity attacker) {
+            if (node instanceof OnPlayerKillEntityNode n && !(target instanceof ServerPlayer) && source.getEntity() instanceof ServerPlayer attacker) {
                 cancel = n.onPlayerKillEntity(this, attacker, target, damage, cancel);
             }
 
-            if (node instanceof OnEntityKillPlayerNode n && target instanceof ServerPlayerEntity victim && !(source.getAttacker() instanceof ServerPlayerEntity)) {
-                cancel = n.onEntityKillPlayer(this, source.getAttacker(), victim, damage, cancel);
+            if (node instanceof OnEntityKillPlayerNode n && target instanceof ServerPlayer victim && !(source.getEntity() instanceof ServerPlayer)) {
+                cancel = n.onEntityKillPlayer(this, source.getEntity(), victim, damage, cancel);
             }
 
-            if (node instanceof OnEntityKillEntityNode n && !(target instanceof ServerPlayerEntity) && !(source.getAttacker() instanceof ServerPlayerEntity)) {
-                cancel = n.onEntityKillEntity(this, source.getAttacker(), target, damage, cancel);
+            if (node instanceof OnEntityKillEntityNode n && !(target instanceof ServerPlayer) && !(source.getEntity() instanceof ServerPlayer)) {
+                cancel = n.onEntityKillEntity(this, source.getEntity(), target, damage, cancel);
             }
         }
         return !cancel;
@@ -299,7 +308,7 @@ public class CodeEvaluator {
     private void ensureInit() {
         if (!initCalled) {
             initCalled = true;
-            world.markStarted();
+            level.markStarted();
 
             for (Node node : nodes) {
                 if (node instanceof OnInitializeNode init) {
@@ -309,7 +318,7 @@ public class CodeEvaluator {
         }
     }
 
-    public void onJoin(ServerPlayerEntity player) {
+    public void onJoin(ServerPlayer player) {
         for (Node n : nodes) {
             if (n instanceof OnPlayerJoinNode join) {
                 join.onJoin(this, player);
@@ -317,7 +326,7 @@ public class CodeEvaluator {
         }
     }
 
-    public boolean shouldCancelFlight(ServerPlayerEntity player, boolean enabled) {
+    public boolean shouldCancelFlight(ServerPlayer player, boolean enabled) {
         boolean cancel = false;
         for (Node n : nodes) {
             if (enabled && n instanceof OnPlayerStartFlyingNode fly) {
@@ -331,33 +340,33 @@ public class CodeEvaluator {
     }
 
     public float adjustDamage(LivingEntity target, DamageSource source, float damage) {
-        String type = source.getTypeRegistryEntry().getKey().map(k -> k.getValue().getPath()).orElse("unknown");
+        String type = source.typeHolder().unwrapKey().map(k -> k.identifier().getPath()).orElse("unknown");
         CodeThread.EventContext ctx = new CodeThread.EventContext(CodeThread.EventType.DAMAGE_EVENT);
         ctx.eventNumber = damage;
 
         for (Node node : nodes) {
-            if (node instanceof OnPlayerHurtNode n && target instanceof ServerPlayerEntity pl) {
+            if (node instanceof OnPlayerHurtNode n && target instanceof ServerPlayer pl) {
                 n.onPlayerHurt(this, pl, damage, type, ctx);
             }
 
-            if (node instanceof OnEntityHurtNode n && !(target instanceof ServerPlayerEntity)) {
+            if (node instanceof OnEntityHurtNode n && !(target instanceof ServerPlayer)) {
                 n.onEntityHurt(this, target, damage, type, ctx);
             }
 
-            if (node instanceof OnPlayerAttackPlayerNode n && target instanceof ServerPlayerEntity victim && source.getAttacker() instanceof ServerPlayerEntity attacker) {
+            if (node instanceof OnPlayerAttackPlayerNode n && target instanceof ServerPlayer victim && source.getEntity() instanceof ServerPlayer attacker) {
                 n.onPlayerAttackPlayer(this, attacker, victim, damage, ctx);
             }
 
-            if (node instanceof OnPlayerAttackEntityNode n && !(target instanceof ServerPlayerEntity) && source.getAttacker() instanceof ServerPlayerEntity attacker) {
+            if (node instanceof OnPlayerAttackEntityNode n && !(target instanceof ServerPlayer) && source.getEntity() instanceof ServerPlayer attacker) {
                 n.onPlayerAttackEntity(this, attacker, target, damage, ctx);
             }
 
-            if (node instanceof OnEntityAttackPlayerNode n && target instanceof ServerPlayerEntity victim && !(source.getAttacker() instanceof ServerPlayerEntity)) {
-                n.onEntityAttackPlayer(this, source.getAttacker(), victim, damage, ctx);
+            if (node instanceof OnEntityAttackPlayerNode n && target instanceof ServerPlayer victim && !(source.getEntity() instanceof ServerPlayer)) {
+                n.onEntityAttackPlayer(this, source.getEntity(), victim, damage, ctx);
             }
 
-            if (node instanceof OnEntityAttackEntityNode n && !(target instanceof ServerPlayerEntity) && !(source.getAttacker() instanceof ServerPlayerEntity)) {
-                n.onEntityAttackEntity(this, source.getAttacker(), target, damage, ctx);
+            if (node instanceof OnEntityAttackEntityNode n && !(target instanceof ServerPlayer) && !(source.getEntity() instanceof ServerPlayer)) {
+                n.onEntityAttackEntity(this, source.getEntity(), target, damage, ctx);
             }
         }
 
@@ -391,14 +400,14 @@ public class CodeEvaluator {
             if (widget == null) return;
 
             WidgetVec pos = widget.pos();
-            ParticleS2CPacket packet = new ParticleS2CPacket(
-                    new DustParticleEffect(0xFFFF00, 1f),
+            ClientboundLevelParticlesPacket packet = new ClientboundLevelParticlesPacket(
+                    new DustParticleOptions(0xFFFF00, 1f),
                     false, false, pos.x(), pos.y(), 15.9,
                     0, 0, 0, 0, 1
             );
 
-            for (ServerPlayerEntity player : space.editor.world.getPlayers()) {
-                player.networkHandler.sendPacket(packet);
+            for (ServerPlayer player : space.editor.level.players()) {
+                player.connection.send(packet);
             }
 
             JsonObject json = new JsonObject();
@@ -471,7 +480,7 @@ public class CodeEvaluator {
         old.evalRevision = revision;
     }
 
-    public boolean onLoseFood(ServerPlayerEntity player, int oldValue, int newValue) {
+    public boolean onLoseFood(ServerPlayer player, int oldValue, int newValue) {
         CodeThread.EventContext ctx = new CodeThread.EventContext(CodeThread.EventType.UNSPECIFIED);
 
         for (Node node : nodes) {
@@ -483,7 +492,7 @@ public class CodeEvaluator {
         return ctx.cancelled;
     }
 
-    public boolean onLoseSaturation(ServerPlayerEntity player, float oldValue, float newValue) {
+    public boolean onLoseSaturation(ServerPlayer player, float oldValue, float newValue) {
         CodeThread.EventContext ctx = new CodeThread.EventContext(CodeThread.EventType.UNSPECIFIED);
 
         for (Node node : nodes) {
@@ -495,7 +504,7 @@ public class CodeEvaluator {
         return ctx.cancelled;
     }
 
-    public void onStartSneaking(ServerPlayerEntity player) {
+    public void onStartSneaking(ServerPlayer player) {
         for (Node node : nodes) {
             if (node instanceof OnPlayerStartSneakingNode sneak) {
                 sneak.emit(this, player);
@@ -503,7 +512,7 @@ public class CodeEvaluator {
         }
     }
 
-    public void onStopSneaking(ServerPlayerEntity player) {
+    public void onStopSneaking(ServerPlayer player) {
         for (Node node : nodes) {
             if (node instanceof OnPlayerStopSneakingNode sneak) {
                 sneak.emit(this, player);
@@ -511,7 +520,7 @@ public class CodeEvaluator {
         }
     }
 
-    public void onStartSprinting(ServerPlayerEntity player) {
+    public void onStartSprinting(ServerPlayer player) {
         for (Node node : nodes) {
             if (node instanceof OnPlayerStartSprintingNode sprint) {
                 sprint.emit(this, player);
@@ -519,7 +528,7 @@ public class CodeEvaluator {
         }
     }
 
-    public void onStopSprinting(ServerPlayerEntity player) {
+    public void onStopSprinting(ServerPlayer player) {
         for (Node node : nodes) {
             if (node instanceof OnPlayerStopSprintingNode sprint) {
                 sprint.emit(this, player);

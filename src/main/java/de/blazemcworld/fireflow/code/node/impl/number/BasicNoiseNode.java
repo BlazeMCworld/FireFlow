@@ -5,15 +5,15 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
 import fastnoiselite.FastNoiseLite;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 public class BasicNoiseNode extends Node {
     public BasicNoiseNode() {
         super("basic_noise", "Basic Noise", "Generates noise values using various algorithms and dimensions. For 2d only the x and z coordinates are used.", Items.DEAD_BRAIN_CORAL_BLOCK);
         Input<String> noiseType = new Input<>("noise_type", "Noise Type", StringType.INSTANCE).options("Simplex", "SmoothSimplex", "Perlin", "Value", "ValueCubic");
         Input<String> dimension = new Input<>("dimension", "Dimension", StringType.INSTANCE).options("3D", "2D");
-        Input<Vec3d> position = new Input<>("position", "Position", VectorType.INSTANCE);
+        Input<Vec3> position = new Input<>("position", "Position", VectorType.INSTANCE);
         Input<Double> frequency = new Input<>("frequency", "Frequency", NumberType.INSTANCE);
         Input<Double> octaves = new Input<>("octaves", "Octaves", NumberType.INSTANCE);
         Input<Double> gain = new Input<>("gain", "Gain", NumberType.INSTANCE);
@@ -38,7 +38,7 @@ public class BasicNoiseNode extends Node {
                 noise.SetFractalOctaves(octaves.getValue(ctx).intValue());
                 noise.SetFrequency(frequency.getValue(ctx).floatValue());
                 noise.SetSeed(seed.getValue(ctx).intValue());
-                Vec3d loc = position.getValue(ctx);
+                Vec3 loc = position.getValue(ctx);
                 switch (dimension.getValue(ctx)) {
                     case "3D" -> {
                         return (double) noise.GetNoise(loc.x, loc.y, loc.z);

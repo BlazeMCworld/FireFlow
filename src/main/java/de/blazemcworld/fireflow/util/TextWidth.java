@@ -5,8 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.text.PlainTextContent;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.PlainTextContents;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,18 +34,18 @@ public class TextWidth {
         }
     }
 
-    public static double calculate(Text text) {
+    public static double calculate(Component text) {
         return calculate(text, false);
     }
 
-    public static double calculate(Text text, boolean bold) {
+    public static double calculate(Component text, boolean bold) {
         bold = text.getStyle().bold == Boolean.TRUE || (text.getStyle().bold == null && bold);
 
         double width = 0;
-        if (text.getContent() instanceof PlainTextContent t) {
-            width += calculate(t.string(), bold);
+        if (text.getContents() instanceof PlainTextContents t) {
+            width += calculate(t.text(), bold);
         }
-        for (Text child : text.getSiblings()) {
+        for (Component child : text.getSiblings()) {
             width += calculate(child, bold);
         }
         return width;

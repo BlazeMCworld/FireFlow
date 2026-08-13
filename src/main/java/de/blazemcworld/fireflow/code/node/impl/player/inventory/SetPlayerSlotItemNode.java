@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class SetPlayerSlotItemNode extends Node {
 
@@ -23,8 +23,8 @@ public class SetPlayerSlotItemNode extends Node {
         signal.onSignal((ctx) -> {
             player.getValue(ctx).tryUse(ctx, p -> {
                 int s = slot.getValue(ctx).intValue();
-                if (s < 0 || s >= p.getInventory().size()) return;
-                p.getInventory().setStack(s, item.getValue(ctx));
+                if (s < 0 || s >= p.getInventory().getMaxStackSize()) return;
+                p.getInventory().setItem(s, item.getValue(ctx));
             });
             ctx.sendSignal(next);
         });

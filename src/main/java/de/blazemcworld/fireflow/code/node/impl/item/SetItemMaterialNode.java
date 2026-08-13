@@ -4,11 +4,11 @@ import com.mojang.serialization.DataResult;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.StringType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.Optional;
 
@@ -22,11 +22,10 @@ public class SetItemMaterialNode extends Node {
         Output<ItemStack> updated = new Output<>("updated", "Updated", ItemType.INSTANCE);
 
         updated.valueFrom((ctx) -> {
-            DataResult<Identifier> id = Identifier.validate(material.getValue(ctx));
-            Optional<Item> mat = id.isSuccess() ? Registries.ITEM.getOptionalValue(id.getOrThrow()) : Optional.empty();
+            DataResult<Identifier> id = Identifier.read(material.getValue(ctx));
+            Optional<Item> mat = id.isSuccess() ? BuiltInRegistries.ITEM.getOptional(id.getOrThrow()) : Optional.empty();
             ItemStack i = item.getValue(ctx);
-            if (mat.isPresent()) return i.withItem(mat.get());
-            return i;
+            return mat.map(i::transmuteCopy).orElse(i);
         });
     }
 

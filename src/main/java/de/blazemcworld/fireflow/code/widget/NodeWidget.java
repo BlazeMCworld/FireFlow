@@ -7,9 +7,8 @@ import de.blazemcworld.fireflow.code.node.impl.function.FunctionCallNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionInputsNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionOutputsNode;
 import de.blazemcworld.fireflow.code.type.SignalType;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +26,10 @@ public class NodeWidget extends Widget {
 
         VerticalContainerWidget main = new VerticalContainerWidget(pos);
         main.align = VerticalContainerWidget.Align.CENTER;
-        HorizontalContainerWidget title = new HorizontalContainerWidget(pos, new ItemWidget(pos, node.icon), new TextWidget(pos, Text.literal(node.name)));
+        HorizontalContainerWidget title = new HorizontalContainerWidget(pos, new ItemWidget(pos, node.icon), new TextWidget(pos, Component.literal(node.name)));
 
         if (!(node instanceof FunctionInputsNode || node instanceof FunctionOutputsNode || node instanceof FunctionCallNode)) {
-            ButtonWidget helpButton = new ButtonWidget(pos, Text.literal(" ?").formatted(Formatting.GRAY));
+            ButtonWidget helpButton = new ButtonWidget(pos, Component.literal(" ?").withColor(TextColor.GRAY));
             helpButton.handler = interaction -> {
                 if (interaction.type() != CodeInteraction.Type.RIGHT_CLICK) return false;
                 interaction.origin().sendInfo(node.description);

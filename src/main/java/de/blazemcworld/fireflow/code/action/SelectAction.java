@@ -6,8 +6,7 @@ import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.widget.RectElement;
 import de.blazemcworld.fireflow.code.widget.Widget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class SelectAction implements CodeAction {
         box = new RectElement(pos);
         box.pos = pos;
         box.size = new WidgetVec(pos.editor(), 0, 0);
-        box.color(TextColor.fromFormatting(Formatting.AQUA));
+        box.color(TextColor.AQUA);
     }
 
     @Override

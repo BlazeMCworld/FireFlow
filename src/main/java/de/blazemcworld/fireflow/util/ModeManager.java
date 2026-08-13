@@ -4,15 +4,15 @@ import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.node.impl.player.visual.SetPlayerSkinNode;
 import de.blazemcworld.fireflow.space.Lobby;
-import de.blazemcworld.fireflow.space.PlayWorld;
+import de.blazemcworld.fireflow.space.PlayLevel;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.TeleportTarget;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,24 +22,24 @@ import java.util.WeakHashMap;
 public class ModeManager {
 
     private static final HashMap<UUID, Mode> modes = new HashMap<>();
-    public static WeakHashMap<ServerPlayerEntity, TeleportTarget> respawnOverwrite = new WeakHashMap<>();
+    public static WeakHashMap<ServerPlayer, TeleportTransition> respawnOverwrite = new WeakHashMap<>();
 
-    public static Mode getFor(ServerPlayerEntity player) {
+    public static Mode getFor(ServerPlayer player) {
         if (player instanceof DummyPlayer) return Mode.PLAY;
-        return modes.getOrDefault(player.getUuid(), Mode.LOBBY);
+        return modes.getOrDefault(player.getUUID(), Mode.LOBBY);
     }
 
     static {
         ServerTickEvents.END_SERVER_TICK.register((srv) -> {
             for (UUID uuid : new HashSet<>(modes.keySet())) {
-                ServerPlayerEntity player = FireFlow.server.getPlayerManager().getPlayer(uuid);
+                ServerPlayer player = FireFlow.server.getPlayerList().getPlayer(uuid);
                 if (player == null) modes.remove(uuid);
             }
         });
     }
 
-    public static void move(ServerPlayerEntity player, Mode mode, Space space) {
-        runOnWorld(player.getServerWorld(), () -> handleExit(player));
+    public static void move(ServerPlayer player, Mode mode, Space space) {
+        runOnLevel(player.level(), () -> handleExit(player));
         if (player instanceof DummyPlayer) return;
         if (!FireFlow.server.isRunning()) return;
 
@@ -47,9 +47,9 @@ public class ModeManager {
         if (space == null) mode = Mode.LOBBY;
 
         if (mode == Mode.LOBBY) {
-            runOnWorld(Lobby.world, () -> {
-                ServerPlayerEntity newPlayer = transfer(player, Lobby.world);
-                modes.put(newPlayer.getUuid(), Mode.LOBBY);
+            runOnLevel(Lobby.level, () -> {
+                ServerPlayer newPlayer = transfer(player, Lobby.level);
+                modes.put(newPlayer.getUUID(), Mode.LOBBY);
                 Lobby.onSpawn(newPlayer);
             });
             return;
@@ -57,9 +57,9 @@ public class ModeManager {
 
         if (mode == Mode.CODE) {
             Space lambdaSpace = space;
-            runOnWorld(space.codeWorld, () -> {
-                ServerPlayerEntity newPlayer = transfer(player, lambdaSpace.codeWorld);
-                modes.put(newPlayer.getUuid(), Mode.CODE);
+            runOnLevel(space.codeLevel, () -> {
+                ServerPlayer newPlayer = transfer(player, lambdaSpace.codeLevel);
+                modes.put(newPlayer.getUUID(), Mode.CODE);
                 lambdaSpace.editor.enterCode(EditOrigin.ofPlayer(newPlayer));
             });
             return;
@@ -67,25 +67,25 @@ public class ModeManager {
 
         if (mode == Mode.BUILD) {
             Space lambdaSpace = space;
-            runOnWorld(space.playWorld, () -> {
-                ServerPlayerEntity newPlayer = transfer(player, lambdaSpace.playWorld);
-                modes.put(newPlayer.getUuid(), Mode.BUILD);
+            runOnLevel(space.playLevel, () -> {
+                ServerPlayer newPlayer = transfer(player, lambdaSpace.playLevel);
+                modes.put(newPlayer.getUUID(), Mode.BUILD);
                 lambdaSpace.enterBuild(newPlayer);
             });
             return;
         }
 
         Space lambdaSpace = space;
-        runOnWorld(space.playWorld, () -> {
-            ServerPlayerEntity newPlayer = transfer(player, lambdaSpace.playWorld);
-            modes.put(newPlayer.getUuid(), Mode.PLAY);
+        runOnLevel(space.playLevel, () -> {
+            ServerPlayer newPlayer = transfer(player, lambdaSpace.playLevel);
+            modes.put(newPlayer.getUUID(), Mode.PLAY);
             lambdaSpace.enterPlay(newPlayer);
         });
     }
 
-    private static void runOnWorld(ServerWorld world, Runnable task) {
-        if (world.thread != Thread.currentThread()) {
-            if (world instanceof PlayWorld s) {
+    private static void runOnLevel(ServerLevel level, Runnable task) {
+        if (level.thread != Thread.currentThread()) {
+            if (level instanceof PlayLevel s) {
                 s.submit(task);
                 return;
             }
@@ -95,7 +95,7 @@ public class ModeManager {
         task.run();
     }
 
-    public static void handleExit(ServerPlayerEntity player) {
+    public static void handleExit(ServerPlayer player) {
         Space space = SpaceManager.getSpaceForPlayer(player);
         Mode mode = getFor(player);
 
@@ -103,27 +103,27 @@ public class ModeManager {
             space.editor.exitCode(EditOrigin.ofPlayer(player));
         }
         if (mode == Mode.PLAY && space != null) {
-            if (space.playWorld.thread == Thread.currentThread()) {
+            if (space.playLevel.thread == Thread.currentThread()) {
                 space.evaluator.exitPlay(player);
             } else {
-                space.playWorld.submit(() -> {
+                space.playLevel.submit(() -> {
                     space.evaluator.exitPlay(player);
                 });
             }
         }
     }
 
-    private static ServerPlayerEntity transfer(ServerPlayerEntity player, ServerWorld world) {
-        respawnOverwrite.put(player, new TeleportTarget(world, new Vec3d(0, 1, 0), Vec3d.ZERO, 0, 0, TeleportTarget.NO_OP));
-        player = FireFlow.server.getPlayerManager().respawnPlayer(player, true, Entity.RemovalReason.CHANGED_DIMENSION);
+    private static ServerPlayer transfer(ServerPlayer player, ServerLevel world) {
+        respawnOverwrite.put(player, new TeleportTransition(world, new Vec3(0, 1, 0), Vec3.ZERO, 0, 0, TeleportTransition.DO_NOTHING));
+        player = FireFlow.server.getPlayerList().respawn(player, true, Entity.RemovalReason.CHANGED_DIMENSION);
         player = SetPlayerSkinNode.reset(player);
-        player.networkHandler.player = player;
+        player.connection.player = player;
         Statistics.reset(player);
         return player;
     }
 
-    public static void onJoinedServer(ServerPlayerEntity player) {
-        modes.put(player.getUuid(), Mode.LOBBY);
+    public static void onJoinedServer(ServerPlayer player) {
+        modes.put(player.getUUID(), Mode.LOBBY);
     }
 
     public enum Mode {

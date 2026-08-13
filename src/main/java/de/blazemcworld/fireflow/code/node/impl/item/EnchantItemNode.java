@@ -7,13 +7,13 @@ import de.blazemcworld.fireflow.code.node.option.EnchantmentOptions;
 import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.StringType;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 import java.util.Optional;
 
@@ -29,11 +29,11 @@ public class EnchantItemNode extends Node {
 
         updated.valueFrom((ctx) -> {
             ItemStack i = item.getValue(ctx).copy();
-            DataResult<Identifier> id = Identifier.validate(enchantment.getValue(ctx));
+            DataResult<Identifier> id = Identifier.read(enchantment.getValue(ctx));
             if (id.isError()) return i;
-            Optional<RegistryEntry.Reference<Enchantment>> ench = FireFlow.server.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).getEntry(id.getOrThrow());
+            Optional<Holder.Reference<Enchantment>> ench = FireFlow.server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).get(id.getOrThrow());
             if (ench.isEmpty()) return i;
-            EnchantmentHelper.apply(i, b -> b.set(ench.get(), level.getValue(ctx).intValue()));
+            EnchantmentHelper.updateEnchantments(i, b -> b.set(ench.get(), level.getValue(ctx).intValue()));
             return i;
         });
     }

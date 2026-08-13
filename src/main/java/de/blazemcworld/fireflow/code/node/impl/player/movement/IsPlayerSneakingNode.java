@@ -4,8 +4,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Items;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class IsPlayerSneakingNode extends Node {
     public IsPlayerSneakingNode() {
@@ -13,7 +13,7 @@ public class IsPlayerSneakingNode extends Node {
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Output<Boolean> sneaking = new Output<>("sneaking", "Sneaking", ConditionType.INSTANCE);
 
-        sneaking.valueFrom(ctx -> player.getValue(ctx).tryGet(ctx, Entity::isSneaking, false));
+        sneaking.valueFrom(ctx -> player.getValue(ctx).tryGet(ctx, ServerPlayer::isShiftKeyDown, false));
     }
 
     @Override

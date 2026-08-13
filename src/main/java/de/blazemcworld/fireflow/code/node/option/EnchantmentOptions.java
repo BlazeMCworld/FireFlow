@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.CodeInteraction;
 import de.blazemcworld.fireflow.code.widget.ChoiceWidget;
 import de.blazemcworld.fireflow.code.widget.NodeIOWidget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class EnchantmentOptions implements InputOptions {
     private final List<String> effects = new ArrayList<>();
 
     private EnchantmentOptions() {
-        for (Identifier id : FireFlow.server.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).getIds()) {
+        for (Identifier id : FireFlow.server.registries().compositeAccess().lookupOrThrow(Registries.ENCHANTMENT).keySet()) {
             effects.add(id.getPath());
         }
         effects.sort(String::compareTo);

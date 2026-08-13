@@ -7,16 +7,16 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.VectorType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 public class OnPlayerBreakBlockNode extends Node {
 
     private final Output<Void> signal;
     private final Output<PlayerValue> player;
-    private final Output<Vec3d> position;
+    private final Output<Vec3> position;
 
     public OnPlayerBreakBlockNode() {
         super("on_player_break_block", "On Player Break Block", "Emits a signal when a player breaks a block.", Items.IRON_PICKAXE);
@@ -34,11 +34,11 @@ public class OnPlayerBreakBlockNode extends Node {
         return new OnPlayerBreakBlockNode();
     }
 
-    public boolean onBreakBlock(CodeEvaluator codeEvaluator, ServerPlayerEntity player, BlockPos pos, boolean cancel) {
+    public boolean onBreakBlock(CodeEvaluator codeEvaluator, ServerPlayer player, BlockPos pos, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
-        thread.setScopeValue(this.position, Vec3d.ofCenter(pos));
+        thread.setScopeValue(this.position, Vec3.atCenterOf(pos));
         thread.sendSignal(signal);
         thread.clearQueue();
         return thread.context.cancelled;

@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerStartSprintingNode extends Node {
 
@@ -22,7 +22,7 @@ public class OnPlayerStartSprintingNode extends Node {
         player.valueFromScope();
     }
 
-    public void emit(CodeEvaluator evaluator, ServerPlayerEntity player) {
+    public void emit(CodeEvaluator evaluator, ServerPlayer player) {
         CodeThread thread = evaluator.newCodeThread();
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.sendSignal(signal);

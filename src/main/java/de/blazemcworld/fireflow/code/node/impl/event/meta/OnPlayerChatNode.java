@@ -7,8 +7,8 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerChatNode extends Node {
     
@@ -32,7 +32,7 @@ public class OnPlayerChatNode extends Node {
         return new OnPlayerChatNode();
     }
 
-    public boolean onChat(CodeEvaluator evaluator, ServerPlayerEntity player, String message, boolean cancel) {
+    public boolean onChat(CodeEvaluator evaluator, ServerPlayer player, String message, boolean cancel) {
         CodeThread thread = evaluator.newCodeThread();
         thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));

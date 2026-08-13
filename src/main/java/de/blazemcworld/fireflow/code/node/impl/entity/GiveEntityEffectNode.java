@@ -5,13 +5,13 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.option.EffectOptions;
 import de.blazemcworld.fireflow.code.type.*;
 import de.blazemcworld.fireflow.code.value.EntityValue;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
 
 import java.util.Optional;
 
@@ -33,12 +33,12 @@ public class GiveEntityEffectNode extends Node {
         signal.onSignal((ctx) -> {
             entity.getValue(ctx).use(ctx, e -> {
                 if (!(e instanceof LivingEntity living)) return;
-                DataResult<Identifier> id = Identifier.validate(effect.getValue(ctx));
+                DataResult<Identifier> id = Identifier.read(effect.getValue(ctx));
                 if (id.isError()) return;
-                Optional<RegistryEntry.Reference<StatusEffect>> effectEntry = Registries.STATUS_EFFECT.getEntry(id.getOrThrow());
+                Optional<Holder.Reference<MobEffect>> effectEntry = BuiltInRegistries.MOB_EFFECT.get(id.getOrThrow());
                 if (effectEntry.isEmpty()) return;
-                living.addStatusEffect(new StatusEffectInstance(
-                        Registries.STATUS_EFFECT.getEntry(effectEntry.get().value()),
+                living.addEffect(new MobEffectInstance(
+                        effectEntry.get(),
                         duration.getValue(ctx).intValue(), amplifier.getValue(ctx).intValue(),
                         isAmbient.getValue(ctx), showParticles.getValue(ctx), showIcon.getValue(ctx)
                 ));

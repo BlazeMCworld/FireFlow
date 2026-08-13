@@ -4,7 +4,7 @@ import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.CodeInteraction;
 import de.blazemcworld.fireflow.code.type.AllTypes;
 import de.blazemcworld.fireflow.code.type.WireType;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;

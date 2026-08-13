@@ -10,12 +10,12 @@ import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
 import de.blazemcworld.fireflow.util.ModeManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Items;
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerRemoveS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.TeleportTarget;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.portal.TeleportTransition;
 
 import java.util.Collection;
 import java.util.List;
@@ -50,15 +50,15 @@ public class SetPlayerSkinNode extends Node {
                     Thread.startVirtualThread(() -> {
                         GameProfile profile = null;
                         if (m.equals("name")) {
-                            profile = FireFlow.server.getGameProfileRepo().findProfileByName(skin.getValue(ctx)).orElse(null);
-                            if (profile == null) return;
-                            ProfileResult result = FireFlow.server.getSessionService().fetchProfile(profile.getId(), true);
+                            com.mojang.authlib.yggdrasil.response.NameAndId info = FireFlow.server.services().profileRepository().findProfileByName(skin.getValue(ctx)).orElse(null);
+                            if (info == null) return;
+                            ProfileResult result = FireFlow.server.services().sessionService().fetchProfile(info.id(), true);
                             if (result == null) return;
                             profile = result.profile();
                         }
                         if (m.equals("uuid")) {
                             try {
-                                ProfileResult result = FireFlow.server.getSessionService().fetchProfile(UUID.fromString(skin.getValue(ctx)), true);
+                                ProfileResult result = FireFlow.server.services().sessionService().fetchProfile(UUID.fromString(skin.getValue(ctx)), true);
                                 if (result == null) return;
                                 profile = result.profile();
                             } catch (IllegalArgumentException ignore) {
@@ -70,7 +70,7 @@ public class SetPlayerSkinNode extends Node {
                         GameProfile resultingProfile = profile;
                         ctx.evaluator.nextTick(() -> {
                             player.getValue(ctx).tryUse(ctx, p -> {
-                                setSkin(p, resultingProfile.getProperties().get("textures"));
+                                setSkin(p, resultingProfile.properties().get("textures"));
                             });
                         });
                     });
@@ -89,22 +89,22 @@ public class SetPlayerSkinNode extends Node {
         return new SetPlayerSkinNode();
     }
 
-    private static ServerPlayerEntity setSkin(ServerPlayerEntity player, Collection<Property> textures) {
+    private static ServerPlayer setSkin(ServerPlayer player, Collection<Property> textures) {
         synchronized (needsReset) {
             needsReset.put(player.getGameProfile(), true);
         }
-        FireFlow.server.getPlayerManager().sendToAll(new PlayerRemoveS2CPacket(List.of(player.getUuid())));
+        FireFlow.server.getPlayerList().broadcastAll(new ClientboundPlayerInfoRemovePacket(List.of(player.getUUID())));
 
-        player.getGameProfile().getProperties().removeAll("textures");
-        player.getGameProfile().getProperties().putAll("textures", textures);
-        FireFlow.server.getPlayerManager().sendToAll(PlayerListS2CPacket.entryFromPlayer(List.of(player)));
-        ModeManager.respawnOverwrite.put(player, new TeleportTarget(player.getServerWorld(), player.getPos(), player.getVelocity(), player.getYaw(), player.getPitch(), TeleportTarget.NO_OP));
-        player = FireFlow.server.getPlayerManager().respawnPlayer(player, true, Entity.RemovalReason.DISCARDED);
-        player.networkHandler.player = player;
+        player.getGameProfile().properties().removeAll("textures");
+        player.getGameProfile().properties().putAll("textures", textures);
+        FireFlow.server.getPlayerList().broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player)));
+        ModeManager.respawnOverwrite.put(player, new TeleportTransition(player.level(), player.position(), player.getDeltaMovement(), player.getYRot(), player.getXRot(), TeleportTransition.DO_NOTHING));
+        player = FireFlow.server.getPlayerList().respawn(player, true, Entity.RemovalReason.DISCARDED);
+        player.connection.player = player;
         return player;
     }
 
-    public static ServerPlayerEntity reset(ServerPlayerEntity player) {
+    public static ServerPlayer reset(ServerPlayer player) {
         boolean needed = false;
         synchronized (needsReset) {
             if (needsReset.containsKey(player.getGameProfile())) {
@@ -113,9 +113,9 @@ public class SetPlayerSkinNode extends Node {
             }
         }
         if (!needed) return player;
-        ProfileResult result = FireFlow.server.getSessionService().fetchProfile(player.getUuid(), true);
+        ProfileResult result = FireFlow.server.services().sessionService().fetchProfile(player.getUUID(), true);
         if (result == null) return player;
-        player = setSkin(player, result.profile().getProperties().get("textures"));
+        player = setSkin(player, result.profile().properties().get("textures"));
         return player;
     }
 }

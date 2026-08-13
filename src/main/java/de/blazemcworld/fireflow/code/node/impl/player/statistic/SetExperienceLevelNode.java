@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class SetExperienceLevelNode extends Node {
     public SetExperienceLevelNode() {
@@ -15,7 +15,7 @@ public class SetExperienceLevelNode extends Node {
         Input<Double> level = new Input<>("level", "Level", NumberType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
         signal.onSignal((ctx) -> {
-            player.getValue(ctx).tryUse(ctx, p -> p.setExperienceLevel(level.getValue(ctx).intValue()));
+            player.getValue(ctx).tryUse(ctx, p -> p.setExperienceLevels(level.getValue(ctx).intValue()));
             ctx.sendSignal(next);
         });
     }

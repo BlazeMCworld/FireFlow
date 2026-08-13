@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.EntityType;
 import de.blazemcworld.fireflow.code.type.PositionType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
 import de.blazemcworld.fireflow.code.value.Position;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class EntityPositionNode extends Node {
 
@@ -16,7 +16,7 @@ public class EntityPositionNode extends Node {
         Output<Position> position = new Output<>("position", "Position", PositionType.INSTANCE);
 
         position.valueFrom((ctx) -> entity.getValue(ctx)
-                .apply(ctx, p -> new Position(p.getPos(), p.getPitch(), p.getYaw()), PositionType.INSTANCE.defaultValue()));
+                .apply(ctx, p -> new Position(p.position(), p.getXRot(), p.getYRot()), PositionType.INSTANCE.defaultValue()));
     }
 
     @Override

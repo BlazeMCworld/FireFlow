@@ -2,8 +2,8 @@ package de.blazemcworld.fireflow.code.type;
 
 import com.google.gson.JsonElement;
 import de.blazemcworld.fireflow.code.value.AnyValue;
-import net.minecraft.item.Item;
-import net.minecraft.text.TextColor;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Item;
 
 import java.util.List;
 

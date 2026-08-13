@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.AllTypes;
 import de.blazemcworld.fireflow.code.web.WebServer;
 import de.blazemcworld.fireflow.command.*;
 import de.blazemcworld.fireflow.space.Lobby;
-import de.blazemcworld.fireflow.space.PlayWorld;
+import de.blazemcworld.fireflow.space.PlayLevel;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.ModeManager;
@@ -17,11 +17,10 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,18 +51,18 @@ public class FireFlow implements ModInitializer {
             AllTypes.init();
             WebServer.init();
 
-            server.getOverworld().getWorldBorder().setSize(1024);
+            server.overworld().getWorldBorder().setSize(1024);
         });
 
         ServerLifecycleEvents.SERVER_STOPPING.register((srv -> {
             WebServer.stop();
-            for (ServerPlayerEntity player : new ArrayList<>(srv.getPlayerManager().getPlayerList())) {
-                player.networkHandler.disconnect(Text.literal("Server stopped!"));
+            for (ServerPlayer player : new ArrayList<>(srv.getPlayerList().getPlayers())) {
+                player.connection.disconnect(Component.literal("Server stopped!"));
             }
-            Set<World> worlds = new HashSet<>(srv.worlds.values());
+            Set<ServerLevel> worlds = new HashSet<>(srv.levels.values());
             CountDownLatch counter = new CountDownLatch(worlds.size());
-            for (World w : worlds) {
-                if (w instanceof PlayWorld s) {
+            for (ServerLevel w : worlds) {
+                if (w instanceof PlayLevel s) {
                     s.closeSoon(counter::countDown);
                     continue;
                 }
@@ -83,23 +82,18 @@ public class FireFlow implements ModInitializer {
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             ModeManager.handleExit(handler.player);
-            handler.player.removeAllPassengers();
+            handler.player.ejectPassengers();
             handler.player.stopRiding();
         });
 
-        ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
-            if (world instanceof PlayWorld play) {
-                play.submit(() -> play.space.evaluator.onChunkLoad(chunk.getPos().x, chunk.getPos().z));
-            }
-        });
-        ServerChunkEvents.CHUNK_GENERATE.register((world, chunk) -> {
-            if (world instanceof PlayWorld play) {
-                play.submit(() -> play.space.evaluator.onChunkLoad(chunk.getPos().x, chunk.getPos().z));
+        ServerChunkEvents.CHUNK_LOAD.register((level, chunk, isNew) -> {
+            if (level instanceof PlayLevel play) {
+                play.submit(() -> play.space.evaluator.onChunkLoad(chunk.getPos().x(), chunk.getPos().z()));
             }
         });
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
-            Space space = SpaceManager.getSpaceForWorld((ServerWorld) entity.getWorld());
-            if (space != null && space.playWorld == entity.getWorld()) return space.evaluator.allowDeath(entity, source, amount);
+            Space space = SpaceManager.getSpaceForLevel((ServerLevel) entity.level());
+            if (space != null && space.playLevel == entity.level()) return space.evaluator.allowDeath(entity, source, amount);
             return true;
         });
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> amount >= 0);

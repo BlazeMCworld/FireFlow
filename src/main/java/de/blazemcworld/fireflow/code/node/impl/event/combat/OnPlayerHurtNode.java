@@ -8,8 +8,8 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerHurtNode extends Node {
 
@@ -30,7 +30,7 @@ public class OnPlayerHurtNode extends Node {
         type.valueFromScope();
     }
 
-    public void onPlayerHurt(CodeEvaluator codeEvaluator, ServerPlayerEntity player, float damage, String type, CodeThread.EventContext ctx) {
+    public void onPlayerHurt(CodeEvaluator codeEvaluator, ServerPlayer player, float damage, String type, CodeThread.EventContext ctx) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.context = ctx;
         thread.setScopeValue(this.player, new PlayerValue(player));

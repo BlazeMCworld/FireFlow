@@ -5,8 +5,9 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.util.Hand;
+import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.Items;
 
 public class PlayerAnimationNode extends Node {
 
@@ -22,12 +23,12 @@ public class PlayerAnimationNode extends Node {
         signal.onSignal((ctx) -> {
             player.getValue(ctx).tryUse(ctx, p -> {
                 switch (animation.getValue(ctx)) {
-                    case "damage" -> p.animateDamage(0);
-                    case "critical" -> p.addCritParticles(p);
-                    case "magic_critical" -> p.addEnchantedHitParticles(p);
-                    case "main_hand" -> p.swingHand(Hand.MAIN_HAND);
-                    case "off_hand" -> p.swingHand(Hand.OFF_HAND);
-                    case "wake_up" -> p.wakeUp();
+                    case "damage" -> p.animateHurt(0);
+                    case "critical" -> p.crit(p);
+                    case "magic_critical" -> p.magicCrit(p);
+                    case "main_hand" -> p.swing(InteractionHand.MAIN_HAND);
+                    case "off_hand" -> p.swing(InteractionHand.OFF_HAND);
+                    case "wake_up" -> p.connection.send(new ClientboundAnimatePacket(p, ClientboundAnimatePacket.WAKE_UP));
                 };
             });
             ctx.sendSignal(next);

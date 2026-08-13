@@ -4,66 +4,65 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 public class RaycastNode extends Node {
 
     public RaycastNode() {
         super("raycast", "Raycast", "Sends out a raycast, like a ray of light and returns if, where and what it hits.", Items.SPECTRAL_ARROW);
 
-        Input<Vec3d> start = new Input<>("start", "Start", VectorType.INSTANCE);
-        Input<Vec3d> end = new Input<>("end", "End", VectorType.INSTANCE);
+        Input<Vec3> start = new Input<>("start", "Start", VectorType.INSTANCE);
+        Input<Vec3> end = new Input<>("end", "End", VectorType.INSTANCE);
         Input<Boolean> fluids = new Input<>("fluids", "Fluids", ConditionType.INSTANCE);
-        Output<Vec3d> point = new Output<>("point", "Point", VectorType.INSTANCE);
+        Output<Vec3> point = new Output<>("point", "Point", VectorType.INSTANCE);
         Output<String> block = new Output<>("block", "Block", StringType.INSTANCE);
-        Output<Vec3d> side = new Output<>("side", "Side", VectorType.INSTANCE);
+        Output<Vec3> side = new Output<>("side", "Side", VectorType.INSTANCE);
 
         point.valueFrom(ctx -> {
-            Vec3d startVec = start.getValue(ctx);
-            Vec3d endVec = end.getValue(ctx);
-            BlockHitResult result = ctx.evaluator.world.raycast(new RaycastContext(
+            Vec3 startVec = start.getValue(ctx);
+            Vec3 endVec = end.getValue(ctx);
+            BlockHitResult result = ctx.evaluator.level.clip(new ClipContext(
                     startVec, endVec,
-                    RaycastContext.ShapeType.COLLIDER,
-                    fluids.getValue(ctx) ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE,
-                    ShapeContext.absent()
+                    ClipContext.Block.COLLIDER,
+                    fluids.getValue(ctx) ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE,
+                    CollisionContext.empty()
             ));
-            if (result.getType() == HitResult.Type.MISS) return endVec;
-            return result.getPos();
+            if (result.getType() == BlockHitResult.Type.MISS) return endVec;
+            return result.getLocation();
         });
 
         block.valueFrom(ctx -> {
-            Vec3d startVec = start.getValue(ctx);
-            Vec3d endVec = end.getValue(ctx);
-            BlockHitResult result = ctx.evaluator.world.raycast(new RaycastContext(
+            Vec3 startVec = start.getValue(ctx);
+            Vec3 endVec = end.getValue(ctx);
+            BlockHitResult result = ctx.evaluator.level.clip(new ClipContext(
                     startVec, endVec,
-                    RaycastContext.ShapeType.COLLIDER,
-                    fluids.getValue(ctx) ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE,
-                    ShapeContext.absent()
+                    ClipContext.Block.COLLIDER,
+                    fluids.getValue(ctx) ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE,
+                    CollisionContext.empty()
             ));
-            if (result.getType() == HitResult.Type.MISS) {
-                return Registries.BLOCK.getId(ctx.evaluator.world.getBlockState(BlockPos.ofFloored(endVec)).getBlock()).getPath();
+            if (result.getType() == BlockHitResult.Type.MISS) {
+                return BuiltInRegistries.BLOCK.getKey(ctx.evaluator.level.getBlockState(BlockPos.containing(endVec)).getBlock()).getPath();
             }
-            return Registries.BLOCK.getId(ctx.evaluator.world.getBlockState(result.getBlockPos()).getBlock()).getPath();
+            return BuiltInRegistries.BLOCK.getKey(ctx.evaluator.level.getBlockState(result.getBlockPos()).getBlock()).getPath();
         });
 
         side.valueFrom(ctx -> {
-            Vec3d startVec = start.getValue(ctx);
-            Vec3d endVec = end.getValue(ctx);
-            BlockHitResult result = ctx.evaluator.world.raycast(new RaycastContext(
+            Vec3 startVec = start.getValue(ctx);
+            Vec3 endVec = end.getValue(ctx);
+            BlockHitResult result = ctx.evaluator.level.clip(new ClipContext(
                     startVec, endVec,
-                    RaycastContext.ShapeType.COLLIDER,
-                    fluids.getValue(ctx) ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE,
-                    ShapeContext.absent()
+                    ClipContext.Block.COLLIDER,
+                    fluids.getValue(ctx) ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE,
+                    CollisionContext.empty()
             ));
-            if (result.getType() == HitResult.Type.MISS) return Vec3d.ZERO;
-            return result.getSide().getDoubleVector();
+            if (result.getType() == BlockHitResult.Type.MISS) return Vec3.ZERO;
+            return result.getDirection().getUnitVec3();
         });
     }
 

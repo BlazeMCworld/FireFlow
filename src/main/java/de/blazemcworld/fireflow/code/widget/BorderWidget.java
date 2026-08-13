@@ -1,7 +1,7 @@
 package de.blazemcworld.fireflow.code.widget;
 
 import de.blazemcworld.fireflow.code.CodeInteraction;
-import net.minecraft.text.TextColor;
+import net.minecraft.network.chat.TextColor;
 
 import java.util.List;
 

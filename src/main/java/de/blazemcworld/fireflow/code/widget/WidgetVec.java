@@ -1,17 +1,17 @@
 package de.blazemcworld.fireflow.code.widget;
 
 import de.blazemcworld.fireflow.code.CodeEditor;
-import de.blazemcworld.fireflow.code.CodeWorld;
-import net.minecraft.util.math.Vec3d;
+import de.blazemcworld.fireflow.code.CodeLevel;
+import net.minecraft.world.phys.Vec3;
 
 public record WidgetVec(CodeEditor editor, double x, double y) {
 
-    public Vec3d vec() {
-        return new Vec3d(x, y, 15.999);
+    public Vec3 vec() {
+        return new Vec3(x, y, 15.999);
     }
 
-    public CodeWorld world() {
-        return editor.world;
+    public CodeLevel level() {
+        return editor.level;
     }
 
     public WidgetVec withX(double x) {

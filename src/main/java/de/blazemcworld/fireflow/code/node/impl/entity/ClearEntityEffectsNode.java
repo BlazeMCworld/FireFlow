@@ -4,8 +4,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.EntityType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Items;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
 
 public class ClearEntityEffectsNode extends Node {
 
@@ -20,7 +20,7 @@ public class ClearEntityEffectsNode extends Node {
             ctx.sendSignal(next);
             entity.getValue(ctx).use(ctx, e -> {
                 if (e instanceof LivingEntity living) {
-                    living.clearStatusEffects();
+                    living.removeAllEffects();
                 }
             });
         });

@@ -1,7 +1,7 @@
 package de.blazemcworld.fireflow.code.widget;
 
 import de.blazemcworld.fireflow.code.CodeInteraction;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 import java.util.function.Function;
@@ -16,7 +16,7 @@ public class ButtonWidget extends Widget {
         this.looks = looks;
     }
 
-    public ButtonWidget(WidgetVec pos, Text text) {
+    public ButtonWidget(WidgetVec pos, Component text) {
         this(new TextWidget(pos, text));
     }
 

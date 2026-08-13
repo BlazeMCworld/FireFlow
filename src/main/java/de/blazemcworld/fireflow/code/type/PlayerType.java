@@ -3,9 +3,8 @@ package de.blazemcworld.fireflow.code.type;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Items;
 
 import java.util.UUID;
 
@@ -14,7 +13,7 @@ public class PlayerType extends WireType<PlayerValue> {
     public static final PlayerType INSTANCE = new PlayerType();
 
     private PlayerType() {
-        super("player", TextColor.fromFormatting(Formatting.GOLD), Items.PLAYER_HEAD);
+        super("player", TextColor.GOLD, Items.PLAYER_HEAD);
     }
 
     @Override

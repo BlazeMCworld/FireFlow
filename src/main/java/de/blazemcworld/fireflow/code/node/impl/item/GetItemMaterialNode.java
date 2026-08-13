@@ -3,9 +3,9 @@ package de.blazemcworld.fireflow.code.node.impl.item;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.StringType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class GetItemMaterialNode extends Node {
 
@@ -15,7 +15,7 @@ public class GetItemMaterialNode extends Node {
         Input<ItemStack> item = new Input<>("item", "Item", ItemType.INSTANCE);
         Output<String> material = new Output<>("material", "Material", StringType.INSTANCE);
 
-        material.valueFrom((ctx) -> Registries.ITEM.getId(item.getValue(ctx).getItem()).getPath());
+        material.valueFrom((ctx) -> BuiltInRegistries.ITEM.getKey(item.getValue(ctx).getItem()).getPath());
     }
 
     @Override

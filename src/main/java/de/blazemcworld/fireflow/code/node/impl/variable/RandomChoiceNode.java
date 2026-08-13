@@ -3,7 +3,7 @@ package de.blazemcworld.fireflow.code.node.impl.variable;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.SingleGenericNode;
 import de.blazemcworld.fireflow.code.type.WireType;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class RandomChoiceNode<T> extends SingleGenericNode<T> {
         chosen.valueFrom((ctx) -> {
             List<T> opt = options.getVarargs(ctx);
             if (opt.isEmpty()) return type.defaultValue();
-            return opt.get(ctx.evaluator.world.random.nextInt(opt.size()));
+            return opt.get(ctx.evaluator.level.getRandom().nextInt(opt.size()));
         });
     }
 

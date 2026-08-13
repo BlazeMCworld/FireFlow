@@ -16,9 +16,9 @@ import de.blazemcworld.fireflow.code.widget.NodeIOWidget;
 import de.blazemcworld.fireflow.code.widget.NodeWidget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
 import de.blazemcworld.fireflow.code.widget.WireWidget;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -168,7 +168,7 @@ public class CodeJSON {
         for (FunctionDefinition function : functions) {
             JsonObject obj = new JsonObject();
             obj.addProperty("name", function.name);
-            obj.addProperty("icon", Registries.ITEM.getId(function.icon).getPath());
+            obj.addProperty("icon", BuiltInRegistries.ITEM.getKey(function.icon).getPath());
             JsonArray inputs = new JsonArray();
             for (Node.Output<?> input : function.inputsNode.outputs) {
                 JsonObject inputObj = new JsonObject();
@@ -440,8 +440,8 @@ public class CodeJSON {
         for (JsonElement function : json) {
             JsonObject obj = function.getAsJsonObject();
             String name = obj.get("name").getAsString();
-            DataResult<Identifier> id = Identifier.validate(obj.get("icon").getAsString());
-            FunctionDefinition functionDefinition = new FunctionDefinition(name, id.isError() ? Items.COMMAND_BLOCK : Registries.ITEM.getOptionalValue(id.getOrThrow()).orElse(Items.COMMAND_BLOCK));
+            DataResult<Identifier> id = Identifier.read(obj.get("icon").getAsString());
+            FunctionDefinition functionDefinition = new FunctionDefinition(name, id.isError() ? Items.COMMAND_BLOCK : BuiltInRegistries.ITEM.getOptional(id.getOrThrow()).orElse(Items.COMMAND_BLOCK));
 
             for (JsonElement input : obj.getAsJsonArray("inputs")) {
                 JsonObject inputObj = input.getAsJsonObject();

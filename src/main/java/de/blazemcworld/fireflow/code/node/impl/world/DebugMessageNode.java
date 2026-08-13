@@ -5,10 +5,10 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class DebugMessageNode extends Node {
 
@@ -32,10 +32,10 @@ public class DebugMessageNode extends Node {
             }
             out.setLength(out.length() - 1);
 
-            Text msg = Text.literal("Debug: ").formatted(Formatting.AQUA).append(Text.literal(out.toString()).formatted(Formatting.DARK_AQUA));
-            for (ServerPlayerEntity player : ctx.evaluator.space.getPlayers()) {
-                if (ctx.evaluator.space.info.isOwnerOrDeveloper(player.getUuid())) {
-                    player.sendMessage(msg, false);
+            Component msg = Component.literal("Debug: ").withColor(TextColor.AQUA).append(Component.literal(out.toString()).withColor(TextColor.DARK_AQUA));
+            for (ServerPlayer player : ctx.evaluator.space.playersAnyMode()) {
+                if (ctx.evaluator.space.info.isOwnerOrDeveloper(player.getUUID())) {
+                    player.sendSystemMessage(msg, false);
                 }
             }
             JsonObject json = new JsonObject();

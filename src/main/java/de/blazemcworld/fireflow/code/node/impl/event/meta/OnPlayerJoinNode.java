@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerJoinNode extends Node {
 
@@ -27,7 +27,7 @@ public class OnPlayerJoinNode extends Node {
         return new OnPlayerJoinNode();
     }
 
-    public void onJoin(CodeEvaluator evaluator, ServerPlayerEntity p) {
+    public void onJoin(CodeEvaluator evaluator, ServerPlayer p) {
         CodeThread thread = evaluator.newCodeThread();
         thread.setScopeValue(player, new PlayerValue(p));
         thread.sendSignal(signal);

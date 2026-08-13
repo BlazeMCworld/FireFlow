@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.type.EntityType;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.item.Items;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.item.Items;
 
 public class SetTNTFuseNode extends Node {
 
@@ -20,7 +20,7 @@ public class SetTNTFuseNode extends Node {
 
         signal.onSignal((ctx) -> {
             entity.getValue(ctx).use(ctx, e -> {
-                if (!(e instanceof TntEntity tnt)) return;
+                if (!(e instanceof PrimedTnt tnt)) return;
                 tnt.setFuse(fuse.getValue(ctx).intValue());
             });
             ctx.sendSignal(next);

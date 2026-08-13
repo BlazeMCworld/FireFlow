@@ -6,12 +6,12 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class PlayerCrosshairTargetNode extends Node {
 
@@ -20,20 +20,20 @@ public class PlayerCrosshairTargetNode extends Node {
 
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Input<Boolean> checkFluids = new Input<>("fluids", "Fluids", ConditionType.INSTANCE);
-        Output<Vec3d> position = new Output<>("position", "Position", VectorType.INSTANCE);
+        Output<Vec3> position = new Output<>("position", "Position", VectorType.INSTANCE);
         Output<String> block = new Output<>("block", "Block", StringType.INSTANCE);
 
         position.valueFrom((ctx) -> player.getValue(ctx).tryGet(ctx, p -> {
-                    HitResult result = p.raycast(p.getAttributeValue(EntityAttributes.BLOCK_INTERACTION_RANGE), 0f, checkFluids.getValue(ctx));
-                    if (result.getType() == HitResult.Type.MISS) return p.getEyePos();
-                    return result.getPos();
-                }, Vec3d.ZERO
+                    HitResult result = p.pick(p.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), 0f, checkFluids.getValue(ctx));
+                    if (result.getType() == BlockHitResult.Type.MISS) return p.getEyePosition();
+                    return result.getLocation();
+                }, Vec3.ZERO
         ));
 
         block.valueFrom((ctx) -> player.getValue(ctx).tryGet(ctx, p -> {
-                    HitResult result = p.raycast(p.getAttributeValue(EntityAttributes.BLOCK_INTERACTION_RANGE), 0f, checkFluids.getValue(ctx));
+                    HitResult result = p.pick(p.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), 0f, checkFluids.getValue(ctx));
                     if (!(result instanceof BlockHitResult bhit)) return "air";
-                    return Registries.BLOCK.getId(ctx.evaluator.world.getBlockState(bhit.getBlockPos()).getBlock()).getPath();
+                    return BuiltInRegistries.BLOCK.getKey(ctx.evaluator.level.getBlockState(bhit.getBlockPos()).getBlock()).getPath();
                 }, "air"
         ));
     }

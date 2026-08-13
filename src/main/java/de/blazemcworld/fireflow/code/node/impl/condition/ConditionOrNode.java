@@ -2,7 +2,7 @@ package de.blazemcworld.fireflow.code.node.impl.condition;
 
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class ConditionOrNode extends Node {
 

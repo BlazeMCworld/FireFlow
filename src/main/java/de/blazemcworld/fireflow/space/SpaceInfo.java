@@ -1,6 +1,6 @@
 package de.blazemcworld.fireflow.space;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 import java.util.Set;
 import java.util.UUID;

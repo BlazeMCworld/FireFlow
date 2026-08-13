@@ -14,6 +14,7 @@ public class FunctionInputsNode extends Node {
         this.function = function;
     }
 
+    @SuppressWarnings({"RedundantCast", "unchecked"})
     public void addInput(String name, WireType<?> type) {
         Output<?> input = new Output<>(name, name, type);
         if (type != SignalType.INSTANCE) {

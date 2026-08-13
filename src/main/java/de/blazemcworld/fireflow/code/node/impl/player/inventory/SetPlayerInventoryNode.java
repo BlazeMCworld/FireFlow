@@ -4,8 +4,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.*;
 import de.blazemcworld.fireflow.code.value.ListValue;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class SetPlayerInventoryNode extends Node {
 
@@ -22,14 +22,14 @@ public class SetPlayerInventoryNode extends Node {
         signal.onSignal((ctx) -> {
             player.getValue(ctx).tryUse(ctx, p -> {
                 boolean clearInv = behaviour.getValue(ctx).equals("Clear");
-                if (clearInv) p.getInventory().clear();
+                if (clearInv) p.getInventory().clearContent();
 
                 ListValue<ItemStack> items = contents.getValue(ctx);
-                int stop = Math.min(items.size(), p.getInventory().size());
+                int stop = Math.min(items.size(), p.getInventory().getContainerSize());
                 for (int slot = 0; slot < stop; slot++) {
                     ItemStack replacement = items.get(slot);
                     if (!clearInv && replacement.isEmpty()) continue;
-                    p.getInventory().setStack(slot, replacement);
+                    p.getInventory().setItem(slot, replacement);
                 }
             });
             ctx.sendSignal(next);

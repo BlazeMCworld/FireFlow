@@ -1,34 +1,34 @@
 package de.blazemcworld.fireflow.code.widget;
 
 import com.google.gson.JsonObject;
+import com.mojang.math.Transformation;
 import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.code.CodeInteraction;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.math.AffineTransformation;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Vector3f;
 
 import java.util.List;
 
 public class ItemWidget extends Widget {
 
-    private final DisplayEntity.ItemDisplayEntity display;
+    private final Display.ItemDisplay display;
     private boolean spawned = false;
     private final double size;
 
     public ItemWidget(WidgetVec pos, ItemStack item, double size) {
         super(pos);
-        display = new DisplayEntity.ItemDisplayEntity(EntityType.ITEM_DISPLAY, pos.world());
+        display = new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY, pos.level());
         display.setItemStack(item);
-        display.setInterpolationDuration(1);
-        display.setTeleportDuration(1);
-        display.setYaw(180);
+        display.setPosRotInterpolationDuration(1);
+        display.setTransformationInterpolationDuration(1);
+        display.setYRot(180);
         this.size = size;
     }
 
@@ -43,28 +43,29 @@ public class ItemWidget extends Widget {
 
     @Override
     public void update() {
-        display.setPosition(pos().vec().withAxis(Direction.Axis.Z, 15.99));
-        display.setTeleportDuration(1);
-        display.setInterpolationDuration(1);
-        display.setItemDisplayContext(ItemDisplayContext.GUI);
-        display.setTransformation(new AffineTransformation(
+        display.setPos(pos().vec().with(Direction.Axis.Z, 15.99));
+        display.setItemTransform(ItemDisplayContext.GUI);
+        display.setTransformation(new Transformation(
                 new Vector3f((float) size / 2, (float) -size / 2, 0),
-                DisplayEntity.getTransformation(display.getDataTracker()).getLeftRotation(),
+                Display.createTransformation(display.getEntityData()).leftRotation(),
                 new Vector3f((float) -size, (float) size, -0.001f),
-                DisplayEntity.getTransformation(display.getDataTracker()).getRightRotation()
+                Display.createTransformation(display.getEntityData()).rightRotation()
         ));
         if (!spawned) {
-            FireFlow.server.execute(() -> pos().world().spawnEntity(display));
+            FireFlow.server.execute(() -> {
+                if (display.isRemoved()) return;
+                pos().level().addFreshEntity(display);
+            });
             spawned = true;
         }
 
         JsonObject json = new JsonObject();
         json.addProperty("type", "item");
-        json.addProperty("id", display.getUuid().toString());
+        json.addProperty("id", display.getUUID().toString());
         json.addProperty("x", pos().x());
         json.addProperty("y", pos().y());
         json.addProperty("size", size);
-        json.addProperty("item", Registries.ITEM.getId(display.getItemStack().getItem()).getPath());
+        json.addProperty("item", BuiltInRegistries.ITEM.getKey(display.getItemStack().getItem()).getPath());
         pos().editor().webBroadcast(json);
     }
 
@@ -79,7 +80,7 @@ public class ItemWidget extends Widget {
 
         JsonObject json = new JsonObject();
         json.addProperty("type", "remove");
-        json.addProperty("id", display.getUuid().toString());
+        json.addProperty("id", display.getUUID().toString());
         pos().editor().webBroadcast(json);
     }
 

@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.world.GameMode;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 
 public class SetGamemodeNode extends Node {
     public SetGamemodeNode() {
@@ -15,19 +15,19 @@ public class SetGamemodeNode extends Node {
 
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Input<String> gamemode = new Input<>("gamemode", "Gamemode", StringType.INSTANCE)
-                .options("Creative", "Survival", "Adventure", "Spectator");
+                .options("creative", "survival", "adventure", "spectator");
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         signal.onSignal((ctx) -> {
             player.getValue(ctx).tryUse(ctx, p -> {
-                GameMode mode = switch (gamemode.getValue(ctx)) {
-                    case "Creative" -> GameMode.CREATIVE;
-                    case "Survival" -> GameMode.SURVIVAL;
-                    case "Adventure" -> GameMode.ADVENTURE;
-                    case "Spectator" -> GameMode.SPECTATOR;
+                GameType mode = switch (gamemode.getValue(ctx).toLowerCase()) {
+                    case "creative" -> GameType.CREATIVE;
+                    case "survival" -> GameType.SURVIVAL;
+                    case "adventure" -> GameType.ADVENTURE;
+                    case "spectator" -> GameType.SPECTATOR;
                     default -> null;
                 };
-                if (mode != null) p.changeGameMode(mode);
+                if (mode != null) p.setGameMode(mode);
             });
             ctx.sendSignal(next);
         });

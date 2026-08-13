@@ -7,14 +7,14 @@ import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.DictionaryValue;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import java.util.HashMap;
 
@@ -29,10 +29,10 @@ public class GetItemEnchantmentsNode extends Node {
         enchantments.valueFrom((ctx) -> {
             ItemStack i = item.getValue(ctx);
             HashMap<String, Double> out = new HashMap<>();
-            ItemEnchantmentsComponent comp = i.getEnchantments();
-            Registry<Enchantment> registry = FireFlow.server.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT);
-            for (RegistryEntry<Enchantment> e : comp.getEnchantments()) {
-                Identifier id = registry.getId(e.value());
+            ItemEnchantments comp = i.getEnchantments();
+            Registry<Enchantment> registry = FireFlow.server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+            for (Holder<Enchantment> e : comp.keySet()) {
+                Identifier id = registry.getKey(e.value());
                 if (id == null) continue;
                 out.put(id.getPath(), (double) comp.getLevel(e));
             }

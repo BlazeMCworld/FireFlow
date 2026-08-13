@@ -8,8 +8,8 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Items;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
 
 public class OnEntityHurtNode extends Node {
 

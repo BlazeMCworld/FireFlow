@@ -3,7 +3,7 @@ package de.blazemcworld.fireflow.code.node.impl.control;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class IfNode extends Node {
 

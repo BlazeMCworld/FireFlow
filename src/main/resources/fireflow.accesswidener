@@ -1,19 +1,21 @@
-accessWidener v2 named
+accessWidener v2 official
 
-accessible field net/minecraft/server/MinecraftServer workerExecutor Ljava/util/concurrent/Executor;
-accessible field net/minecraft/server/MinecraftServer session Lnet/minecraft/world/level/storage/LevelStorage$Session;
-accessible field net/minecraft/server/MinecraftServer worlds Ljava/util/Map;
-accessible field net/minecraft/world/World thread Ljava/lang/Thread;
-mutable field net/minecraft/world/World thread Ljava/lang/Thread;
-accessible field net/minecraft/server/world/ServerChunkManager serverThread Ljava/lang/Thread;
-mutable field net/minecraft/server/world/ServerChunkManager serverThread Ljava/lang/Thread;
-accessible field net/minecraft/text/Style bold Ljava/lang/Boolean;
-accessible method net/minecraft/world/border/WorldBorder$Properties <init> (DDDDIIDJD)V
-accessible method net/minecraft/entity/Entity addPassenger (Lnet/minecraft/entity/Entity;)V
-accessible field net/minecraft/entity/Entity vehicle Lnet/minecraft/entity/Entity;
-accessible method net/minecraft/server/world/ServerChunkLoadingManager unloadChunks (Ljava/util/function/BooleanSupplier;)V
-accessible method net/minecraft/server/network/ServerPlayNetworkHandler handleDecoratedMessage (Lnet/minecraft/network/message/SignedMessage;)V
-mutable field net/minecraft/server/command/CommandManager dispatcher Lcom/mojang/brigadier/CommandDispatcher;
-accessible field net/minecraft/server/world/ServerWorld entityManager Lnet/minecraft/server/world/ServerEntityManager;
-mutable field net/minecraft/server/world/ServerWorld entityManager Lnet/minecraft/server/world/ServerEntityManager;
-accessible field net/minecraft/server/dedicated/AbstractPropertiesHandler properties Ljava/util/Properties;
+accessible class net/minecraft/server/level/ServerChunkCache$MainThreadExecutor
+accessible field net/minecraft/network/chat/Style bold Ljava/lang/Boolean;
+accessible field net/minecraft/server/MinecraftServer executor Ljava/util/concurrent/Executor;
+accessible field net/minecraft/server/MinecraftServer levels Ljava/util/Map;
+accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;
+accessible field net/minecraft/server/dedicated/Settings properties Ljava/util/Properties;
+accessible field net/minecraft/server/level/ServerChunkCache mainThread Ljava/lang/Thread;
+accessible field net/minecraft/server/level/ServerLevel entityManager Lnet/minecraft/world/level/entity/PersistentEntitySectionManager;
+accessible field net/minecraft/world/entity/Entity vehicle Lnet/minecraft/world/entity/Entity;
+accessible field net/minecraft/world/level/Level thread Ljava/lang/Thread;
+accessible method net/minecraft/server/level/ChunkMap processUnloads (Ljava/util/function/BooleanSupplier;)V
+accessible method net/minecraft/server/network/ServerGamePacketListenerImpl broadcastChatMessage (Lnet/minecraft/network/chat/PlayerChatMessage;)V
+accessible method net/minecraft/world/entity/Display createTransformation (Lnet/minecraft/network/syncher/SynchedEntityData;)Lcom/mojang/math/Transformation;
+accessible method net/minecraft/world/entity/Entity addPassenger (Lnet/minecraft/world/entity/Entity;)V
+accessible method net/minecraft/world/level/border/WorldBorder$Settings <init> (DDDDIIDJD)V
+mutable field net/minecraft/commands/Commands dispatcher Lcom/mojang/brigadier/CommandDispatcher;
+mutable field net/minecraft/server/level/ServerChunkCache mainThread Ljava/lang/Thread;
+mutable field net/minecraft/server/level/ServerLevel entityManager Lnet/minecraft/world/level/entity/PersistentEntitySectionManager;
+mutable field net/minecraft/world/level/Level thread Ljava/lang/Thread;

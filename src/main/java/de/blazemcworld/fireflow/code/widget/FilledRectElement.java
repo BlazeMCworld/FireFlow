@@ -1,14 +1,14 @@
 package de.blazemcworld.fireflow.code.widget;
 
 import com.google.gson.JsonObject;
+import com.mojang.math.Transformation;
 import de.blazemcworld.fireflow.FireFlow;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.math.AffineTransformation;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
 import org.joml.Vector3f;
 
 public class FilledRectElement {
@@ -18,44 +18,47 @@ public class FilledRectElement {
     public int color;
     private boolean spawned = false;
 
-    private final DisplayEntity.TextDisplayEntity display;
+    private final Display.TextDisplay display;
 
     public FilledRectElement(WidgetVec pos, int color) {
         this.pos = pos;
         this.color = color;
-        display = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, pos.world());
-        display.setBackground(color);
-        display.setText(Text.literal(" "));
+        display = new Display.TextDisplay(EntityTypes.TEXT_DISPLAY, pos.level());
+        display.setBackgroundColor(color);
+        display.setText(Component.literal(" "));
         display.setLineWidth(Integer.MAX_VALUE);
-        display.setInterpolationDuration(1);
-        display.setTeleportDuration(1);
-        display.setYaw(180);
+        display.setTransformationInterpolationDuration(1);
+        display.setPosRotInterpolationDuration(1);
+        display.setYRot(180);
     }
 
     public void update() {
-        AffineTransformation transform = DisplayEntity.getTransformation(display.getDataTracker());
-        display.setTransformation(new AffineTransformation(
-                transform.getTranslation(),
-                transform.getLeftRotation(),
+        Transformation transform = Display.createTransformation(display.getEntityData());
+        display.setTransformation(new Transformation(
+                transform.translation(),
+                transform.leftRotation(),
                 new Vector3f((float) size.x() * 8, (float) size.y() * 4, 1),
-                transform.getRightRotation()
+                transform.rightRotation()
         ));
-        display.setPosition(pos.sub(size.x() / 2.5, size.y()).vec().withAxis(Direction.Axis.Z, 15.9995));
-        display.setBackground(color);
+        display.setPos(pos.sub(size.x() / 2.5, size.y()).vec().with(Direction.Axis.Z, 15.9995));
+        display.setBackgroundColor(color);
 
         if (!spawned) {
-            FireFlow.server.execute(() -> pos.world().spawnEntity(display));
+            FireFlow.server.execute(() -> {
+                if (display.isRemoved()) return;
+                pos.level().addFreshEntity(display);
+            });
             spawned = true;
         }
 
         JsonObject json = new JsonObject();
         json.addProperty("type", "filled-rect");
-        json.addProperty("id", display.getUuid().toString());
+        json.addProperty("id", display.getUUID().toString());
         json.addProperty("x", pos.x());
         json.addProperty("y", pos.y());
         json.addProperty("width", size.x());
         json.addProperty("height", size.y());
-        json.addProperty("color", TextColor.fromRgb(color).getHexCode());
+        json.addProperty("color", TextColor.fromRgb(color).formatValue());
         pos.editor().webBroadcast(json);
     }
 
@@ -64,7 +67,7 @@ public class FilledRectElement {
 
         JsonObject json = new JsonObject();
         json.addProperty("type", "remove");
-        json.addProperty("id", display.getUuid().toString());
+        json.addProperty("id", display.getUUID().toString());
         pos.editor().webBroadcast(json);
     }
 }

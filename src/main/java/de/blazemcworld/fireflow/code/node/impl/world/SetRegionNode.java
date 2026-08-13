@@ -6,58 +6,59 @@ import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.VectorType;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-
-import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class SetRegionNode extends Node {
     public SetRegionNode() {
         super("set_region", "Set Region", "Sets a region of blocks", Items.POLISHED_ANDESITE);
         Input<Void> signal = new Input<>("signal", "Signal", SignalType.INSTANCE);
-        Input<Vec3d> corner1 = new Input<>("corner1", "Corner 1", VectorType.INSTANCE);
-        Input<Vec3d> corner2 = new Input<>("corner2", "Corner 2", VectorType.INSTANCE);
+        Input<Vec3> corner1 = new Input<>("corner1", "Corner 1", VectorType.INSTANCE);
+        Input<Vec3> corner2 = new Input<>("corner2", "Corner 2", VectorType.INSTANCE);
         Input<String> block = new Input<>("block", "Block", StringType.INSTANCE);
         Input<Boolean> sendUpdate = new Input<>("send_update", "Send Update", ConditionType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         signal.onSignal((ctx) -> {
-            DataResult<Identifier> id = Identifier.validate(block.getValue(ctx));
-            Optional<Block> placedBlock = id.isSuccess() ? Registries.BLOCK.getOptionalValue(id.getOrThrow()) : Optional.empty();
-            if (placedBlock.isPresent()) {
-                BlockState state = placedBlock.get().getDefaultState();
+            DataResult<Block> b = Identifier.read(block.getValue(ctx)).map(BuiltInRegistries.BLOCK::getValue);
+            if (b.isSuccess()) {
+                BlockState state = b.getOrThrow().defaultBlockState();
                 boolean updates = sendUpdate.getValue(ctx);
                 int updateLimit = updates ? 512 : 0;
-                int flags = updates ? Block.NOTIFY_ALL : Block.NOTIFY_LISTENERS;
+                int flags = updates ? Block.UPDATE_ALL : Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
 
-                Vec3d corner1Value = corner1.getValue(ctx);
-                Vec3d corner2Value = corner2.getValue(ctx);
-                corner1Value = new Vec3d(
-                        Math.floor(corner1Value.x),
-                        Math.floor(corner1Value.y),
-                        Math.floor(corner1Value.z)
-                );
-                corner2Value = new Vec3d(
-                        Math.floor(corner2Value.x),
-                        Math.floor(corner2Value.y),
-                        Math.floor(corner2Value.z)
-                );
+                Vec3 corner1Value = corner1.getValue(ctx);
+                Vec3 corner2Value = corner2.getValue(ctx);
 
-                int minX = MathHelper.floor(Math.max(-512, Math.min(corner1Value.x, corner2Value.x)));
-                int minY = MathHelper.floor(Math.max(ctx.evaluator.world.getBottomY(), Math.min(corner1Value.y, corner2Value.y)));
-                int minZ = MathHelper.floor(Math.max(-512, Math.min(corner1Value.z, corner2Value.z)));
-                int maxX = MathHelper.floor(Math.min(511, Math.max(corner1Value.x, corner2Value.x)));
-                int maxY = MathHelper.floor(Math.min(ctx.evaluator.world.getTopYInclusive() - 1, Math.max(corner1Value.y, corner2Value.y)));
-                int maxZ = MathHelper.floor(Math.min(511, Math.max(corner1Value.z, corner2Value.z)));
+                int x1 = Mth.floor(corner1Value.x);
+                int y1 = Mth.floor(corner1Value.y);
+                int z1 = Mth.floor(corner1Value.z);
+                int x2 = Mth.floor(corner2Value.x);
+                int y2 = Mth.floor(corner2Value.y);
+                int z2 = Mth.floor(corner2Value.z);
 
-                for (BlockPos pos : BlockPos.iterate(minX, minY, minZ, maxX, maxY, maxZ)) {
-                    ctx.evaluator.world.setBlockState(pos, state, flags, updateLimit);
+                int minX = Math.min(x1, x2);
+                int maxX = Math.max(x1, x2);
+                int minY = Math.min(y1, y2);
+                int maxY = Math.max(y1, y2);
+                int minZ = Math.min(z1, z2);
+                int maxZ = Math.max(z1, z2);
+
+                minX = Math.clamp(minX, -512, 511);
+                maxX = Math.clamp(maxX, -512, 511);
+                minY = Math.clamp(minY, ctx.evaluator.level.getMinY(), ctx.evaluator.level.getMaxY());
+                maxY = Math.clamp(maxY, ctx.evaluator.level.getMaxY(), ctx.evaluator.level.getMaxY());
+                minZ = Math.clamp(minZ, -512, 511);
+                maxZ = Math.clamp(maxZ, -512, 511);
+
+                for (BlockPos pos : BlockPos.betweenClosed(minX, minY, minZ, maxX, maxY, maxZ)) {
+                    ctx.evaluator.level.setBlock(pos, state, flags, updateLimit);
                 }
             }
             ctx.sendSignal(next);

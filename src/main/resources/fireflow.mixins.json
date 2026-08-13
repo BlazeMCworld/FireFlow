@@ -2,27 +2,27 @@
     "required": true,
     "minVersion": "0.8",
     "package": "de.blazemcworld.fireflow.mixin",
-    "compatibilityLevel": "JAVA_21",
+    "compatibilityLevel": "JAVA_25",
     "injectors": {
         "defaultRequire": 1
     },
     "mixins": [
         "BlockItemMixin",
-        "CommandManagerMixin",
+        "ChunkMapMixin",
         "EnderChestBlockMixin",
         "EntityMixin",
-        "ExplosionImplMixin",
-        "HungerManagerMixin",
+        "FoodDataMixin",
         "LivingEntityMixin",
         "MinecraftServerMixin",
-        "NetworkThreadUtilsMixin",
-        "PlayerEntityMixin",
+        "PacketUtilsMixin",
+        "PlayerListMixin",
         "PlayerListS2CPacketEntryMixin",
-        "PlayerManagerMixin",
+        "PlayerMixin",
         "ServerCrashSavePacketListenerMixin",
-        "ServerEntityManagerMixin",
-        "ServerPlayerEntityMixin",
-        "ServerPlayerInteractionManagerMixin",
-        "ServerPlayNetworkHandlerMixin"
+        "ServerExplosionMixin",
+        "ServerGamePacketListenerImplMixin",
+        "ServerLevelMixin",
+        "ServerPlayerGameModeMixin",
+        "ServerPlayerMixin"
     ]
 }

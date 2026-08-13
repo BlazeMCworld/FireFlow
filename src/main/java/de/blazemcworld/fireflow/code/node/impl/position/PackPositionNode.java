@@ -4,8 +4,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PositionType;
 import de.blazemcworld.fireflow.code.value.Position;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 public class PackPositionNode extends Node {
 
@@ -20,7 +20,7 @@ public class PackPositionNode extends Node {
         Output<Position> position = new Output<>("position", "Position", PositionType.INSTANCE);
 
         position.valueFrom(ctx -> new Position(
-                new Vec3d(
+                new Vec3(
                     x.getValue(ctx),
                     y.getValue(ctx),
                     z.getValue(ctx)

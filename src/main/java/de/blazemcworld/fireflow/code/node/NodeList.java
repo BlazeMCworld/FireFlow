@@ -15,7 +15,6 @@ import de.blazemcworld.fireflow.code.node.impl.event.meta.*;
 import de.blazemcworld.fireflow.code.node.impl.event.world.*;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionCallNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionDefinition;
-import de.blazemcworld.fireflow.code.node.impl.event.action.OnPlayerStartSneakingNode;
 import de.blazemcworld.fireflow.code.node.impl.item.*;
 import de.blazemcworld.fireflow.code.node.impl.list.*;
 import de.blazemcworld.fireflow.code.node.impl.number.*;
@@ -32,8 +31,8 @@ import de.blazemcworld.fireflow.code.node.impl.text.FormatToTextNode;
 import de.blazemcworld.fireflow.code.node.impl.variable.*;
 import de.blazemcworld.fireflow.code.node.impl.vector.*;
 import de.blazemcworld.fireflow.code.node.impl.world.*;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -69,7 +68,9 @@ public class NodeList {
                         .add(new EntityPositionNode())
                         .add(new EntityTypeNode())
                         .add(new GiveEntityEffectNode())
+                        .add(new KillEntityNode())
                         .add(new RemoveEntityNode())
+                        .add(new SetEntityAINode())
                         .add(new SetEntityGravityNode())
                         .add(new SetEntityVelocityNode())
                         .add(new SetTNTFuseNode())

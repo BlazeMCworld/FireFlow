@@ -2,16 +2,15 @@ package de.blazemcworld.fireflow.code.type;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.item.Items;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Items;
 
 public class StringType extends WireType<String> {
 
     public static final StringType INSTANCE = new StringType();
 
     private StringType() {
-        super("string", TextColor.fromFormatting(Formatting.YELLOW), Items.STRING);
+        super("string", TextColor.YELLOW, Items.STRING);
     }
 
     @Override

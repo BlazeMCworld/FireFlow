@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.EntityType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class SetEntityGravityNode extends Node {
 

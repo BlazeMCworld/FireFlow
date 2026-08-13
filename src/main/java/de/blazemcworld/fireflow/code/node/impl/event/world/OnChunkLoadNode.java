@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.CodeThread;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.SignalType;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class OnChunkLoadNode extends Node {
 

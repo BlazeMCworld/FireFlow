@@ -1,7 +1,7 @@
 package de.blazemcworld.fireflow.code.web;
 
 import de.blazemcworld.fireflow.FireFlow;
-import net.minecraft.server.dedicated.MinecraftDedicatedServer;
+import net.minecraft.server.dedicated.DedicatedServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -19,7 +19,7 @@ public class WebServer {
             jetty = new Server(pool);
             ServerConnector connector = new ServerConnector(jetty);
             int port = 8080;
-            if (FireFlow.server instanceof MinecraftDedicatedServer dedicated) {
+            if (FireFlow.server instanceof DedicatedServer dedicated) {
                 try {
                     port = Integer.parseInt(dedicated.getProperties().properties.getProperty("fireflow-web-port"));
                 } catch (Exception ignored) {

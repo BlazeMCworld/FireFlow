@@ -6,7 +6,7 @@ import de.blazemcworld.fireflow.code.type.PositionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
 import de.blazemcworld.fireflow.code.value.Position;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 import java.util.Set;
 
@@ -23,7 +23,7 @@ public class TeleportPlayerNode extends Node {
         signal.onSignal((ctx) -> {
             player.getValue(ctx).tryUse(ctx, p -> {
                 Position pos = position.getValue(ctx);
-                p.teleport(ctx.evaluator.world, pos.xyz().x, pos.xyz().y, pos.xyz().z, Set.of(), pos.yaw(), pos.pitch(), true);
+                p.teleportTo(ctx.evaluator.level, pos.xyz().x, pos.xyz().y, pos.xyz().z, Set.of(), pos.yaw(), pos.pitch(), true);
             });
             ctx.sendSignal(next);
         });

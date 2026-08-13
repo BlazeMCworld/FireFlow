@@ -5,30 +5,30 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import de.blazemcworld.fireflow.code.VariableStore;
 import de.blazemcworld.fireflow.space.Space;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Set;
 import java.util.function.Predicate;
 
 public class VariablesCommand {
 
-    public static void attach(LiteralArgumentBuilder<ServerCommandSource> node) {
+    public static void attach(LiteralArgumentBuilder<CommandSourceStack> node) {
         attach(node, "variables");
         attach(node, "vars");
     }
 
-    private static void attach(LiteralArgumentBuilder<ServerCommandSource> node, String alias) {
-        node.then(CommandManager.literal(alias)
+    private static void attach(LiteralArgumentBuilder<CommandSourceStack> node, String alias) {
+        node.then(Commands.literal(alias)
                 .executes(ctx -> {
                     listVariables(ctx.getSource(), null);
                     return Command.SINGLE_SUCCESS;
                 })
-                .then(CommandManager.argument("filter", StringArgumentType.greedyString())
+                .then(Commands.argument("filter", StringArgumentType.greedyString())
                         .executes(ctx -> {
                             listVariables(ctx.getSource(), StringArgumentType.getString(ctx, "filter"));
                             return Command.SINGLE_SUCCESS;
@@ -37,8 +37,8 @@ public class VariablesCommand {
         );
     }
 
-    private static void listVariables(ServerCommandSource source, String query) {
-        ServerPlayerEntity player = CommandHelper.getPlayer(source);
+    private static void listVariables(CommandSourceStack source, String query) {
+        ServerPlayer player = CommandHelper.getPlayer(source);
         Space space = CommandHelper.getSpace(player);
         if (!CommandHelper.isDeveloperOrOwner(player, space)) return;
 
@@ -47,17 +47,17 @@ public class VariablesCommand {
 
         Set<VariableStore.VarEntry> vars = space.savedVariables.iterator(filter, 50);
         for (VariableStore.VarEntry v : vars) {
-            player.sendMessage(Text.literal(v.name()).setStyle(Style.EMPTY.withColor(v.type().color))
-                    .append(Text.literal(": ").formatted(Formatting.GRAY))
-                    .append(Text.literal(v.type().stringify(v.value(), "display")).formatted(Formatting.WHITE)));
+            player.sendSystemMessage(Component.literal(v.name()).setStyle(Style.EMPTY.withColor(v.type().color))
+                    .append(Component.literal(": ").withColor(TextColor.GRAY))
+                    .append(Component.literal(v.type().stringify(v.value(), "display")).withColor(TextColor.WHITE)));
         }
 
         if (vars.size() >= 50) return;
 
         for (VariableStore.VarEntry v : space.evaluator.sessionVariables.iterator(filter, 50 - vars.size())) {
-            player.sendMessage(Text.literal(v.name()).setStyle(Style.EMPTY.withColor(v.type().color))
-                    .append(Text.literal(": ").formatted(Formatting.GRAY))
-                    .append(Text.literal(v.type().stringify(v.value(), "display")).formatted(Formatting.WHITE)));
+            player.sendSystemMessage(Component.literal(v.name()).setStyle(Style.EMPTY.withColor(v.type().color))
+                    .append(Component.literal(": ").withColor(TextColor.GRAY))
+                    .append(Component.literal(v.type().stringify(v.value(), "display")).withColor(TextColor.WHITE)));
         }
     }
 

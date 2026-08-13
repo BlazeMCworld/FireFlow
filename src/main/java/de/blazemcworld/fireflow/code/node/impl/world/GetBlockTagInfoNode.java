@@ -4,15 +4,15 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.SingleGenericNode;
 import de.blazemcworld.fireflow.code.type.*;
 import de.blazemcworld.fireflow.code.value.ListValue;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.Items;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,24 +22,24 @@ public class GetBlockTagInfoNode<T> extends SingleGenericNode<T> {
     public GetBlockTagInfoNode(WireType<T> type) {
         super("get_block_tag_info", type == null ? "Get Block Tag Info" : "Get " + type.getName() + " Block Tag Info", "Gets the current value and all valid options of a block's tag", Items.OAK_STAIRS, type);
 
-        Input<Vec3d> position = new Input<>("position", "Position", VectorType.INSTANCE);
+        Input<Vec3> position = new Input<>("position", "Position", VectorType.INSTANCE);
         Input<String> property = new Input<>("property", "Property", StringType.INSTANCE);
         Output<T> value = new Output<>("value", "Value", type);
         Output<ListValue<T>> allOptions = new Output<>("all_options", "All Options", ListType.of(type));
 
         value.valueFrom((ctx) -> {
             String propertyName = property.getValue(ctx);
-            Vec3d pos = position.getValue(ctx);
-            BlockState blockState = ctx.evaluator.world.getBlockState(BlockPos.ofFloored(pos));
+            Vec3 pos = position.getValue(ctx);
+            BlockState blockState = ctx.evaluator.level.getBlockState(BlockPos.containing(pos));
             for (Property<?> prop : blockState.getProperties()) {
                 if (prop.getName().equals(propertyName)) {
-                    Comparable<?> propertyValue = blockState.get(prop);
+                    Comparable<?> propertyValue = blockState.getValue(prop);
                     switch (propertyValue) {
                         case Integer intValue -> {
                             return type.convert(NumberType.INSTANCE, intValue.doubleValue());
                         }
-                        case StringIdentifiable enumValue -> {
-                            String stringValue = enumValue.asString();
+                        case StringRepresentable enumValue -> {
+                            String stringValue = enumValue.getSerializedName();
                             return type.convert(StringType.INSTANCE, stringValue);
                         }
                         case Boolean boolValue -> {
@@ -55,28 +55,28 @@ public class GetBlockTagInfoNode<T> extends SingleGenericNode<T> {
 
         allOptions.valueFrom((ctx) -> {
             String propertyName = property.getValue(ctx);
-            Vec3d pos = position.getValue(ctx);
-            BlockState blockState = ctx.evaluator.world.getBlockState(BlockPos.ofFloored(pos));
+            Vec3 pos = position.getValue(ctx);
+            BlockState blockState = ctx.evaluator.level.getBlockState(BlockPos.containing(pos));
             for (Property<?> prop : blockState.getProperties()) {
                 if (prop.getName().equals(propertyName)) {
                     switch (prop) {
-                        case IntProperty intProperty -> {
+                        case IntegerProperty intProperty -> {
                             List<T> list = new ArrayList<>();
-                            for (Integer intValue : intProperty.getValues()) {
+                            for (Integer intValue : intProperty.getPossibleValues()) {
                                 list.add(type.convert(NumberType.INSTANCE, Double.valueOf(intValue)));
                             }
                             return new ListValue<>(type, list);
                         }
                         case EnumProperty<?> enumProperty -> {
                             List<T> list = new ArrayList<>();
-                            for (StringIdentifiable stringIdentifiable : enumProperty.getValues()) {
-                                list.add(type.convert(StringType.INSTANCE, stringIdentifiable.asString()));
+                            for (StringRepresentable stringIdentifiable : enumProperty.getPossibleValues()) {
+                                list.add(type.convert(StringType.INSTANCE, stringIdentifiable.getSerializedName()));
                             }
                             return new ListValue<>(type, list);
                         }
                         case BooleanProperty booleanProperty -> {
                             List<T> list = new ArrayList<>();
-                            for (boolean boolValue : booleanProperty.getValues()) {
+                            for (boolean boolValue : booleanProperty.getPossibleValues()) {
                                 list.add(type.convert(ConditionType.INSTANCE, boolValue));
                             }
                             return new ListValue<>(type, list);

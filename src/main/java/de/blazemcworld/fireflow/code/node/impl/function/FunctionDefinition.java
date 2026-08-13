@@ -2,7 +2,7 @@ package de.blazemcworld.fireflow.code.node.impl.function;
 
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.WireType;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class SetPlayerInvulnerableNode extends Node {
     public SetPlayerInvulnerableNode() {

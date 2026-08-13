@@ -9,8 +9,7 @@ import de.blazemcworld.fireflow.code.widget.NodeIOWidget;
 import de.blazemcworld.fireflow.code.widget.NodeWidget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
 import de.blazemcworld.fireflow.code.widget.WireWidget;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class DragNodeAction implements CodeAction {
         this.offset = offset;
 
         offset.editor().lockWidget(node, player);
-        node.borderColor(TextColor.fromFormatting(Formatting.AQUA));
+        node.borderColor(TextColor.AQUA);
         iowidgets = node.getIOWidgets();
         for (NodeIOWidget IOWidget : new ArrayList<>(iowidgets)) {
             for (WireWidget wire : new ArrayList<>(IOWidget.connections)) {
@@ -100,7 +99,7 @@ public class DragNodeAction implements CodeAction {
 
     @Override
     public void stop(CodeEditor editor, EditOrigin player) {
-        node.borderColor(TextColor.fromFormatting(Formatting.WHITE));
+        node.borderColor(TextColor.WHITE);
         editor.unlockWidget(node, player);
         for (NodeIOWidget IOWidget : iowidgets) {
             for (WireWidget wire : IOWidget.connections) {

@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.widget.ChoiceWidget;
 import de.blazemcworld.fireflow.code.widget.NodeIOWidget;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,7 +20,7 @@ public class SoundOptions implements InputOptions {
     private final List<String> soundIds = new ArrayList<>();
 
     private SoundOptions() {
-        for (Identifier id : Registries.SOUND_EVENT.getIds()) {
+        for (Identifier id : BuiltInRegistries.SOUND_EVENT.keySet()) {
             soundIds.add(id.getPath());
         }
         soundIds.remove("intentionally_empty");

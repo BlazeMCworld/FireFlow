@@ -3,8 +3,8 @@ package de.blazemcworld.fireflow.code.node.impl.item;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.ItemType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class ItemsEqualNode extends Node {
     public ItemsEqualNode() {
@@ -18,7 +18,7 @@ public class ItemsEqualNode extends Node {
         isCase.valueFrom((ctx) -> {
             ItemStack firstItem = first.getValue(ctx);
             ItemStack secondItem = second.getValue(ctx);
-            return ItemStack.areItemsAndComponentsEqual(firstItem, secondItem) && (!checkCount.getValue(ctx) || firstItem.getCount() == secondItem.getCount());
+            return ItemStack.isSameItemSameComponents(firstItem, secondItem) && (!checkCount.getValue(ctx) || firstItem.getCount() == secondItem.getCount());
         });
     }
 

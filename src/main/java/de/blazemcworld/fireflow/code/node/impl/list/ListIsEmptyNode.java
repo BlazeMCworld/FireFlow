@@ -6,7 +6,7 @@ import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.value.ListValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class ListIsEmptyNode<T> extends SingleGenericNode<T> {
 

@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerDropItemNode extends Node {
 
@@ -27,7 +27,7 @@ public class OnPlayerDropItemNode extends Node {
         return new OnPlayerDropItemNode();
     }
 
-    public boolean onDropItem(CodeEvaluator codeEvaluator, ServerPlayerEntity player, boolean cancel) {
+    public boolean onDropItem(CodeEvaluator codeEvaluator, ServerPlayer player, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));

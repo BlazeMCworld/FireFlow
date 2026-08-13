@@ -4,8 +4,8 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Items;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class ClearPlayerEffectsNode extends Node {
 
@@ -17,7 +17,7 @@ public class ClearPlayerEffectsNode extends Node {
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
 
         signal.onSignal((ctx) -> {
-            player.getValue(ctx).tryUse(ctx, LivingEntity::clearStatusEffects);
+            player.getValue(ctx).tryUse(ctx, ServerPlayer::removeAllEffects);
             ctx.sendSignal(next);
         });
     }

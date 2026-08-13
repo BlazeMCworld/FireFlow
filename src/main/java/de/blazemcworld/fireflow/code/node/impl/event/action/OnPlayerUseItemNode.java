@@ -8,10 +8,10 @@ import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerUseItemNode extends Node {
 
@@ -38,12 +38,12 @@ public class OnPlayerUseItemNode extends Node {
         return new OnPlayerUseItemNode();
     }
 
-    public boolean onUseItem(CodeEvaluator codeEvaluator, ServerPlayerEntity player, ItemStack stack, Hand hand, boolean cancel) {
+    public boolean onUseItem(CodeEvaluator codeEvaluator, ServerPlayer player, ItemStack stack, InteractionHand hand, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));
         thread.setScopeValue(this.item, stack);
-        thread.setScopeValue(this.isMainHand, hand == Hand.MAIN_HAND);
+        thread.setScopeValue(this.isMainHand, hand == InteractionHand.MAIN_HAND);
         thread.sendSignal(signal);
         thread.clearQueue();
         return thread.context.cancelled;

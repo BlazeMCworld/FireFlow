@@ -4,8 +4,7 @@ import de.blazemcworld.fireflow.code.CodeEditor;
 import de.blazemcworld.fireflow.code.CodeInteraction;
 import de.blazemcworld.fireflow.code.EditOrigin;
 import de.blazemcworld.fireflow.code.widget.*;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class DragSelectionAction implements CodeAction {
         this.offset = offset;
         for (Widget w : widgets) {
             if (w instanceof NodeWidget nodeWidget) {
-                nodeWidget.borderColor(TextColor.fromFormatting(Formatting.AQUA));
+                nodeWidget.borderColor(TextColor.AQUA);
                 nodeWidgets.put(nodeWidget, nodeWidget.pos());
                 for (NodeIOWidget IOWidget : new ArrayList<>(nodeWidget.getIOWidgets())) {
                     for (WireWidget wire : new ArrayList<>(IOWidget.connections)) {
@@ -130,7 +129,7 @@ public class DragSelectionAction implements CodeAction {
 
     @Override
     public void stop(CodeEditor editor, EditOrigin player) {
-        nodeWidgets.forEach((nodeWidget, pos) -> nodeWidget.borderColor(TextColor.fromFormatting(Formatting.WHITE)));
+        nodeWidgets.forEach((nodeWidget, pos) -> nodeWidget.borderColor(TextColor.WHITE));
         wireWidgets.forEach((wire, points) -> wire.cleanup());
         for (NodeIOWidget IOWidget : ioWidgets) {
             for (WireWidget wire : IOWidget.connections) {

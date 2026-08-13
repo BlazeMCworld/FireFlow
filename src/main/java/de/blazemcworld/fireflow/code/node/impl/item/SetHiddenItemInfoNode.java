@@ -6,13 +6,13 @@ import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.ListValue;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.TooltipDisplayComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.TooltipDisplay;
 
 import java.util.Optional;
 
@@ -27,15 +27,15 @@ public class SetHiddenItemInfoNode extends Node {
 
         result.valueFrom(ctx -> {
             ItemStack i = item.getValue(ctx).copy();
-            TooltipDisplayComponent val = TooltipDisplayComponent.DEFAULT;
+            TooltipDisplay val = TooltipDisplay.DEFAULT;
             for (String s : hidden.getValue(ctx).view()) {
-                DataResult<Identifier> id = Identifier.validate(s);
+                DataResult<Identifier> id = Identifier.read(s);
                 if (id.isError()) continue;
-                Optional<ComponentType<?>> component = Registries.DATA_COMPONENT_TYPE.getOptionalValue(id.getOrThrow());
+                Optional<DataComponentType<?>> component = BuiltInRegistries.DATA_COMPONENT_TYPE.getOptional(id.getOrThrow());
                 if (component.isEmpty()) continue;
-                val = val.with(component.get(), true);
+                val = val.withHidden(component.get(), true);
             }
-            i.set(DataComponentTypes.TOOLTIP_DISPLAY, val);
+            i.set(DataComponents.TOOLTIP_DISPLAY, val);
             return i;
         });
     }

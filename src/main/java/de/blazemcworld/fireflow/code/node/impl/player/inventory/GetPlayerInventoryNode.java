@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.ListValue;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 
@@ -20,7 +20,7 @@ public class GetPlayerInventoryNode extends Node {
         Output<ListValue<ItemStack>> main = new Output<>("main", "Main", ListType.of(ItemType.INSTANCE));
 
         main.valueFrom((ctx) -> player.getValue(ctx).tryGet(ctx, p ->
-                new ListValue<>(ItemType.INSTANCE, new ArrayList<>(p.getInventory().getMainStacks())), new ListValue<>(ItemType.INSTANCE)
+                new ListValue<>(ItemType.INSTANCE, new ArrayList<>(p.getInventory().getNonEquipmentItems())), new ListValue<>(ItemType.INSTANCE)
         ));
     }
 

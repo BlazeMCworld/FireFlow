@@ -7,8 +7,8 @@ import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerSwingHandNode extends Node {
 
@@ -31,7 +31,7 @@ public class OnPlayerSwingHandNode extends Node {
         return new OnPlayerSwingHandNode();
     }
 
-    public boolean onSwingHand(CodeEvaluator codeEvaluator, ServerPlayerEntity player, boolean isMainHand, boolean cancel) {
+    public boolean onSwingHand(CodeEvaluator codeEvaluator, ServerPlayer player, boolean isMainHand, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.context.cancelled = cancel;
         thread.setScopeValue(this.player, new PlayerValue(player));

@@ -6,9 +6,9 @@ import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.ListValue;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -22,10 +22,10 @@ public class GetPlayerEquipmentNode extends Node {
 
         main.valueFrom((ctx) -> player.getValue(ctx).tryGet(ctx, p ->
                 new ListValue<>(ItemType.INSTANCE, List.of(
-                        p.getEquippedStack(EquipmentSlot.HEAD),
-                        p.getEquippedStack(EquipmentSlot.CHEST),
-                        p.getEquippedStack(EquipmentSlot.LEGS),
-                        p.getEquippedStack(EquipmentSlot.FEET)
+                        p.getItemBySlot(EquipmentSlot.HEAD),
+                        p.getItemBySlot(EquipmentSlot.CHEST),
+                        p.getItemBySlot(EquipmentSlot.LEGS),
+                        p.getItemBySlot(EquipmentSlot.FEET)
                 )), new ListValue<>(ItemType.INSTANCE)
         ));
     }

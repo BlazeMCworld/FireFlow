@@ -5,13 +5,13 @@ import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.ListValue;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.TooltipDisplayComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.TooltipDisplay;
 
 import java.util.ArrayList;
 
@@ -24,10 +24,10 @@ public class GetHiddenItemInfoNode extends Node {
         Output<ListValue<String>> hidden = new Output<>("hidden_info", "Hidden", ListType.of(StringType.INSTANCE));
 
         hidden.valueFrom(ctx -> {
-            TooltipDisplayComponent comp = item.getValue(ctx).getOrDefault(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT);
+            TooltipDisplay comp = item.getValue(ctx).getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
             ArrayList<String> list = new ArrayList<>();
-            for (ComponentType<?> type : comp.hiddenComponents()) {
-                Identifier id = Registries.DATA_COMPONENT_TYPE.getId(type);
+            for (DataComponentType<?> type : comp.hiddenComponents()) {
+                Identifier id = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(type);
                 if (id == null) continue;
                 list.add(id.getPath());
             }

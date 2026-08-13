@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.ListValue;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
 import de.blazemcworld.fireflow.util.ModeManager;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +15,13 @@ import java.util.List;
 public class PlayerListNode extends Node {
 
     public PlayerListNode() {
-        super("player_list", "Player List", "Gets a list of all players currently playing on the space", Items.LIGHT_BLUE_DYE);
+        super("player_list", "Player List", "Gets a list of all players currently playing on the space", Items.DYE.lightBlue());
 
         Output<ListValue<PlayerValue>> playing = new Output<>("players", "Players", ListType.of(PlayerType.INSTANCE));
 
         playing.valueFrom((ctx) ->{
             List<PlayerValue> out = new ArrayList<>();
-            for (ServerPlayerEntity player : ctx.evaluator.world.getPlayers()) {
+            for (ServerPlayer player : ctx.evaluator.players()) {
                 if (ModeManager.getFor(player) != ModeManager.Mode.PLAY) continue;
                 out.add(new PlayerValue(player));
             }

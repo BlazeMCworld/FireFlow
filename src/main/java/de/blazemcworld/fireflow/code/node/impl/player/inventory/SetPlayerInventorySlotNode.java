@@ -6,9 +6,8 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class SetPlayerInventorySlotNode extends Node {
 
@@ -26,8 +25,8 @@ public class SetPlayerInventorySlotNode extends Node {
             player.getValue(ctx).tryUse(ctx, p -> {
                 int id = slot.getValue(ctx).intValue();
                 if (id < 0) return;
-                if (id < p.getInventory().size() || PlayerInventory.EQUIPMENT_SLOTS.get(id) != null) {
-                    p.getInventory().setStack(id, item.getValue(ctx));
+                if (id < p.getInventory().getContainerSize()) {
+                    p.getInventory().setItem(id, item.getValue(ctx));
                 }
             });
             ctx.sendSignal(next);

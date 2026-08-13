@@ -3,9 +3,8 @@ package de.blazemcworld.fireflow.code.type;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import de.blazemcworld.fireflow.code.value.DictionaryValue;
-import net.minecraft.item.Items;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Items;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,9 +34,9 @@ public class DictionaryType<K, V> extends WireType<DictionaryValue<K, V>> {
     }
 
     private static TextColor computeColor(WireType<?> keyType, WireType<?> valueType) {
-        if (keyType == null || valueType == null) return TextColor.fromFormatting(Formatting.WHITE);
-        int keyRgb = keyType.color.getRgb();
-        int valueRgb = valueType.color.getRgb();
+        if (keyType == null || valueType == null) return TextColor.WHITE;
+        int keyRgb = keyType.color.getValue();
+        int valueRgb = valueType.color.getValue();
         int r = (keyRgb >> 16) & 0xFF / 2 + (valueRgb >> 16) & 0xFF / 2;
         int g = (keyRgb >> 8) & 0xFF / 2 + (valueRgb >> 8) & 0xFF / 2;
         int b = (keyRgb) & 0xFF / 2 + (valueRgb) & 0xFF / 2;

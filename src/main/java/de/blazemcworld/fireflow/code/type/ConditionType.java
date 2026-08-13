@@ -2,16 +2,15 @@ package de.blazemcworld.fireflow.code.type;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.item.Items;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Items;
 
 public class ConditionType extends WireType<Boolean> {
 
     public static final ConditionType INSTANCE = new ConditionType();
 
     private ConditionType() {
-        super("condition", TextColor.fromFormatting(Formatting.BLUE), Items.COMPARATOR);
+        super("condition", TextColor.BLUE, Items.COMPARATOR);
     }
 
     @Override

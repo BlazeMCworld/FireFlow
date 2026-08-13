@@ -1,32 +1,32 @@
 package de.blazemcworld.fireflow.inventory;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 
-public class InventoryMenu extends GenericContainerScreenHandler {
+public class InventoryMenu extends ChestMenu {
 
-    protected final ServerPlayerEntity player;
+    protected final ServerPlayer player;
 
-    public InventoryMenu(int syncId, ServerPlayerEntity player) {
-        super(ScreenHandlerType.GENERIC_9X3, syncId, player.getInventory(), new SimpleInventory(27), 3);
+    public InventoryMenu(int syncId, ServerPlayer player) {
+        super(MenuType.GENERIC_9x3, syncId, player.getInventory(), new SimpleContainer(27), 3);
         this.player = player;
     }
 
-    public void setStack(int slot, ItemStack stack) {
-        getInventory().setStack(slot, stack);
+    public void setItem(int slot, ItemStack stack) {
+        getContainer().setItem(slot, stack);
     }
 
     @Override
-    public ItemStack quickMove(PlayerEntity player, int slot) {
+    public ItemStack quickMoveStack(Player player, int slotIndex) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canUse(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return player == this.player;
     }
 }

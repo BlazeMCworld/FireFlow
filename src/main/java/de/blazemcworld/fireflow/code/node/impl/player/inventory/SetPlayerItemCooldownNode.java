@@ -6,8 +6,8 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class SetPlayerItemCooldownNode extends Node {
 
@@ -25,7 +25,7 @@ public class SetPlayerItemCooldownNode extends Node {
             player.getValue(ctx).tryUse(ctx, p -> {
                 ItemStack cooldownItem = item.getValue(ctx);
                 int cooldownTicks = ticks.getValue(ctx).intValue();
-                p.getItemCooldownManager().set(cooldownItem, cooldownTicks);
+                p.getCooldowns().addCooldown(cooldownItem, cooldownTicks);
             });
             ctx.sendSignal(next);
         });

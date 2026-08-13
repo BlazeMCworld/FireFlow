@@ -2,8 +2,8 @@ package de.blazemcworld.fireflow.code.widget;
 
 import de.blazemcworld.fireflow.code.CodeInteraction;
 import de.blazemcworld.fireflow.util.TextWidth;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,7 @@ public class IconWidget extends Widget {
         for (String word : words) {
             double next = TextWidth.calculate(word, false);
             if (next + width > max && !current.isEmpty()) {
-                out.add(new TextWidget(pos(), Text.literal(current.toString())).stretch(0.5, 0.5));
+                out.add(new TextWidget(pos(), Component.literal(current.toString())).stretch(0.5, 0.5));
                 current = new StringBuilder();
                 width = 0;
             }
@@ -75,7 +75,7 @@ public class IconWidget extends Widget {
             else current.append(" ").append(word);
         }
         if (!current.isEmpty()) {
-            out.add(new TextWidget(pos(), Text.literal(current.toString())).stretch(0.5, 0.5));
+            out.add(new TextWidget(pos(), Component.literal(current.toString())).stretch(0.5, 0.5));
         }
 
         return out;

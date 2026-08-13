@@ -7,8 +7,8 @@ import de.blazemcworld.fireflow.code.action.WireAction;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.WireType;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -120,7 +120,7 @@ public class WireWidget extends Widget {
         int arrowCount = Math.max((int) Math.ceil(lineLength / 3), 1);
         if (arrowCount > 10) arrowCount = 10;
 
-        Text t = Text.literal(">").setStyle(Style.EMPTY.withColor(type.color).withBold(true));
+        Component t = Component.literal(">").setStyle(Style.EMPTY.withColor(type.color).withBold(true));
         for (int i = 0; i < arrowCount; i++) {
             if (arrows.size() <= i) {
                 TextWidget arrow = new TextWidget(pos());

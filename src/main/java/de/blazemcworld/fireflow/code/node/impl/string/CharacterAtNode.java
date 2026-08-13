@@ -3,11 +3,11 @@ package de.blazemcworld.fireflow.code.node.impl.string;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.StringType;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class CharacterAtNode extends Node {
     public CharacterAtNode() {
-        super("character_at", "Character At", "Returns the character at a specific index", Items.WHITE_WOOL);
+        super("character_at", "Character At", "Returns the character at a specific index", Items.WOOL.white());
 
         Input<String> string = new Input<>("string", "String", StringType.INSTANCE);
         Input<Double> index = new Input<>("index", "Index", NumberType.INSTANCE);

@@ -5,8 +5,8 @@ import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.ItemType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class PlayerHasItemNode extends Node {
     public PlayerHasItemNode() {
@@ -19,8 +19,8 @@ public class PlayerHasItemNode extends Node {
         found.valueFrom((ctx) -> player.getValue(ctx).tryGet(ctx, p -> {
             ItemStack val = item.getValue(ctx);
             if (p.getInventory().contains(val)) return true;
-            for (ItemStack other : p.playerScreenHandler.getCraftingInput()) {
-                if (ItemStack.areItemsAndComponentsEqual(val, other)) return true;
+            for (ItemStack other : p.inventoryMenu.getCraftSlots()) {
+                if (ItemStack.isSameItemSameComponents(val, other)) return true;
             }
             return false;
         }, false));

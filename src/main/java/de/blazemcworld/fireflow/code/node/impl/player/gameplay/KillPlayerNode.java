@@ -4,7 +4,7 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class KillPlayerNode extends Node {
     public KillPlayerNode() {
@@ -13,7 +13,7 @@ public class KillPlayerNode extends Node {
         Input<PlayerValue> player = new Input<>("player", "Player", PlayerType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
         signal.onSignal((ctx) -> {
-            player.getValue(ctx).tryUse(ctx, p -> p.kill(ctx.evaluator.world));
+            player.getValue(ctx).tryUse(ctx, p -> p.kill(ctx.evaluator.level));
             ctx.sendSignal(next);
         });
     }

@@ -5,8 +5,7 @@ import de.blazemcworld.fireflow.code.node.impl.function.FunctionInputsNode;
 import de.blazemcworld.fireflow.code.node.impl.function.FunctionOutputsNode;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.widget.*;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.TextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ public class DeleteSelectAction extends SelectAction {
 
     public DeleteSelectAction(WidgetVec pos) {
         super(pos);
-        box.color(TextColor.fromFormatting(Formatting.RED));
+        box.color(TextColor.RED);
     }
 
     @Override

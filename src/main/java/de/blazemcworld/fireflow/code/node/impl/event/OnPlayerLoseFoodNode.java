@@ -7,8 +7,8 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerLoseFoodNode extends Node {
 
@@ -34,7 +34,7 @@ public class OnPlayerLoseFoodNode extends Node {
         return new OnPlayerLoseFoodNode();
     }
 
-    public void emit(CodeEvaluator evaluator, ServerPlayerEntity player, int oldValue, int newValue, CodeThread.EventContext context) {
+    public void emit(CodeEvaluator evaluator, ServerPlayer player, int oldValue, int newValue, CodeThread.EventContext context) {
         CodeThread thread = evaluator.newCodeThread();
         thread.context = context;
         thread.setScopeValue(this.player, new PlayerValue(player));

@@ -8,36 +8,36 @@ import de.blazemcworld.fireflow.FireFlow;
 import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.ModeManager;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.server.level.ServerPlayer;
 
 public class LocateCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> cd) {
+    public static void register(CommandDispatcher<CommandSourceStack> cd) {
         register(cd, "locate");
         register(cd, "find");
     }
 
-    private static void register(CommandDispatcher<ServerCommandSource> cd, String alias) {
-        cd.register(CommandManager.literal(alias)
+    private static void register(CommandDispatcher<CommandSourceStack> cd, String alias) {
+        cd.register(Commands.literal(alias)
                 .executes(ctx -> {
-                    ServerPlayerEntity target = CommandHelper.getPlayer(ctx.getSource());
+                    ServerPlayer target = CommandHelper.getPlayer(ctx.getSource());
                     return target == null ? Command.SINGLE_SUCCESS : locateAndRespond(target, ctx);
                 })
-                .then(CommandManager.argument("player", StringArgumentType.word())
+                .then(Commands.argument("player", StringArgumentType.word())
                         .suggests((ctx, builder) -> {
-                            for (ServerPlayerEntity player : FireFlow.server.getPlayerManager().getPlayerList()) {
-                                builder.suggest(player.getGameProfile().getName());
+                            for (ServerPlayer player : FireFlow.server.getPlayerList().getPlayers()) {
+                                builder.suggest(player.getGameProfile().name());
                             }
                             return builder.buildFuture();
                         })
                         .executes(ctx -> {
-                            ServerPlayerEntity target = FireFlow.server.getPlayerManager().getPlayer(StringArgumentType.getString(ctx, "player"));
+                            ServerPlayer target = FireFlow.server.getPlayerList().getPlayer(StringArgumentType.getString(ctx, "player"));
                             if (target == null) {
-                                ctx.getSource().sendMessage(Text.literal("Player not found!").formatted(Formatting.RED));
+                                ctx.getSource().sendSystemMessage(Component.literal("Player not found!").withColor(TextColor.RED));
                                 return Command.SINGLE_SUCCESS;
                             }
 
@@ -52,33 +52,33 @@ public class LocateCommand {
      * @param ctx The command context
      * @return The success code, hardcoded to <code>Command.SINGLE_SUCCESS</code>
      */
-    private static int locateAndRespond(ServerPlayerEntity target, CommandContext<ServerCommandSource> ctx) {
+    private static int locateAndRespond(ServerPlayer target, CommandContext<CommandSourceStack> ctx) {
         Space space = SpaceManager.getSpaceForPlayer(target);
         ModeManager.Mode mode = ModeManager.getFor(target);
 
         switch (mode) {
             case LOBBY: {
-                ctx.getSource().sendMessage(Text.literal(
-                        target.getGameProfile().getName() + " is currently in the lobby."
-                ).formatted(Formatting.GREEN));
+                ctx.getSource().sendSystemMessage(Component.literal(
+                        target.getGameProfile().name() + " is currently in the lobby."
+                ).withColor(TextColor.GREEN));
                 break;
             }
             case PLAY: {
-                ctx.getSource().sendMessage(Text.literal(
-                        target.getGameProfile().getName() + " is currently playing on space #" + space.info.id
-                ).formatted(Formatting.GREEN));
+                ctx.getSource().sendSystemMessage(Component.literal(
+                        target.getGameProfile().name() + " is currently playing on space #" + space.info.id
+                ).withColor(TextColor.GREEN));
                 break;
             }
             case CODE: {
-                ctx.getSource().sendMessage(Text.literal(
-                        target.getGameProfile().getName() + " is currently coding on space #" + space.info.id
-                ).formatted(Formatting.GREEN));
+                ctx.getSource().sendSystemMessage(Component.literal(
+                        target.getGameProfile().name() + " is currently coding on space #" + space.info.id
+                ).withColor(TextColor.GREEN));
                 break;
             }
             case BUILD: {
-                ctx.getSource().sendMessage(Text.literal(
-                        target.getGameProfile().getName() + " is currently building on space #" + space.info.id
-                ).formatted(Formatting.GREEN));
+                ctx.getSource().sendSystemMessage(Component.literal(
+                        target.getGameProfile().name() + " is currently building on space #" + space.info.id
+                ).withColor(TextColor.GREEN));
                 break;
             }
         }

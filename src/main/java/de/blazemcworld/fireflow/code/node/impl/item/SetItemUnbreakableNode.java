@@ -3,10 +3,10 @@ package de.blazemcworld.fireflow.code.node.impl.item;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.ItemType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Unit;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class SetItemUnbreakableNode extends Node {
 
@@ -20,9 +20,9 @@ public class SetItemUnbreakableNode extends Node {
         updated.valueFrom((ctx) -> {
             ItemStack i = item.getValue(ctx);
             if (unbreakable.getValue(ctx)) {
-                i.set(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE);
+                i.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
             } else {
-                i.remove(DataComponentTypes.UNBREAKABLE);
+                i.remove(DataComponents.UNBREAKABLE);
             }
             return i;
         });

@@ -3,7 +3,7 @@ package de.blazemcworld.fireflow.code.node.impl.number;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.StringType;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class RandomNumberNode extends Node {
     public RandomNumberNode() {

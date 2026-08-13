@@ -3,9 +3,9 @@ package de.blazemcworld.fireflow;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.node.NodeList;
 import de.blazemcworld.fireflow.code.node.option.InputOptions;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.TextColor;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.item.Item;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -139,11 +139,11 @@ public class WikiGenerator {
     }
 
     private static String icon(Item m, String size) {
-        return "<img src=\"https://rawcdn.githack.com/Owen1212055/mc-assets/refs/heads/main/item-assets/" + Registries.ITEM.getId(m).getPath().toUpperCase() + ".png\" style=\"height: " + size + "; transform: translateY(0.1em);\">";
+        return "<img src=\"https://rawcdn.githack.com/Owen1212055/mc-assets/refs/heads/main/item-assets/" + BuiltInRegistries.ITEM.getKey(m).getPath().toUpperCase() + ".png\" style=\"height: " + size + "; transform: translateY(0.1em);\">";
     }
 
     private static String colorStart(TextColor color) {
-        return "<span style=\"color: " + color.getHexCode() + " !important\">";
+        return "<span style=\"color: " + color.formatValue() + " !important\">";
     }
 
     private static String colorEnd() {

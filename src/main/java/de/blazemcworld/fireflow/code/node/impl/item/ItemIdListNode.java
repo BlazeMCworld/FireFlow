@@ -4,9 +4,9 @@ import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.ListType;
 import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.ListValue;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class ItemIdListNode extends Node {
 
     private static List<String> collect() {
         List<String> list = new ArrayList<>();
-        for (Identifier id : Registries.ITEM.getIds()) {
+        for (Identifier id : BuiltInRegistries.ITEM.keySet()) {
             list.add(id.getPath());
         }
         return list;

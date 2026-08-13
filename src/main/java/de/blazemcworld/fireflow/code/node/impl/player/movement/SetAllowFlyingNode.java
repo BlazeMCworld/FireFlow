@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.ConditionType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class SetAllowFlyingNode extends Node {
     public SetAllowFlyingNode() {
@@ -17,9 +17,9 @@ public class SetAllowFlyingNode extends Node {
         signal.onSignal((ctx) -> {
             player.getValue(ctx).tryUse(ctx, p -> {
                 boolean newValue = allow.getValue(ctx);
-                p.getAbilities().allowFlying = newValue;
+                p.getAbilities().mayfly = newValue;
                 if (!newValue) p.getAbilities().flying = false;
-                p.sendAbilitiesUpdate();
+                p.onUpdateAbilities();
             });
             ctx.sendSignal(next);
         });

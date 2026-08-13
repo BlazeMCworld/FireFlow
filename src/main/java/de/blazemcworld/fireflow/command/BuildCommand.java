@@ -7,43 +7,43 @@ import de.blazemcworld.fireflow.space.Space;
 import de.blazemcworld.fireflow.space.SpaceInfo;
 import de.blazemcworld.fireflow.space.SpaceManager;
 import de.blazemcworld.fireflow.util.ModeManager;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.server.level.ServerPlayer;
 
 public class BuildCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> cd) {
-        cd.register(CommandManager.literal("build")
+    public static void register(CommandDispatcher<CommandSourceStack> cd) {
+        cd.register(Commands.literal("build")
                 .executes(ctx -> {
-                    ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
+                    ServerPlayer player = CommandHelper.getPlayer(ctx.getSource());
                     Space space = CommandHelper.getSpace(player);
                     if (space == null) return Command.SINGLE_SUCCESS;
 
-                    if (!space.info.isOwnerOrBuilder(player.getUuid())) {
-                        player.sendMessage(Text.literal("You are not allowed to do that!").formatted(Formatting.RED));
+                    if (!space.info.isOwnerOrBuilder(player.getUUID())) {
+                        player.sendSystemMessage(Component.literal("You are not allowed to do that!").withColor(TextColor.RED));
                         return Command.SINGLE_SUCCESS;
                     }
 
                     ModeManager.move(player, ModeManager.Mode.BUILD, space);
                     return Command.SINGLE_SUCCESS;
                 })
-                .then(CommandManager.argument("id", IntegerArgumentType.integer())
+                .then(Commands.argument("id", IntegerArgumentType.integer())
                         .executes(ctx -> {
-                            ServerPlayerEntity player = CommandHelper.getPlayer(ctx.getSource());
+                            ServerPlayer player = CommandHelper.getPlayer(ctx.getSource());
                             if (player == null) return Command.SINGLE_SUCCESS;
 
                             int id = IntegerArgumentType.getInteger(ctx, "id");
                             SpaceInfo info = SpaceManager.getInfo(id);
                             if (info == null) {
-                                player.sendMessage(Text.literal("Could not find space with id " + id + "!").formatted(Formatting.RED));
+                                player.sendSystemMessage(Component.literal("Could not find space with id " + id + "!").withColor(TextColor.RED));
                                 return Command.SINGLE_SUCCESS;
                             }
 
-                            if (!info.isOwnerOrBuilder(player.getUuid())) {
-                                player.sendMessage(Text.literal("You are not allowed to do that!").formatted(Formatting.RED));
+                            if (!info.isOwnerOrBuilder(player.getUUID())) {
+                                player.sendSystemMessage(Component.literal("You are not allowed to do that!").withColor(TextColor.RED));
                                 return Command.SINGLE_SUCCESS;
                             }
 

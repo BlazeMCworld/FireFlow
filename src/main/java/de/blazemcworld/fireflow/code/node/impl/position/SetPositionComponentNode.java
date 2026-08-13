@@ -2,11 +2,11 @@ package de.blazemcworld.fireflow.code.node.impl.position;
 
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.NumberType;
-import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.PositionType;
+import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.value.Position;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 public class SetPositionComponentNode extends Node {
     public SetPositionComponentNode() {
@@ -22,9 +22,9 @@ public class SetPositionComponentNode extends Node {
             Position inputPos = position.getValue(ctx);
             double newValue = value.getValue(ctx);
             return switch (component.getValue(ctx)) {
-                case "X" -> new Position(new Vec3d(newValue, inputPos.xyz().y, inputPos.xyz().z), inputPos.pitch(), inputPos.yaw());
-                case "Y" -> new Position(new Vec3d(inputPos.xyz().x, newValue, inputPos.xyz().z), inputPos.pitch(), inputPos.yaw());
-                case "Z" -> new Position(new Vec3d(inputPos.xyz().x, inputPos.xyz().y, newValue), inputPos.pitch(), inputPos.yaw());
+                case "X" -> new Position(new Vec3(newValue, inputPos.xyz().y, inputPos.xyz().z), inputPos.pitch(), inputPos.yaw());
+                case "Y" -> new Position(new Vec3(inputPos.xyz().x, newValue, inputPos.xyz().z), inputPos.pitch(), inputPos.yaw());
+                case "Z" -> new Position(new Vec3(inputPos.xyz().x, inputPos.xyz().y, newValue), inputPos.pitch(), inputPos.yaw());
                 case "Pitch" -> new Position(inputPos.xyz(), (float) newValue, inputPos.yaw());
                 case "Yaw" -> new Position(inputPos.xyz(), inputPos.pitch(), (float) newValue);
                 default -> inputPos;

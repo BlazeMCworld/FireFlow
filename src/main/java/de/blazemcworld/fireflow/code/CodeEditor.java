@@ -18,18 +18,18 @@ import de.blazemcworld.fireflow.code.type.AllTypes;
 import de.blazemcworld.fireflow.code.widget.*;
 import de.blazemcworld.fireflow.space.Space;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.entity.decoration.InteractionEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Interaction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +43,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class CodeEditor {
     public final Space space;
-    public final CodeWorld world;
+    public final CodeLevel level;
     public final Set<Widget> rootWidgets = new HashSet<>();
     public final Pathfinder pathfinder = new Pathfinder(this);
     public final HashMap<EditOrigin, Set<Widget>> lockedWidgets = new HashMap<>();
@@ -53,31 +53,31 @@ public class CodeEditor {
     private final Set<EditOrigin> webUsers = new HashSet<>();
     private final List<Runnable> tickTasks = new ArrayList<>();
 
-    public CodeEditor(Space space, CodeWorld world) {
+    public CodeEditor(Space space, CodeLevel level) {
         this.space = space;
-        this.world = world;
+        this.level = level;
         codePath = space.path().resolve("code.json");
     }
 
     public void enterCode(EditOrigin origin) {
-        ServerPlayerEntity player = origin.getPlayer();
+        ServerPlayer player = origin.getPlayer();
         if (player != null) {
             player.getAbilities().flying = true;
-            player.getAbilities().allowFlying = true;
-            player.sendAbilitiesUpdate();
+            player.getAbilities().mayfly = true;
+            player.onUpdateAbilities();
 
-            InteractionEntity helper = new InteractionEntity(EntityType.INTERACTION, world);
-            helper.setInteractionHeight(-0.5f);
-            helper.setInteractionWidth(-0.5f);
-            helper.setPosition(Vec3d.ZERO);
-            world.spawnEntity(helper);
+            Interaction helper = new Interaction(EntityTypes.INTERACTION, level);
+            helper.setHeight(-0.5f);
+            helper.setWidth(-0.5f);
+            helper.setPos(Vec3.ZERO);
+            level.addFreshEntity(helper);
             helper.vehicle = player;
             player.addPassenger(helper);
 
-            DisplayEntity.TextDisplayEntity name = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
+            Display.TextDisplay name = new Display.TextDisplay(EntityTypes.TEXT_DISPLAY, level);
             name.setText(player.getDisplayName());
-            name.setBillboardMode(DisplayEntity.BillboardMode.CENTER);
-            world.spawnEntity(name);
+            name.setBillboardConstraints(Display.BillboardConstraints.CENTER);
+            level.addFreshEntity(name);
             name.vehicle = player;
             player.addPassenger(name);
         }
@@ -89,11 +89,11 @@ public class CodeEditor {
     }
 
     public void exitCode(EditOrigin origin) {
-        ServerPlayerEntity player = origin.getPlayer();
+        ServerPlayer player = origin.getPlayer();
         if (player != null) {
-            for (Entity helper : new ArrayList<>(player.getPassengerList())) {
-                if (helper instanceof InteractionEntity
-                        || helper instanceof DisplayEntity.TextDisplayEntity) {
+            for (Entity helper : new ArrayList<>(player.getPassengers())) {
+                if (helper instanceof Interaction
+                        || helper instanceof Display.TextDisplay) {
                     helper.remove(Entity.RemovalReason.DISCARDED);
                 }
             }
@@ -144,15 +144,15 @@ public class CodeEditor {
     }
 
     public Optional<WidgetVec> getCodeCursor(EditOrigin origin) {
-        ServerPlayerEntity player = origin.getPlayer();
+        ServerPlayer player = origin.getPlayer();
         if (player == null) return origin.getCursor(this);
-        if (player.getWorld() != world) return Optional.empty();
-        if (player.getRotationVec(0).getZ() <= 0.1) return Optional.empty();
-        double scale = Math.abs(player.getZ() - 16) / player.getRotationVec(0).getZ();
-        Vec3d pos = player.getEyePos().add(player.getRotationVec(0).multiply(scale));
-        if (world.getBottomY() > pos.getY() || world.getTopYInclusive() + 1 < pos.getY()) return Optional.empty();
-        if (pos.getX() > 512 || pos.getX() < -512) return Optional.empty();
-        return Optional.of(new WidgetVec(this, pos.getX(), pos.getY()));
+        if (player.level() != level) return Optional.empty();
+        if (player.getViewVector(0).z <= 0.1) return Optional.empty();
+        double scale = Math.abs(player.getZ() - 16) / player.getViewVector(0).z;
+        Vec3 pos = player.getEyePosition().add(player.getViewVector(0).scale(scale));
+        if (level.getMinY() > pos.y || level.getMaxY() + 1 < pos.y) return Optional.empty();
+        if (pos.x > 512 || pos.x < -512) return Optional.empty();
+        return Optional.of(new WidgetVec(this, pos.x, pos.y));
     }
 
     public void addNode(EditOrigin player, String query, boolean isSearch) {
@@ -434,8 +434,8 @@ public class CodeEditor {
         FunctionDefinition function = tryGetFunction(player);
         if (function == null) return;
 
-        DataResult<Identifier> id = Identifier.validate(icon);
-        Optional<Item> item = id.isSuccess() ? Registries.ITEM.getOptionalValue(id.getOrThrow()) : Optional.empty();
+        DataResult<Identifier> id = Identifier.read(icon);
+        Optional<Item> item = id.isSuccess() ? BuiltInRegistries.ITEM.getOptional(id.getOrThrow()) : Optional.empty();
 
         if (item.isEmpty()) {
             player.sendError("Unknown item!");
@@ -735,20 +735,20 @@ public class CodeEditor {
         }
     }
 
-    public void authorizeWeb(String webId, ServerPlayerEntity approver) {
+    public void authorizeWeb(String webId, ServerPlayer approver) {
         for (EditOrigin origin : webUsers) {
             if (origin.tryAuth(webId)) {
-                approver.sendMessage(Text.literal("Authorized web to edit code!").formatted(Formatting.GREEN), false);
-                for (ServerPlayerEntity player : space.getPlayers()) {
-                    if (!space.info.isOwnerOrDeveloper(player.getUuid())) continue;
+                approver.sendSystemMessage(Component.literal("Authorized web to edit code!").withColor(TextColor.GREEN), false);
+                for (ServerPlayer player : space.playersAnyMode()) {
+                    if (!space.info.isOwnerOrDeveloper(player.getUUID())) continue;
                     if (player == approver) continue;
-                    player.sendMessage(Text.literal(approver.getGameProfile().getName() + " authorized a web editor request!").formatted(Formatting.YELLOW), false);
+                    player.sendSystemMessage(Component.literal(approver.getGameProfile().name() + " authorized a web editor request!").withColor(TextColor.YELLOW), false);
                 }
                 return;
             }
         }
 
-        approver.sendMessage(Text.literal("Could not find web editor with matching id!").formatted(Formatting.RED), false);
+        approver.sendSystemMessage(Component.literal("Could not find web editor with matching id!").withColor(TextColor.RED), false);
     }
 
     public void close() {

@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class SetPlayerFoodNode extends Node {
     public SetPlayerFoodNode() {
@@ -15,7 +15,7 @@ public class SetPlayerFoodNode extends Node {
         Input<Double> food = new Input<>("food", "Food", NumberType.INSTANCE);
         Output<Void> next = new Output<>("next", "Next", SignalType.INSTANCE);
         signal.onSignal((ctx) -> {
-            player.getValue(ctx).tryUse(ctx, p -> p.getHungerManager().setFoodLevel(food.getValue(ctx).intValue()));
+            player.getValue(ctx).tryUse(ctx, p -> p.getFoodData().setFoodLevel(food.getValue(ctx).intValue()));
             ctx.sendSignal(next);
         });
     }

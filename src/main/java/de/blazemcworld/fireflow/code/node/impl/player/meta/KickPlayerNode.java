@@ -5,7 +5,7 @@ import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
 import de.blazemcworld.fireflow.util.ModeManager;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class KickPlayerNode extends Node {
 
@@ -18,7 +18,7 @@ public class KickPlayerNode extends Node {
 
         signal.onSignal((ctx) -> {
             player.getValue(ctx).tryUse(ctx, p -> {
-                if (ctx.evaluator.space.info.isOwnerOrDeveloper(p.getUuid())) {
+                if (ctx.evaluator.space.info.isOwnerOrDeveloper(p.getUUID())) {
                     ModeManager.move(p, ModeManager.Mode.CODE, ctx.evaluator.space);
                 } else {
                     ModeManager.move(p, ModeManager.Mode.LOBBY, null);

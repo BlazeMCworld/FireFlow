@@ -4,12 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.blazemcworld.fireflow.code.web.WebEditor;
 import de.blazemcworld.fireflow.code.widget.WidgetVec;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -17,18 +16,18 @@ import java.util.WeakHashMap;
 
 public class EditOrigin {
 
-    private static final WeakHashMap<ServerPlayerEntity, EditOrigin> playerOrigins = new WeakHashMap<>();
+    private static final WeakHashMap<ServerPlayer, EditOrigin> playerOrigins = new WeakHashMap<>();
     private static final WeakHashMap<WebEditor.WebUser, EditOrigin> webOrigins = new WeakHashMap<>();
 
-    private ServerPlayerEntity player;
+    private ServerPlayer player;
     private final WebEditor.WebUser web;
 
-    private EditOrigin(ServerPlayerEntity player, WebEditor.WebUser web) {
+    private EditOrigin(ServerPlayer player, WebEditor.WebUser web) {
         this.player = player;
         this.web = web;
     }
 
-    public static EditOrigin ofPlayer(ServerPlayerEntity player) {
+    public static EditOrigin ofPlayer(ServerPlayer player) {
         EditOrigin origin = playerOrigins.computeIfAbsent(player, p -> new EditOrigin(p, null));
         origin.player = player; // ServerPlayerEntities can be recreated, having the same hash code
         return origin;
@@ -38,7 +37,7 @@ public class EditOrigin {
         return webOrigins.computeIfAbsent(web, w -> new EditOrigin(null, w));
     }
 
-    public @Nullable ServerPlayerEntity getPlayer() {
+    public @Nullable ServerPlayer getPlayer() {
         return player;
     }
 
@@ -50,19 +49,19 @@ public class EditOrigin {
     }
 
     public void sendError(String msg) {
-        if (player != null) player.sendMessage(Text.literal(msg).formatted(Formatting.RED));
+        if (player != null) player.sendSystemMessage(Component.literal(msg).withColor(TextColor.RED));
         if (web != null) web.sendError(msg);
     }
 
     public void sendInfo(String msg) {
-        if (player != null) player.sendMessage(Text.literal(msg).formatted(Formatting.YELLOW));
+        if (player != null) player.sendSystemMessage(Component.literal(msg).withColor(TextColor.YELLOW));
         if (web != null) web.sendInfo(msg);
     }
 
     public void sendSnippet(String data) {
         if (player != null) {
-            player.sendMessage(Text.literal("Snippet created! Click to copy.").setStyle(
-                    Style.EMPTY.withClickEvent(new ClickEvent.CopyToClipboard(data)).withColor(TextColor.fromFormatting(Formatting.AQUA))
+            player.sendSystemMessage(Component.literal("Snippet created! Click to copy.").setStyle(
+                    Style.EMPTY.withClickEvent(new ClickEvent.CopyToClipboard(data)).withColor(TextColor.AQUA)
             ));
         }
         if (web != null) {

@@ -7,8 +7,8 @@ import de.blazemcworld.fireflow.code.type.NumberType;
 import de.blazemcworld.fireflow.code.type.PlayerType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class OnPlayerKillPlayerNode extends Node {
 
@@ -29,7 +29,7 @@ public class OnPlayerKillPlayerNode extends Node {
         amount.valueFromScope();
     }
 
-    public boolean onPlayerKillPlayer(CodeEvaluator codeEvaluator, ServerPlayerEntity attacker, ServerPlayerEntity victim, float damage, boolean cancel) {
+    public boolean onPlayerKillPlayer(CodeEvaluator codeEvaluator, ServerPlayer attacker, ServerPlayer victim, float damage, boolean cancel) {
         CodeThread thread = codeEvaluator.newCodeThread();
         thread.context.cancelled = cancel;
         thread.setScopeValue(this.attacker, new PlayerValue(attacker));

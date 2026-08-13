@@ -6,7 +6,7 @@ import de.blazemcworld.fireflow.code.type.PositionType;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.value.EntityValue;
 import de.blazemcworld.fireflow.code.value.Position;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 import java.util.Set;
 
@@ -23,7 +23,7 @@ public class TeleportEntityNode extends Node {
         signal.onSignal((ctx) -> {
             entity.getValue(ctx).use(ctx, e -> {
                 Position pos = position.getValue(ctx);
-                e.teleport(ctx.evaluator.world, pos.xyz().x, pos.xyz().y, pos.xyz().z, Set.of(), pos.yaw(), pos.pitch(), false);
+                e.teleportTo(ctx.evaluator.level, pos.xyz().x, pos.xyz().y, pos.xyz().z, Set.of(), pos.yaw(), pos.pitch(), false);
             });
             ctx.sendSignal(next);
         });

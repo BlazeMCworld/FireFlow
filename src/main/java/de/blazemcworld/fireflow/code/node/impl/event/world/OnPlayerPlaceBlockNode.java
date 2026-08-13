@@ -5,18 +5,18 @@ import de.blazemcworld.fireflow.code.CodeThread;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.*;
 import de.blazemcworld.fireflow.code.value.PlayerValue;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.phys.Vec3;
 
 public class OnPlayerPlaceBlockNode extends Node {
 
     private final Output<Void> signal;
     private final Output<PlayerValue> player;
-    private final Output<Vec3d> position;
+    private final Output<Vec3> position;
     private final Output<ItemStack> item;
     private final Output<Boolean> isMainHand;
 
@@ -39,14 +39,14 @@ public class OnPlayerPlaceBlockNode extends Node {
         return new OnPlayerPlaceBlockNode();
     }
 
-    public boolean onPlaceBlock(CodeEvaluator codeEvaluator, ItemPlacementContext context, boolean cancel) {
-        if (context.getPlayer() instanceof ServerPlayerEntity p) {
+    public boolean onPlaceBlock(CodeEvaluator codeEvaluator, BlockPlaceContext context, boolean cancel) {
+        if (context.getPlayer() instanceof ServerPlayer p) {
             CodeThread thread = codeEvaluator.newCodeThread();
             thread.context.cancelled = cancel;
             thread.setScopeValue(this.player, new PlayerValue(p));
-            thread.setScopeValue(this.position, Vec3d.of(context.getBlockPos()));
-            thread.setScopeValue(this.item, context.getStack());
-            thread.setScopeValue(this.isMainHand, context.getHand() == Hand.MAIN_HAND);
+            thread.setScopeValue(this.position, Vec3.atCenterOf(context.getClickedPos()));
+            thread.setScopeValue(this.item, context.getItemInHand());
+            thread.setScopeValue(this.isMainHand, context.getHand() == InteractionHand.MAIN_HAND);
             thread.sendSignal(signal);
             thread.clearQueue();
             return thread.context.cancelled;

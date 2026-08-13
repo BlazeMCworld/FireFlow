@@ -4,7 +4,7 @@ import de.blazemcworld.fireflow.code.VariableStore;
 import de.blazemcworld.fireflow.code.node.Node;
 import de.blazemcworld.fireflow.code.type.SignalType;
 import de.blazemcworld.fireflow.code.type.StringType;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 
 public class RemoveVariableNode extends Node {
 

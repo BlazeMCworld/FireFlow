@@ -8,7 +8,7 @@ import de.blazemcworld.fireflow.code.type.StringType;
 import de.blazemcworld.fireflow.code.type.WireType;
 import de.blazemcworld.fireflow.code.value.ListValue;
 import de.blazemcworld.fireflow.code.widget.NodeWidget;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
